@@ -1,0 +1,33 @@
+
+FitSettings:
+	         SU3	False
+	 constrained	True
+	  correlated	True
+	    datatype	bs
+	   decayname	B2K
+	ensemblesize	3
+	  formfactor	perp
+	     hardpiK	False
+	nexperiments	30
+
+Correlated Least Squares Fit:
+	chi2/dof [dof] = 0.57 [30]
+	Q = 0.97
+
+Parameters:
+	   C0	0.684(95)
+	   CE	-0.26(24)
+	  CE2	-0.09(31)
+	  CE3	0.27(32)
+	  CE4	-0.20(20)
+	  Ca2	0.47(39)
+	 Ca2E	-0.28(46)
+	Ca2E2	0.27(38)
+	  Ca4	0.35(55)
+	   Ch	-0.06(19)
+	   Cl	0.10(31)
+	  Cl2	-0.85(59)
+	  ClE	-0.003(353)
+	 ClE2	0.04(42)
+	 Cla2	-0.15(72)
+	  gpi	0.4581(65)
