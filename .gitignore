@@ -1,0 +1,3 @@
+*.pyc
+settings/fit.py
+chifit_B2*
