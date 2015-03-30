@@ -8,6 +8,11 @@
 
 ---
 
++ Version 0.1.1
+  + added example plot
+  + added run suggestion for setting fit line lengths
+  + fixed plot save name in `writers.py`
+
 + Version 0.1.0
   + initial release of beta version
 
