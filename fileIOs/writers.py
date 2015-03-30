@@ -210,7 +210,7 @@ def plot_save(datetime=None):
         dt = ''
     else:
         dt = '_' + datetime
-    plt.savefig('result_' + decayname + '_' + formfactor + dt + '.pdf')
+    plt.savefig('result' + dt + '.pdf')
 
 
 def sigfig(x, n=6):

@@ -28,9 +28,15 @@ Usage Suggestions
     $ python chifit.py B2K perp bs --constrained --correlated
     ```
 
-+ **load results** from previous run (at datetime=`dt`) and plot:
++ **load results** from previous run (at datetime=`dt`) and **plot**:
     ```
     $ python chifit.py B2K perp bs -c -C --load chifit_B2K_perp/result_{dt} --plot
+    ```
+
++ **load results** from previous run (at datetime=`dt`) and plot with custom
+**fit length** (`min,max,numpoints`):
+    ```
+    $ python chifit.py B2K perp bs -c -C -L chifit_B2K_perp/result_{dt} -p --length 0.5,4.0,100
     ```
 
 + **include** only first 100 bootstrap **samples** (as quick test), run fit,
