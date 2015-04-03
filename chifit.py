@@ -26,11 +26,11 @@ def main():
     (default save directory: ./results_{decayname}_{formfactor})."""
     datetime = dt.now().strftime('%Y%m%d-%H%M')
     scriptdir = os.path.dirname(os.path.realpath(__file__))
+    workdir = os.getcwd()
     args = read.args(scriptdir)
     from calculators import chilogs, stats
     from fileIOs import writers as write
     from fitters import lsq as fitlsq
-    workdir = os.getcwd()
     os.chdir(args.datadir)
     inputs = read.inputs(args.inputsource, args.xpmtlist)
     data = read.data(args.datasource, args.xpmtlist, args.nexperiments_source,
