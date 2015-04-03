@@ -55,10 +55,11 @@ def main():
         write.results(params_result, chi2, dof, Q, datetime=datetime)
     if args.plot:
         fig = plt.figure()
-        write.plot_data(inputs, data)
-        write.plot_fitavgs(inputs, params_result, args.fitlength)
+        write.plot_data(inputs, data, datetime=datetime)
+        write.plot_fitavgs(inputs, params_result, args.fitlength,
+                           datetime=datetime)
         write.plot_fit('continuum', inputs, params_result, args.fitlength,
-                       color='0.5', label='continuum')
+                       color='0.5', label='continuum', datetime=datetime)
         write.plot_labels(legendloc='upper right', legendsize='8')
         fig.tight_layout()
         write.plot_save(datetime=datetime)

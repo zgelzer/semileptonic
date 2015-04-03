@@ -115,8 +115,8 @@ def args_parse(args, maindir):
     if (args.include is not None) and (args.exclude is not None):
         raise ValueError('cannot specify both include and exclude experiment ' +
                          'lists')
-    args.nexperiments_source = len(np.loadtxt(args.inputsource, skiprows=1))
-    args.nsamples_source = int(len(np.loadtxt(args.datasource, skiprows=1)) /
+    args.nexperiments_source = len(np.loadtxt(args.inputsource))
+    args.nsamples_source = int(len(np.loadtxt(args.datasource)) /
                                args.nexperiments_source)
     if args.include is not None:
         args.include = [int(xpmt) for xpmt in args.include.split(',')]
@@ -179,18 +179,18 @@ def array2dict(array, keys):
 
 
 def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source,
-         skiprows=1, usecols=(2,)):
+         usecols=(2,)):
     """Reads in data from columns usecols in source according to experiment list
     xpmtlist, sampling only the desired number of samples nsamples from the
     original data (whose shape is (nexperiments_source, nsamples_source))."""
-    data = np.loadtxt(source, skiprows=skiprows, usecols=usecols)
+    data = np.loadtxt(source, usecols=usecols)
     data = data.reshape((nexperiments_source, nsamples_source))
     return data[xpmtlist, :nsamples]
 
 
-def inputs(source, xpmtlist, skiprows=1):
+def inputs(source, xpmtlist):
     """Reads in inputs from source according to experiment list xpmtlist."""
-    source = np.loadtxt(source, skiprows=skiprows)
+    source = np.loadtxt(source)
     inputs = np.array([{'xpmt': xpmt} for xpmt in xpmtlist])
     for i, xpmt in enumerate(xpmtlist):
         inputs[i]['a_fm'] = float(source[xpmt][0])
@@ -225,14 +225,14 @@ def params():
     return params_apriori, params_initval
 
 
-def results(source, skiprows=17, usecols=(1,), delimiter='\t'):
+def results(source, usecols=(1,), delimiter='\t'):
     """Loads array of parameters from pickled source and returns them as a
     dictionary with keys from text source. Sorting of keys should match that of
     the original source parameters."""
     stdout.write('\nReading results from {}\n'.format(
                             os.path.dirname(os.path.realpath(source + '.txt'))))
-    dictkeys = np.loadtxt(source + '.txt', skiprows=skiprows, usecols=usecols,
-                          delimiter=delimiter, dtype=str)
+    dictkeys = np.loadtxt(source + '.txt', usecols=usecols, delimiter=delimiter,
+                          dtype=str)
     dictkeys = sorted([key.strip() for key in dictkeys])
     return array2dict(gvar(pickle.load(open(source + '.p', 'rb'))), dictkeys)
 
