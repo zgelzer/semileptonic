@@ -44,3 +44,9 @@ def resample(data, niter=None):
                          len(data)).astype(int)
     return data[resamples]
 
+
+def unsample(bsdata):
+    """Reverses bootstrap operation on bootstrapped data bsdata."""
+    return np.array([bsdata[i] for i in range(len(bsdata)) if bsdata[i] in
+                     bsdata[(i + 1):]])
+
