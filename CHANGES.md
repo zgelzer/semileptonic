@@ -13,26 +13,20 @@
 -->
 
 > + *Possible changes in a future release:*
+    + add ability to save values from plot data/fits
+    + add comprehensive info to all subfunction docstrings
     + add abilities to create and interact with jackknifed data
     + parallelize least squares fitter
 
 ---
 
 <!---
-To do:
-1. commit changes of specific files, in groups acc. to changes with same message
-2. add to docstrings
-3. update CHANGES.md
-4. commit all files, message='added info to all docstrings'
-5. tag this last change with v0.2.0, message='version 0.2.0'
-6. push changes with _-tags
--->
-
 + Version 0.2.0
   + added ability to save values from plot data/fits to formatted `.dat` files
   + changed handling of `.dat` headers
   + added example `result*.dat` files
   + added comprehensive info to all subfunction docstrings
+-->
 
 + Version 0.1.1
   + added example plot
