@@ -27,17 +27,24 @@ from sys import stdout
 import pickle
 
 
+def date_time(use, sep='_'):
+    """Returns string of date/time, to be appended at the end of file names if
+    use is not False."""
+    if use is None:
+        return sep + dt.now().strftime('%Y%m%d-%H%M')
+    elif use is False:
+        return ''
+    elif type(use) is str:
+        return sep + use
+    else:
+        raise ValueError('use must be None, False, or string')
+
+
 def params(avgs, info, datetime=None):
     """Pickles parameter data, where avgs are their means and info is either
     their standard deviations or their covariance matrix, saving result with
     date/time appended if datetime is not False."""
-    if datetime is None:
-        dt = '_' + dt.now().strftime('%Y%m%d-%H%M')
-    elif datetime is False:
-        dt = ''
-    else:
-        dt = '_' + datetime
-    pickle.dump((avgs, info), open('result' + dt + '.p', 'wb'))
+    pickle.dump((avgs, info), open('result' + date_time(datetime) + '.p', 'wb'))
 
 
 def results(params, chi2, dof, Q, stdouts=True, fileouts=True,
@@ -46,37 +53,31 @@ def results(params, chi2, dof, Q, stdouts=True, fileouts=True,
     file, saving the latter with date/time appended if datetime is not False."""
     if fileouts:
         stdout.write('\nWriting results to {}\n'.format(getcwd()))
-    output = '\nFitSettings:\n'
+    output = '#\n# FitSettings:\n'
     for setting in sorted(fit.__all__):
-        output += '\t{0}\t{1}\n'.format(setting.rjust(12), eval(setting))
+        output += '#\t{0}\t{1}\n'.format(setting.rjust(12), eval(setting))
     if correlated:
-        output += '\nCorrelated'
+        output += '#\n# Correlated'
     else:
-        output += '\nUncorrelated'
+        output += '#\n# Uncorrelated'
     output += ' Least Squares Fit:\n'
-    output += '\tchi2/dof [dof] = {0} [{1}]\n'.format(sigfig(chi2 / dof, n=2),
+    output += '#\tchi2/dof [dof] = {0} [{1}]\n'.format(sigfig(chi2 / dof, n=2),
                                                      int(np.round(dof)))
-    output += '\tQ = {}\n'.format(sigfig(Q, n=2))
-    output += '\nParameters:\n'
+    output += '#\tQ = {}\n'.format(sigfig(Q, n=2))
+    output += '#\n# Parameters:\n'
     for param in sorted(params.keys()):
         output += '\t{0}\t{1}\n'.format(param.rjust(5), params[param])
     output += '\n'
     if stdouts:
         stdout.write(output)
     if fileouts:
-        if datetime is None:
-            dt = '_' + dt.now().strftime('%Y%m%d-%H%M')
-        elif datetime is False:
-            dt = ''
-        else:
-            dt = '_' + datetime
-        outfile = open('result' + dt + '.txt', 'w')
+        outfile = open('result' + date_time(datetime) + '.txt', 'w')
         outfile.write(output)
         outfile.close()
 
 
 def plot_data(inputs, data, markershape='o', markerfill='none', colormap=None,
-              axis=None):
+              axis=None, datetime=None):
     """Plots data vs. inputs for all experiments."""
     axis = axis if axis is not None else plt.gca()
     E2s = np.array([inputs[xpmt]['E']**2 for xpmt in range(nexperiments)])
@@ -84,24 +85,38 @@ def plot_data(inputs, data, markershape='o', markerfill='none', colormap=None,
         from calculators.stats.bootstrap import avg, err
     elif datatype == 'raw':
         from calculators.stats.raw import avg, err
-    data_avgs = np.asarray([avg(data[xpmt, :]) for xpmt in range(nexperiments)])
-    data_errs = np.asarray([err(data[xpmt, :]) for xpmt in range(nexperiments)])
+    data_avg = np.asarray([avg(data[xpmt, :]) for xpmt in range(nexperiments)])
+    data_err = np.asarray([err(data[xpmt, :]) for xpmt in range(nexperiments)])
     colormap = (colormap if colormap is not None else
                 plt.get_cmap('gist_rainbow'))
     nensembles = int(nexperiments / ensemblesize)
     colors = [colormap(1. * ensemble / nensembles) for ensemble in
               range(nensembles)]
+    aml_amhs = []
     for ensemble, xpmt in enumerate(range(0, nexperiments, ensemblesize)):
-        label = (r'$a m_\ell / a m_h$ = ' +
-                 str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['ml_val'])) +
-                 ' / ' +
-                 str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['mh_val'])))
+        aml = str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['ml_val'], n=3))
+        amh = str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['mh_val'], n=3))
+        label = r'$a m_\ell / a m_h$ = ' + aml + ' / ' + amh
         for ensxpmt in range(ensemblesize):
-            plt.errorbar(E2s[xpmt + ensxpmt], data_avgs[xpmt + ensxpmt],
-                         yerr=data_errs[xpmt + ensxpmt], label=label,
+            plt.errorbar(E2s[xpmt + ensxpmt], data_avg[xpmt + ensxpmt],
+                         yerr=data_err[xpmt + ensxpmt], label=label,
                          color=colors[ensemble], fmt=markershape,
                          fillstyle=markerfill)
             label = None
+            aml_amhs.append(str(aml + ' / ' + amh).ljust(18))
+    outputs = np.empty(nexperiments, dtype=[('aml_amh', 'a18'),
+                                            ('E2', float),
+                                            ('ff_avg', float),
+                                            ('ff_err', float)])
+    outputs['aml_amh'] = aml_amhs
+    outputs['E2'] = E2s
+    outputs['ff_avg'] = data_avg
+    outputs['ff_err'] = data_err
+    np.savetxt('result' + date_time(datetime) + '.dat', outputs,
+               fmt=('%18s', '%.6e', '%.6e', '%.6e'), delimiter='  ',
+               header='  '.join(['a*ml / a*mh'.ljust(16), 'E2'.ljust(12),
+                                 'ff_avg'.ljust(12), 'ff_err'.ljust(12)]))
+
 
 
 def plot_errfill(x, y, yerr, color=None, label=None, alphafill=0.3, axis=None):
@@ -121,7 +136,7 @@ def plot_errfill(x, y, yerr, color=None, label=None, alphafill=0.3, axis=None):
 
 
 def plot_fit(lattspace, inputs, params, linelength, color=None, label=None,
-             linewidth=1.0, colormap=None, axis=None):
+             linewidth=1.0, colormap=None, axis=None, datetime=None):
     """Plots fit line with given length linelength and lattice spacing string
     lattspace, according to given inputs and fit parameter results params."""
     axis = axis if axis is not None else plt.gca()
@@ -131,11 +146,10 @@ def plot_fit(lattspace, inputs, params, linelength, color=None, label=None,
                              range(nexperiments)])[0][-1]
         fit_inputs = inputs[fit_xpmt]
     else:
-        from settings.constants import ml_continuum, mh_continuum
+        from settings.constants import r1_continuum, ml_continuum, mh_continuum
         fit_inputs = np.array([{'extrapolation': 'continuum'}])
-        for param in inputs[0].keys():
-            fit_inputs[0][param] = inputs[0][param]
         fit_inputs[0]['a_fm'] = 0
+        fit_inputs[0]['a'] = 1 / r1_continuum
         fit_inputs[0]['ml_sea'] = ml_continuum
         fit_inputs[0]['ml_val'] = ml_continuum
         fit_inputs[0]['mh_sea'] = mh_continuum
@@ -145,22 +159,30 @@ def plot_fit(lattspace, inputs, params, linelength, color=None, label=None,
         fit_E2s = np.linspace(min(E2s), max(E2s), num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
         fit_E2s = np.linspace(linelength[0], linelength[1], num=linelength[2])
-    fit_ff_avgs = np.empty_like(fit_E2s)
-    fit_ff_errs = np.empty_like(fit_E2s)
-    fit_ff_gvars = []
+    fit_ffs_avg = np.empty_like(fit_E2s)
+    fit_ffs_err = np.empty_like(fit_E2s)
+    fit_ffs_gvar = []
     for E2 in fit_E2s:
         fit_inputs[0]['E'] = sqrt(E2)
-        fit_ff_gvars.append(chiral.fitfcn(fit_inputs, params, nouts=1)[0])
-    fit_ff_avgs = np.array([fit_ff_gvars[E2index].mean for E2index in
+        fit_ffs_gvar.append(chiral.fitfcn(fit_inputs, params, nouts=1)[0])
+    fit_ffs_avg = np.array([fit_ffs_gvar[E2index].mean for E2index in
                             range(len(fit_E2s))])
-    fit_ff_errs = np.array([fit_ff_gvars[E2index].sdev for E2index in
+    fit_ffs_err = np.array([fit_ffs_gvar[E2index].sdev for E2index in
                             range(len(fit_E2s))])
-    plot_errfill(fit_E2s, fit_ff_avgs, fit_ff_errs, color=color, label=label,
+    plot_errfill(fit_E2s, fit_ffs_avg, fit_ffs_err, color=color, label=label,
                  alphafill=None, axis=axis)
+    aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
+    amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
+    np.savetxt('result_fit' + date_time(datetime) + '.dat',
+               np.vstack((fit_E2s, fit_ffs_avg, fit_ffs_err)).T,
+               fmt=('%.6e', '%.6e', '%.6e'), delimiter='  ',
+               header='a*ml / a*mh = {}\n'.format(aml + ' / ' + amh) +
+                      '  '.join(['E2'.ljust(10), 'ff_avg'.ljust(12),
+                                 'ff_err'.ljust(12)]))
 
 
 def plot_fitavgs(inputs, params, linelength, color=None, label=None,
-                 linewidth=1.0, colormap=None, axis=None):
+                 linewidth=1.0, colormap=None, axis=None, datetime=None):
     """Plots fit lines with given length linelength for all experiments,
     according to given inputs and fit parameter results params."""
     axis = axis if axis is not None else plt.gca()
@@ -177,6 +199,7 @@ def plot_fitavgs(inputs, params, linelength, color=None, label=None,
     params_avg = {}
     for param in params.keys():
         params_avg[param] = params[param].mean
+    outputs = np.empty((nensembles, len(fit_E2s)))
     for ensemble in range(nensembles):
         fit_ffs = np.empty_like(fit_E2s)
         fit_inputs = np.array([{'ensemble': ensemble}])
@@ -187,6 +210,13 @@ def plot_fitavgs(inputs, params, linelength, color=None, label=None,
             fit_ffs[E2index] = chiral.fitfcn(fit_inputs, params_avg, nouts=1)[0]
         axis.plot(fit_E2s, fit_ffs, color=colors[ensemble], label=label,
                   linewidth=linewidth)
+        outputs[ensemble] = fit_ffs
+    outputs = np.vstack((fit_E2s, outputs)).T
+    np.savetxt('result_fits' + date_time(datetime) + '.dat', outputs,
+               fmt='%.6e', delimiter='  ',
+               header='  '.join(['E2'.ljust(10)] +
+                                ['ff_avg(e={})'.format(ens).ljust(12)
+                                 for ens in range(nensembles)]))
 
 
 def plot_labels(legendloc='upper right', legendsize='8'):
@@ -204,13 +234,7 @@ def plot_labels(legendloc='upper right', legendsize='8'):
 
 def plot_save(datetime=None):
     """Saves plot with date/time appended if datetime is not False."""
-    if datetime is None:
-        dt = '_' + dt.now().strftime('%Y%m%d-%H%M')
-    elif datetime is False:
-        dt = ''
-    else:
-        dt = '_' + datetime
-    plt.savefig('result' + dt + '.pdf')
+    plt.savefig('result' + date_time(datetime) + '.pdf')
 
 
 def sigfig(x, n=6):
