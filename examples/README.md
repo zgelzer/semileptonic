@@ -1,3 +1,17 @@
+<!---
+  Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
+  Copyright (C) 2015 Zechariah Gelzer.
+ 
+  This program is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or any later version (see
+  <http://www.gnu.org/licenses/>).
+ 
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+-->
+
 Built-In Documentation
 ----------------------
 
@@ -61,28 +75,19 @@ File Tree
 ---------
 
 + **examples**: Contains example inputs and outputs for use with `chifit.py`.
+  + `README.md`: Details suggested runs of `chifit.py` and explains the
+    included examples.
+  + `result.dat`: Plot results of `Y.dat` vs `X.dat` with error bars.
   + `result.p`: Fit parameter results from previous run (for *f_perp* of
     bootstrapped *B* to *K* data) stored in pickled binary form.
   + `result.pdf`: Plot from previous run (for *f_perp* of bootstrapped *B* to
     *K* data).
   + `result.txt`: Fit results from stdout of previous run (for *f_perp* of
     bootstrapped *B* to *K* data).
-  + `README.md`: Details suggested runs of `chifit.py` and explains the
-    included examples.
+  + `result_fit.dat`: Plot results of continuum fit (for *f_perp* of
+    bootstrapped *B* to *K* data) with error bars.
+  + `result_fits.dat`: Plot results of ensemble fit averages (for *f_perp* of
+    bootstrapped *B* to *K* data)
   + `X.dat`: Inputs for each experiment, organized by ensemble.
   + `Y.dat`: Bootstrapped *B* to *K* form factors, with organization matching
     that of `X.dat`.
-
-<!---
-  Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
-  Copyright (C) 2015 Zechariah Gelzer.
- 
-  This program is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation, either version 3 of the License, or any later version (see
-  <http://www.gnu.org/licenses/>).
- 
-  This program is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
--->

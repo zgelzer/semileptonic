@@ -1,3 +1,17 @@
+<!---
+  Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
+  Copyright (C) 2015 Zechariah Gelzer.
+ 
+  This program is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or any later version (see
+  <http://www.gnu.org/licenses/>).
+ 
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+-->
+
 To Install:
 -----------
 
@@ -13,7 +27,7 @@ To Install:
   + To install any package with Anaconda, use `$ pip install {package_name}`
     from the terminal.
 3. Install this **semileptonic** project.
-  - *(Option a.)* Download this project as a zip; extract to desired directory.
+  + *(Option a.)* Download this project as a zip; extract to desired directory.
   + *(Option b.)* Install **git**; clone this project using `$ git clone
     https://github.com/zgelzer/semileptonic` in desired directory.
 4. *(Optional)* Examine the provided examples.
@@ -27,17 +41,3 @@ To Install:
 1. From the parent directory of **semileptonic**, run `$ rm -rf semileptonic`.
 2. *(Optional)* From the parent directory of your **Anaconda** distribution,
 run `$ rm -rf anaconda`.
-
-<!---
-  Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
-  Copyright (C) 2015 Zechariah Gelzer.
- 
-  This program is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation, either version 3 of the License, or any later version (see
-  <http://www.gnu.org/licenses/>).
- 
-  This program is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
--->
