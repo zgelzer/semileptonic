@@ -53,7 +53,6 @@ File Tree
       statistical estimates of unsampled/resampled data.
       + `bootstrap.py`: Defines functions for bootstrapping raw data and
         averaging bootstrapped data.
-      + `raw.py`: Defines functions for averaging raw data.
   + **examples**: Contains example inputs and outputs for use with `chifit.py`.
     + `README.md`: Details suggested runs of `chifit.py` and explains the
       included examples.

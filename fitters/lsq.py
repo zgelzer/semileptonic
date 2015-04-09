@@ -29,8 +29,6 @@ def one(inputs, data, fitfcn=fitfcn, priors=None, p0s=None):
     function (default: fitters.chiral.fitfcn) and one of priors or p0s."""
     if datatype == 'bs':
         from calculators.stats.bootstrap import avg, err
-    elif datatype == 'raw':
-        from calculators.stats.raw import avg, err
     if correlated:
         cov = np.cov(data, ddof=1)
         data_info = np.zeros_like(cov)
@@ -55,8 +53,6 @@ def all(inputs, data, fitfcn=fitfcn, priors=None, p0s=None):
     params = sorted(priors.keys() if priors is not None else p0s.keys())
     if datatype == 'bs':
         from calculators.stats.bootstrap import avg, err
-    elif datatype == 'raw':
-        from calculators.stats.raw import avg, err
     if correlated:
         cov = np.cov(data, ddof=1)
         data_info = np.zeros_like(cov)

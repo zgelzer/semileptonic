@@ -83,8 +83,6 @@ def plot_data(inputs, data, markershape='o', markerfill='none', colormap=None,
     E2s = np.array([inputs[xpmt]['E']**2 for xpmt in range(nexperiments)])
     if datatype == 'bs':
         from calculators.stats.bootstrap import avg, err
-    elif datatype == 'raw':
-        from calculators.stats.raw import avg, err
     data_avg = np.asarray([avg(data[xpmt, :]) for xpmt in range(nexperiments)])
     data_err = np.asarray([err(data[xpmt, :]) for xpmt in range(nexperiments)])
     colormap = (colormap if colormap is not None else

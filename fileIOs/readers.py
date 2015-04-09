@@ -33,8 +33,7 @@ def args(maindir):
                       help="form factor to be computed (must be 'perp' or " +
                            "'para')")
     args.add_argument('datatype',
-                      help="type of data (must be 'bs', 'jk', 'raw', " +
-                           "'raw2bs' or 'raw2jk')")
+                      help="type of data (must be 'bs', 'jk', or 'jk2bs')")
     args.add_argument('-c', '--constrained', dest='constrained',
                       action='store_true',
                       help='uses constrained fit')
@@ -97,7 +96,7 @@ def args_parse(args, maindir):
         raise ValueError('invalid decay name')
     if args.formfactor not in ['para', 'perp']:
         raise ValueError('invalid form factor')
-    if args.datatype not in ['bs', 'jk', 'raw2bs', 'raw2jk']:
+    if args.datatype not in ['bs', 'jk', 'jk2bs']:
         raise ValueError('invalid data type')
     if type(args.constrained) is not bool:
         raise ValueError('constrained must be boolean')

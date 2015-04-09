@@ -20,11 +20,11 @@ Built-In Documentation
 Important Notices
 -----------------
 
-+ `chifit.py` can currently handle only raw or bootstrapped data.
++ `chifit.py` can currently handle only bootstrapped data.
   + `calculators/stats/*.py` are prepped for conversions from raw to
     bootstrapped data, but this is not currently implemented in `main()` of
     `chifit.py`.
-  + Future releases will incorporate jackknife resampling of raw data.
+  + Future releases will interact with jackknifed data.
 + `lsq.py` currently performs each least squares fit in series.
   + Older systems may take ~60 seconds to perform ~1,000 fits.
   + Future releases will incorporate parallel least squares fitting.
