@@ -82,9 +82,11 @@ def plot_data(inputs, data, markershape='o', markerfill='none', colormap=None,
     axis = axis if axis is not None else plt.gca()
     E2s = np.array([inputs[xpmt]['E']**2 for xpmt in range(nexperiments)])
     if datatype == 'bs':
-        from calculators.stats.bootstrap import avg, err
+        from calculators.stats.bootstrap import avg, middle_bounds as err
     data_avg = np.asarray([avg(data[xpmt, :]) for xpmt in range(nexperiments)])
     data_err = np.asarray([err(data[xpmt, :]) for xpmt in range(nexperiments)])
+    data_errlower = np.asarray(-data_err[:, 0])
+    data_errupper = np.asarray(data_err[:, -1])
     colormap = (colormap if colormap is not None else
                 plt.get_cmap('gist_rainbow'))
     nensembles = int(nexperiments / ensemblesize)
@@ -97,24 +99,27 @@ def plot_data(inputs, data, markershape='o', markerfill='none', colormap=None,
         label = r'$a m_\ell / a m_h$ = ' + aml + ' / ' + amh
         for ensxpmt in range(ensemblesize):
             plt.errorbar(E2s[xpmt + ensxpmt], data_avg[xpmt + ensxpmt],
-                         yerr=data_err[xpmt + ensxpmt], label=label,
-                         color=colors[ensemble], fmt=markershape,
+                         yerr=([data_errlower[xpmt + ensxpmt]],
+                               [data_errupper[xpmt + ensxpmt]]),
+                         label=label, color=colors[ensemble], fmt=markershape,
                          fillstyle=markerfill)
             label = None
             aml_amhs.append(str(aml + ' / ' + amh).ljust(18))
     outputs = np.empty(nexperiments, dtype=[('aml_amh', 'a18'),
                                             ('E2', float),
                                             ('ff_avg', float),
-                                            ('ff_err', float)])
+                                            ('ff_err+', float),
+                                            ('ff_err-', float)])
     outputs['aml_amh'] = aml_amhs
     outputs['E2'] = E2s
     outputs['ff_avg'] = data_avg
-    outputs['ff_err'] = data_err
+    outputs['ff_err+'] = data_errupper
+    outputs['ff_err-'] = data_errlower
     np.savetxt('result' + date_time(datetime) + '.dat', outputs,
-               fmt=('%18s', '%.6e', '%.6e', '%.6e'), delimiter='  ',
+               fmt=('%18s', '%.6e', '%.6e', '%.6e', '%.6e'), delimiter='  ',
                header='  '.join(['a*ml / a*mh'.ljust(16), 'E2'.ljust(12),
-                                 'ff_avg'.ljust(12), 'ff_err'.ljust(12)]))
-
+                                 'ff_avg'.ljust(12), 'ff_err+'.ljust(12),
+                                 'ff_err-'.ljust(12)]))
 
 
 def plot_errfill(x, y, yerr, color=None, label=None, alphafill=0.3, axis=None):
@@ -126,7 +131,8 @@ def plot_errfill(x, y, yerr, color=None, label=None, alphafill=0.3, axis=None):
         ymin = y - yerr
         ymax = y + yerr
     elif len(yerr) == 2:
-        ymin, ymax = yerr
+        ymin = y - yerr[0]
+        ymax = y + yerr[1]
     else:
         raise ValueError('invalid shape for yerr')
     axis.plot(x, y, color=color, label=label)

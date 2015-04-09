@@ -30,10 +30,18 @@ def err(bsdata):
 
 
 def middle(bsdata, percent=68):
-    """Returns range of middle percent of bootstrapped data bsdata."""
+    """Returns half of range of middle percent of bootstrapped data bsdata."""
+    bounds = middle_bounds(bsdata, percent=percent)
+    return (bounds[-1] - bounds[0]) / 2.
+
+
+def middle_bounds(bsdata, percent=68):
+    """Returns lower, upper error bars of middle percent of bootstrapped data
+    bsdata."""
     skip = len(bsdata) * (1 - percent / 100.) / 2
     middle = np.sort(bsdata)[skip: -skip]
-    return (middle[-1] - middle[0]) / 2.
+    mean = avg(bsdata)
+    return middle[0] - mean, middle[-1] - mean
 
 
 def resample(data, niter=None):
@@ -45,7 +53,7 @@ def resample(data, niter=None):
     return data[resamples]
 
 
-def unsample(bsdata):
+def reverse(bsdata):
     """Reverses bootstrap operation on bootstrapped data bsdata."""
     return np.array([bsdata[i] for i in range(len(bsdata)) if bsdata[i] in
                      bsdata[(i + 1):]])
