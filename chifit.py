@@ -24,7 +24,7 @@ import os
 def main():
     """Runs chiral fit and saves results
     (default save directory: ./results_{decayname}_{formfactor})."""
-    
+
     #~ datetime may be set to False to disable date/time suffixes in results. ~#
     datetime = dt.now().strftime('%Y%m%d-%H%M')
     workdir = os.getcwd()
@@ -100,10 +100,11 @@ def main():
         write.plot_fitavgs(inputs, params_result, args.fitlength,
                            datetime=datetime)
 
-        #~ Plot continuum extrapolation with error bars, gray line color, and no
+        #~ Plot continuum extrapolation with dark gray line color and 50%
         #  transparency in error fills; write values to 'result_fit.dat'. ~#
         write.plot_fit('continuum', inputs, params_result, args.fitlength,
-                       color='0.5', label='continuum', datetime=datetime)
+                       alphafill=0.5, color='0.25', datetime=datetime,
+                       label='continuum')
 
         #~ Add axis labels and place small legend in upper right corner. ~#
         write.plot_labels(legendloc='upper right', legendsize='8')

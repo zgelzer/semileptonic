@@ -140,7 +140,8 @@ def plot_errfill(x, y, yerr, color=None, label=None, alphafill=0.3, axis=None):
 
 
 def plot_fit(lattspace, inputs, params, linelength, color=None, label=None,
-             linewidth=1.0, colormap=None, axis=None, datetime=None):
+             linewidth=1.0, colormap=None, axis=None, datetime=None,
+             alphafill=0.3):
     """Plots fit line with given length linelength and lattice spacing string
     lattspace, according to given inputs and fit parameter results params."""
     axis = axis if axis is not None else plt.gca()
@@ -174,7 +175,7 @@ def plot_fit(lattspace, inputs, params, linelength, color=None, label=None,
     fit_ffs_err = np.array([fit_ffs_gvar[E2index].sdev for E2index in
                             range(len(fit_E2s))])
     plot_errfill(fit_E2s, fit_ffs_avg, fit_ffs_err, color=color, label=label,
-                 alphafill=None, axis=axis)
+                 alphafill=alphafill, axis=axis)
     aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
     amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
     np.savetxt('result_fit' + date_time(datetime) + '.dat',
