@@ -44,10 +44,12 @@ def middle_bounds(bsdata, percent=68):
     return middle[0] - mean, middle[-1] - mean
 
 
-def resample(data, niter=None):
-    """Applies niter bootstrap resamplings on data."""
+def resample(data, niter=None, seed=None):
+    """Applies niter bootstrap resamplings on data with randomness seed."""
     if niter is None:
         niter = len(data)
+    if seed is not None:
+        np.random.seed(seed)
     resamples = np.floor(np.random.rand(niter * len(data)) *
                          len(data)).astype(int)
     return data[resamples]
