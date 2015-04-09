@@ -25,8 +25,8 @@ def avg(bsdata):
 
 def err(bsdata):
     """Returns standard estimate of error of bootstrapped data bsdata."""
-    #return middle(bsdata)
-    return np.std(bsdata, ddof=1)
+    #return np.std(bsdata, ddof=1)
+    return middle(bsdata)
 
 
 def middle(bsdata, percent=68):
