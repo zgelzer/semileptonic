@@ -149,7 +149,8 @@ def plot_fit(lattspace, inputs, params, linelength, color=None, label=None,
     if fit_a_fm != 0:
         fit_xpmt = np.where([inputs[xpmt]['a_fm'] == fit_a_fm for xpmt in
                              range(nexperiments)])[0][-1]
-        fit_inputs = inputs[fit_xpmt]
+        fit_inputs = np.array([{}])
+        fit_inputs[0] = inputs[fit_xpmt]
     else:
         from settings.constants import r1_continuum, ml_continuum, mh_continuum
         fit_inputs = np.array([{'extrapolation': 'continuum'}])
