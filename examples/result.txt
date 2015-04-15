@@ -1,5 +1,5 @@
 #
-# FitSettings:
+# Settings:
 #	         SU3	False
 #	 constrained	True
 #	  correlated	True
@@ -11,23 +11,24 @@
 #	nexperiments	30
 #
 # Correlated Least Squares Fit:
-#	chi2/dof [dof] = 0.57 [30]
+#	chi2/dof [dof] = 0.58 [30]
 #	Q = 0.97
 #
 # Parameters:
-	   C0	0.684(95)
-	   CE	-0.26(24)
-	  CE2	-0.09(31)
-	  CE3	0.27(32)
-	  CE4	-0.20(20)
-	  Ca2	0.47(39)
-	 Ca2E	-0.28(46)
-	Ca2E2	0.27(38)
-	  Ca4	0.35(55)
-	   Ch	-0.06(19)
-	   Cl	0.10(31)
-	  Cl2	-0.85(59)
-	  ClE	-0.003(353)
-	 ClE2	0.04(42)
-	 Cla2	-0.15(72)
-	  gpi	0.4581(65)
+	   C0	0.702(98)
+	   CE	-0.34(26)
+	  CE2	0.09(28)
+	  CE3	0.09(13)
+	  CE4	-0.13(14)
+	  Ca2	0.45(36)
+	 Ca2E	-0.05(17)
+	Ca2E2	0.12(22)
+	  Ca4	0.10(16)
+	   Ch	-0.08(19)
+	   Cl	0.12(27)
+	  Cl2	-0.25(18)
+	  ClE	0.006(186)
+	 ClE2	0.02(29)
+	 Cla2	-0.08(23)
+	  gpi	0.4595(82)
+
