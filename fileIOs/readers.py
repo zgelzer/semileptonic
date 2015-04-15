@@ -362,26 +362,24 @@ def inputs(source, xpmtlist):
     -----
     + Input floats for each experiment are as follows:
         > 'a_fm' : lattice spacing in fm
-        > 'ml_val' : mass of light valence quark in r_1 units
-        > 'mh_val' : mass of heavy valence quark in r_1 units
-        > 'E' : energy of pion/Kaon in r_1 units
         > 'a' : lattice spacing in r_1 units
+        > 'ml_val' : mass of light valence quark in r_1 units
         > 'ml_sea' : mass of light sea quark in r_1 units
+        > 'mh_val' : mass of heavy valence quark in r_1 units
         > 'mh_sea' : mass of heavy sea quark in r_1 units
+        > 'E' : energy of pion/Kaon in r_1 units
     ----------------------------------------------------------------------------
     """
     source = np.loadtxt(source)
     inputs = np.array([{'xpmt': xpmt} for xpmt in xpmtlist])
     for i, xpmt in enumerate(xpmtlist):
-        inputs[i]['a_fm'] = float(source[xpmt][0])
-        inputs[i]['ml_val'] = float(source[xpmt][1])
-        inputs[i]['mh_val'] = float(source[xpmt][2])
-        inputs[i]['E'] = float(source[xpmt][3])
-        inputs[i]['a'] = float(source[xpmt][4])
-        inputs[i]['ml_sea'] = float(source[xpmt][5])
-        inputs[i]['mh_sea'] = float(source[xpmt][6])
-        inputs[i]['ff_avg'] = float(source[xpmt][7])
-        inputs[i]['alpha'] = float(source[xpmt][8])
+        inputs[i]['a_fm']   = float(source[xpmt][0])
+        inputs[i]['a']      = float(source[xpmt][1])
+        inputs[i]['ml_val'] = float(source[xpmt][2])
+        inputs[i]['ml_sea'] = float(source[xpmt][3])
+        inputs[i]['mh_val'] = float(source[xpmt][4])
+        inputs[i]['mh_sea'] = float(source[xpmt][5])
+        inputs[i]['E']      = float(source[xpmt][6])
     return inputs
 
 
