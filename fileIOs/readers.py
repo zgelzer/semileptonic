@@ -159,7 +159,7 @@ def args_parse(args, maindir):
     args : argparse.Namespace
         Alteration and addition of arguments, as follows...
         args.exclude or args.include is converted to list of integers.
-        args.fitlength is converted to list of floats or to string 'full'.
+        args.fitlength is converted to list of floats if specified.
         args.nensembles is added.
         args.nexperiments is added.
         args.nexperiments_source is added.
@@ -208,8 +208,6 @@ def args_parse(args, maindir):
         if len(args.fitlength) != 3:
             raise ValueError('invalid length of fit line (must be comma-' +
                              'separated list entered as min,max,numpoints)')
-    else:
-        args.fitlength = 'full'
     if args.outputdir is None:
         args.outputdir = './chifit_' + args.decayname + '_' + args.formfactor
     if (args.include is not None) and (args.exclude is not None):

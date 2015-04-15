@@ -284,36 +284,32 @@ def plot_errfill(x, y, yerr, alphafill=0.3, axis=None, color=None, label=None):
     axis.fill_between(x, ymax, ymin, color=color, alpha=alphafill)
 
 
-def plot_fit(lattspace, inputs, params, linelength, alphafill=0.3, axis=None,
-             color=None, colormap=None, datetime=None, label=None):
+def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
+             colormap=None, datetime=None, label=None, linelength=None):
     """
     ----------------------------------------------------------------------------
-    Plots fit line with length linelength and lattice spacing name lattspace,
-    given (X = inputs) and fit parameters params.
+    Plots fit line at some lattice spacing lattspace, given (X = inputs) and fit
+    parameters params.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Creates fit inputs dictionary from last experiment of ensemble whose lattice
     spacing matches that of lattspace, or creates fit inputs dictionary from
     continuum constants if (lattspace = 0). Creates values for E_(K/pi) via
     numpy.linspace(linelength), where its bounds are made to match those of
-    E_(K/pi) in inputs if (linelength = 'full'). Applies
+    E_(K/pi) in inputs if (linelength = None). Applies
     fitters.chiral.fitfcn(x, p) with (x = {fit inputs}) and (p = params), which
     returns an array of gvar.GVars with standard propagation of errors. Plot
     values and labels are ultimately saved via numpy.savetxt.
     ----------------------------------------------------------------------------
     Parameters
     ----------
-    lattspace : str
-        Lattice spacing name.
     inputs : numpy.ndarray of dicts
         Array of {number of experiments} total dictionaries, where each
         dictionary stores input floats for particular experiment. See
         fileIOs.readers.inputs for complete list of inputs.
     params : dict of floats or gvar.BufferDict
         Fit parameters in dictionary-like container.
-    linelength : list or str
-        Length of fit line, as list of [min, max, numpoints] for use with
-        numpy.linspace or as string 'full'. 'full' causes numpy.linspace bounds
-        to match those of E_(K/pi) in inputs.
+    lattspace : str
+        Lattice spacing name.
     alphafill : float or NoneType (optional; default is 0.3)
         Alpha transparency of shading.
     axis : matplotlib.axes._subplots.AxesSubplot or NoneType (optional; default
@@ -328,6 +324,10 @@ def plot_fit(lattspace, inputs, params, linelength, alphafill=0.3, axis=None,
         Date/time to be appended to output file name.
     label : str or NoneType (optional; default is None)
         Label of plot line.
+    linelength : list or NoneType (optional; default is None)
+        Length of fit line, as list of [min, max, numpoints] if specified, for
+        use with numpy.linspace. If not specified, numpy.linspace bounds match
+        those of E_(K/pi) in inputs.
     ----------------------------------------------------------------------------
     Results
     -------
@@ -367,7 +367,7 @@ def plot_fit(lattspace, inputs, params, linelength, alphafill=0.3, axis=None,
         fit_inputs[0]['mh_sea'] = mh_continuum
         fit_inputs[0]['mh_val'] = mh_continuum
     E2s = np.array([inputs[xpmt]['E'] ** 2 for xpmt in range(nexperiments)])
-    if linelength == 'full':
+    if linelength is None:
         fit_E2s = np.linspace(min(E2s), max(E2s), num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
         fit_E2s = np.linspace(linelength[0], linelength[1], num=linelength[2])
@@ -393,16 +393,16 @@ def plot_fit(lattspace, inputs, params, linelength, alphafill=0.3, axis=None,
                                  'ff_err'.ljust(12)]))
 
 
-def plot_fitavgs(inputs, params, linelength, axis=None, colormap=None,
-                 datetime=None, label=None, linewidth=1.0):
+def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
+                 label=None, linelength=None, linewidth=1.0):
     """
     ----------------------------------------------------------------------------
-    Plots fit lines with given length linelength for all ensembles, given
-    (X = inputs) and fit parameters params.
+    Plots fit lines for all ensembles, given (X = inputs) and fit parameters
+    params.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Creates inputs dictionaries from last experiment of each ensemble. Creates
     values for E_(K/pi) via numpy.linspace(linelength), where its bounds are
-    made to match those of E_(K/pi) in inputs if (linelength = 'full'). Applies
+    made to match those of E_(K/pi) in inputs if (linelength = None). Applies
     fitters.chiral.fitfcn(x, p) with (x = {ensemble inputs}) and (p = {central
     values of params}) for each ensemble, which returns an array of floats. Plot
     values and labels are ultimately saved via numpy.savetxt.
@@ -415,10 +415,6 @@ def plot_fitavgs(inputs, params, linelength, axis=None, colormap=None,
         fileIOs.readers.inputs for complete list of inputs.
     params : dict of floats or gvar.BufferDict
         Fit parameters in dictionary-like container.
-    linelength : list or str
-        Length of fit line, as list of [min, max, numpoints] for use with
-        numpy.linspace or as string 'full'. 'full' causes numpy.linspace bounds
-        to match those of E_(K/pi) in inputs.
     axis : matplotlib.axes._subplots.AxesSubplot or NoneType (optional; default
            is None)
         Axis container for plot items.
@@ -429,6 +425,10 @@ def plot_fitavgs(inputs, params, linelength, axis=None, colormap=None,
         Date/time to be appended to output file name.
     label : str or NoneType (optional; default is None)
         Label of plot line.
+    linelength : list or NoneType (optional; default is None)
+        Length of fit line, as list of [min, max, numpoints] if specified, for
+        use with numpy.linspace. If not specified, numpy.linspace bounds match
+        those of E_(K/pi) in inputs.
     linewidth : float (optional; default is 1.0)
         Relative width of plot line.
     ----------------------------------------------------------------------------
@@ -456,7 +456,7 @@ def plot_fitavgs(inputs, params, linelength, axis=None, colormap=None,
     colors = [colormap(1. * ensemble / nensembles) for ensemble in
               range(nensembles)]
     E2s = np.array([inputs[xpmt]['E'] ** 2 for xpmt in range(nexperiments)])
-    if linelength == 'full':
+    if linelength is None:
         fit_E2s = np.linspace(min(E2s), max(E2s), num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
         fit_E2s = np.linspace(linelength[0], linelength[1], num=linelength[2])

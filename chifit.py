@@ -148,14 +148,14 @@ def main():
 
         #~ Plot averages of fit results for each ensemble; write values to
         #  'result_fits.dat'. ~#
-        write.plot_fitavgs(inputs, params_result, args.fitlength,
-                           datetime=datetime)
+        write.plot_fitavgs(inputs, params_result, datetime=datetime,
+                           linelength=args.fitlength)
 
         #~ Plot continuum extrapolation with dark gray line color and 50%
         #  transparency in error fills; write values to 'result_fit.dat'. ~#
-        write.plot_fit('continuum', inputs, params_result, args.fitlength,
-                       alphafill=0.5, color='0.25', datetime=datetime,
-                       label='continuum')
+        write.plot_fit(inputs, params_result, 'continuum', alphafill=0.5,
+                       color='0.25', datetime=datetime, label='continuum',
+                       linelength=args.fitlength)
 
         #~ Add axis labels and place small legend in upper right corner. ~#
         write.plot_labels(legendloc='upper right', legendsize='8')
