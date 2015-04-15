@@ -50,8 +50,9 @@ def fitfcn(inputs, params):
     parameterizes (chi_l * (chi_E)^2). NLO chiral fit function, similar in form
     to that in [1], is as follows:
         f_para = (1 / f_pi) * [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}]
-        f_perp = [g_pi / (f_pi * (E_(K/pi) + Delta_B + D))] *
-                 [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}]
+        f_perp = [g_pi / (f_pi * (E_(K/pi) + Delta_B))] *
+                 [C^(0) * ((E_(K/pi) + Delta_B) / (E_(K/pi) + Delta_B + D) + df)
+                  + Sum_(i){C^(i) * chi_(i)}]
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -189,7 +190,7 @@ def fitfcn(inputs, params):
         Ds = np.array([D(inputs[i], g_pi, decayname) for i in range(nouts)])
         dfs = np.array([df_perp(inputs[i], g_pi, decayname) for i in
                         range(nouts)])
-        return ((C0 * (1 + dfs) +
+        return ((C0 * ((Es + Delta_Bs) / (Es + Delta_Bs + Ds) + dfs) +
                  CE * chi_E +
                  CE2 * chi_E ** 2 +
                  CE3 * chi_E ** 3 +
@@ -204,5 +205,5 @@ def fitfcn(inputs, params):
                  ClE * chi_l * chi_E +
                  ClE2 * chi_l * chi_E ** 2 +
                  Cla2 * chi_l * chi_a2) *
-                (gpi / (fpis * (Es + Delta_Bs + Ds))))
+                (gpi / (fpis * (Es + Delta_Bs))))
 

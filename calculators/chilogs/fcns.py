@@ -399,9 +399,18 @@ def R31(m_mu, m1, m2, m3, j):
     ValueError
         (1 <= j <= 3) is required for R_j^{[3, 1]}.
     ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    nearzero : float, from settings.constants
+    ----------------------------------------------------------------------------
     Notes
     -----
     + Could lead to delicate cancellation between large terms.
+    + SU(3) fits may result in vanishing denominators in R_j^{[3, 1]} during
+      continuum extrapolation. This is avoided by instead returning
+      (1 / {approx. zero}) via settings.constants.nearzero. Since R_j^{[3, 1]}
+      is scaled by (a^2 * delta^{\\prime}s = deltaps(a_fm)), which are all zero
+      in continuum, continuum SU(3) results from R31 are ultimately annihilated.
     ----------------------------------------------------------------------------
     References
     ----------
@@ -412,13 +421,22 @@ def R31(m_mu, m1, m2, m3, j):
     """
     if j==1:
         mj2 = m1 ** 2
-        return (m_mu ** 2 - mj2) / ((m2 ** 2 - mj2) * (m3 ** 2 - mj2))
+        try:
+            return (m_mu ** 2 - mj2) / ((m2 ** 2 - mj2) * (m3 ** 2 - mj2))
+        except ZeroDivisionError:
+            return 1 / nearzero
     elif j==2:
         mj2 = m2 ** 2
-        return (m_mu ** 2 - mj2) / ((m1 ** 2 - mj2) * (m3 ** 2 - mj2))
+        try:
+            return (m_mu ** 2 - mj2) / ((m1 ** 2 - mj2) * (m3 ** 2 - mj2))
+        except ZeroDivisionError:
+            return 1 / nearzero
     elif j==3:
         mj2 = m3 ** 2
-        return (m_mu ** 2 - mj2) / ((m1 ** 2 - mj2) * (m2 ** 2 - mj2))
+        try:
+            return (m_mu ** 2 - mj2) / ((m1 ** 2 - mj2) * (m2 ** 2 - mj2))
+        except ZeroDivisionError:
+            return 1 / nearzero
     else:
         raise ValueError('1<=j<=3 is required for R31')
 

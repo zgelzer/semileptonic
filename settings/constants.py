@@ -61,8 +61,8 @@ nearzero : float
 --------------------------------------------------------------------------------
 Notes
 -----
-+ Currently, nearzero is not used; it is defined here only to provide
-  consistency and transparency for this kind of "magic number".
++ nearzero is used in calculators.chilogs.fcns.R31. nearzero is defined here
+  only to provide consistency and transparency for this kind of "magic number".
 --------------------------------------------------------------------------------
 References
 ----------
