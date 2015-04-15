@@ -1,6 +1,3 @@
-"""Defines functions for use in calculating terms related to chiral logs."""
-
-
 # Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
 # Copyright (C) 2015 Zechariah Gelzer.
 #
@@ -14,7 +11,59 @@
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 
-__all__ = ['a_fermi', 'Deltabar', 'deltas', 'Deltas', 'F', 'I1', 'I2', 'J1Sub',
+"""
+--------------------------------------------------------------------------------
+Defines functions for use in calculating terms related to chiral logs.
+--------------------------------------------------------------------------------
+Definitions
+-----------
+__all__ : list of strs
+    Functions to be imported during 'from calculators.chilogs.fcns import *'.
+D : function
+    Calculates corrections to pole for self-energy contribution to f_perp.
+Deltabar : function
+    Calculates root-mean-square taste splitting for lattice spacing.
+Deltas : function
+    Returns taste splittings for lattice spacing [1].
+F : function
+    Calculates arctan(h)s for use in functions I2, J1sub [2].
+I1 : function
+    Calculates chiral loop integral [2].
+I2 : function
+    Calculates chiral loop integral with pole [2].
+J1sub : function
+    Calculates singularity-subtracted chiral loop integral with pole [2].
+R31 : function
+    Calculates Euclidean space residue R_j^{[3, 1]} [2].
+a_fermi : function
+    Calculates lattice spacing in fm.
+deltas : function
+    Returns hairpin parameters for lattice spacing.
+deltas_calc : function
+    Calculates hairpin parameters for lattice spacing.
+df_para : function
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_para.
+df_perp : function
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_perp.
+mu : function
+    Calculates mass slope constant for lattice spacing [3].
+--------------------------------------------------------------------------------
+References
+----------
+[1] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
+    "mass^2 splittings in massind r1 units",
+    <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
+[2] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered Chiral
+    Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
+    [hep-lat]].
+[3] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
+    "slopes in mass-independent r1 units",
+    <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
+--------------------------------------------------------------------------------
+"""
+
+
+__all__ = ['a_fermi', 'Deltabar', 'deltas', 'Deltas', 'F', 'I1', 'I2', 'J1sub',
            'mu', 'R31']
 
 
@@ -23,26 +72,32 @@ from settings.fit import *
 from math import atan, atanh, log, pi, sqrt
 
 
-def a_fermi(a_str):
-    """Calculates the lattice spacing in fermi corresponding to a given string
-    name."""
-    if a_str == 'coarse':
-        return 0.12
-    elif a_str == 'fine':
-        return 0.09
-    elif a_str == 'super_fine':
-        return 0.06
-    elif a_str == 'ultra_fine':
-        return 0.045
-    elif a_str == 'continuum':
-        return 0
-    else:
-        raise ValueError('invalid lattice spacing name')
-
-
 def D(inputs, g_pi, decayname):
-    """Calculates correction to pole for self-energy contribution to f_perp of
-    a given decay, according to given inputs and g_pi."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates corrections to pole for self-energy contribution to f_perp of
+    particular decay, given inputs and heavy-light coupling constant g_pi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : dict of floats
+        Input floats for particular experiment. See fileIOs.readers.inputs for
+        complete list of inputs.
+    g_pi : float
+        Heavy-light coupling constant. See constants.py.
+    decayname : str
+        Name of particular decay of B meson.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float, from function B2{K or pi}.D
+        Corrections to pole for self-energy contribution to f_perp.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function B2{K or pi}.D.
+    ----------------------------------------------------------------------------
+    """
     if decayname == 'B2K':
         from calculators.chilogs import B2K
         return B2K.D(inputs, g_pi)
@@ -52,37 +107,72 @@ def D(inputs, g_pi, decayname):
 
 
 def Deltabar(a_fm):
-    """Calculates root-mean-square taste splitting for some lattice spacing a_fm
-    in fermi."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates root-mean-square taste splitting for lattice spacing a_fm in fm.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    a_fm : float
+        Lattice spacing in fm.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Root-mean-square taste splitting scaled with square of lattice spacing a
+        in r_1 units.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    Deltas : function
+    numpy : module, as np
+    sqrt : function, from math
+    tastemults : dict, from settings.constants
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function Deltas.
+    ----------------------------------------------------------------------------
+    """
     Deltabar = 0.
     for Xi in tastemults.keys():
         Deltabar += tastemults[Xi] * Deltas(a_fm)[Xi] ** 2
     return sqrt(Deltabar / 16.)
 
 
-def deltas(a_fm):
-    """Returns hairpin parameters for some lattice spacing a_fm in fermi."""
-    if abs(a_fm - 0.12) < a_atol:
-        return {'A': -2.800000e-01,
-                'V':  1.000000e-10}
-    elif abs(a_fm - 0.09) < a_atol:
-        return {'A': -9.506479e-02,
-                'V':  3.395171e-11}
-    elif abs(a_fm - 0.06) < a_atol:
-        return {'A': -3.307382e-02,
-                'V':  1.181208e-11}
-    elif abs(a_fm - 0.045) < a_atol:
-        return {'A': -1.306645e-02,
-                'V':  4.666589e-12}
-    elif abs(a_fm) < a_atol:
-        return {'A':  0.000000e+00,
-                'V':  0.000000e+00}
-    else:
-        raise ValueError('invalid lattice spacing in inputs')
-
-
 def Deltas(a_fm):
-    """Returns taste splittings for some lattice spacing a_fm in fermi."""
+    """
+    ----------------------------------------------------------------------------
+    Returns taste splittings for lattice spacing a_fm in fermi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    a_fm : float
+        Lattice spacing in fm.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    dict of floats
+        Taste splittings scaled with square of lattice spacing a in r_1 units
+        [1]. See constants.py for description of taste names.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    a_atol : float, from settings.constants
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'invalid lattice spacing'
+        Lattice spacing in fm must be one of: 0.12, 0.09, 0.06, 0.045, or 0.0.
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
+        "mass^2 splittings in massind r1 units",
+        <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed
+        2015-03-30.
+    ----------------------------------------------------------------------------
+    """
     if abs(a_fm - 0.12) < a_atol:
         return {'P': 0.000000e+00,
                 'A': 2.270460e-01,
@@ -114,48 +204,47 @@ def Deltas(a_fm):
                 'V': 0.000000e+00,
                 'I': 0.000000e+00}
     else:
-        raise ValueError('invalid lattice spacing in inputs')
-
-
-def deltas_calc(a_fm):
-    """Calculates hairpin parameters for some lattice spacing a_fm in fermi."""
-    deltas = {'V': nearzero, 'A': -0.28}
-    Deltabar_coarse = Deltabar(a_fermi('coarse'))
-    if ((abs(a_fm - 0.12) < a_atol) or (abs(a_fm - 0.09) < a_atol) or
-          (abs(a_fm - 0.06) < a_atol) or (abs(a_fm - 0.045) < a_atol) or
-          (abs(a_fm) < a_atol)):
-        ratio = Deltabar(a_fm) / Deltabar_coarse
-    else:
-        raise ValueError('invalid lattice spacing in inputs')
-    for key in deltas.keys():
-        deltas[key] *= ratio
-    return deltas
-
-
-def df_para(inputs, g_pi, decayname):
-    """Calculates loop corrections to f_para of a given decay, according to
-    given inputs and g_pi."""
-    if decayname == 'B2K':
-        from calculators.chilogs import B2K
-        return B2K.df_para(inputs, g_pi)
-    elif decayname == 'B2pi':
-        from calculators.chilogs import B2pi
-        return B2pi.df_para(inputs, g_pi)
-
-
-def df_perp(inputs, g_pi, decayname):
-    """Calculates loop corrections to f_perp of a given decay, according to
-    given inputs and g_pi."""
-    if decayname == 'B2K':
-        from calculators.chilogs import B2K
-        return B2K.df_perp(inputs, g_pi)
-    elif decayname == 'B2pi':
-        from calculators.chilogs import B2pi
-        return B2pi.df_perp(inputs, g_pi)
+        raise ValueError('invalid lattice spacing')
 
 
 def F(x):
-    """Calculates arctan(h)'s for use in calculators.chilogs.fcns.{I1, I2}."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates arctan(h)s for use in functions I2, J1sub.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    x : float
+        As implemented in I2, J1sub, (x = {meson mass} / {pole mass}).
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        [(-1 * ) -arg * arctan(h){arg}] for argument (arg = sqrt(diff{x^2, 1})),
+        where diff is positive difference [1].
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    atan : function, from math
+    atanh : function, from math
+    sqrt : function, from math
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError
+        x must be positive.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See functions I2, J1sub.
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
     if 0 <= x <= 1:
         arg = sqrt(1. - x ** 2)
         return arg * atanh(arg)
@@ -167,14 +256,69 @@ def F(x):
 
 
 def I1(m):
-    """Calculates chiral loop integral term for given mass m."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates chiral loop integral for given mass m.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    m : float
+        Meson mass.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Chiral loop integral (I1 = m^2 * ln(m^2 / Lambda^2)) [1].
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    Lambda : float, from settings.constants
+    log : function, from math
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
     m2 = m ** 2
     return m2 * log(m2 / Lambda ** 2)
 
 
 def I2(m, Delta):
-    """Calculates chiral loop integral term for given mass m and pole Delta."""
-    if hardPiK:
+    """
+    ----------------------------------------------------------------------------
+    Calculates chiral loop integral for given mass m and pole Delta.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    x : float
+        Meson mass.
+    Delta : float
+        Pole mass; as implemented in B2{K or pi}, energy of pion/kaon.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Chiral loop integral; simplifies to -I1(m) if using hard pion/kaon [1].
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    F : function
+    I1 : function
+    Lambda : float, from settings.constants
+    hardpiK : bool, from settings.fit
+    log : function, from math
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
+    if hardpiK:
         return -I1(m)
     else:
         Delta2 = Delta ** 2
@@ -182,37 +326,90 @@ def I2(m, Delta):
                 4 * Delta2 * F(m / Delta) + 2 * Delta2)
 
 
-def J1Sub(m, Delta):
-    """Calculates singularity-subtracted chiral loop integral cross-term for
-    given mass m and pole Delta."""
-    if hardPiK:
+def J1sub(m, Delta):
+    """
+    ----------------------------------------------------------------------------
+    Calculates singularity-subtracted chiral loop integral for given mass m and
+    pole Delta.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    x : float
+        Meson mass.
+    Delta : float
+        Pole mass; as implemented in B2{K or pi}, energy of pion/kaon.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Singularity-subtracted chiral loop integral for cross-term; vanishes if
+        using hard pion/kaon [1].
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    F : function
+    Lambda : float, from settings.constants
+    hardpiK : bool, from settings.fit
+    log : function, from math
+    pi : float, from math
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
+    if hardpiK:
         return 0
     else:
         m2 = m ** 2
         Delta2 = Delta ** 2
-        return ((-m2 + (2 / 3.) * Delta2) * log(m2 / Lambda**2) +
+        return ((-m2 + (2 / 3.) * Delta2) * log(m2 / Lambda ** 2) +
                 (4 / 3.) * (Delta2 - m2) * F(m / Delta) - (10 / 9.) * Delta2 +
-                (4 / 3.) * m2 - (2 * pi * m**3) / (3 * Delta))
-
-
-def mu(a_fm):
-    """Calculates mass slope constant for some lattice spacing a_fm in fermi."""
-    if abs(a_fm - 0.12) < a_atol:
-        return 6.831904e+00
-    elif abs(a_fm - 0.09) < a_atol:
-        return 6.638563e+00
-    elif abs(a_fm - 0.06) < a_atol:
-        return 6.486649e+00
-    elif abs(a_fm - 0.045) < a_atol:
-        return 6.417427e+00
-    elif abs(a_fm) < a_atol:
-        return 6.015349e+00
-    else:
-        raise ValueError('invalid lattice spacing in inputs')
+                (4 / 3.) * m2 - (2 * pi * m ** 3) / (3 * Delta))
 
 
 def R31(m_mu, m1, m2, m3, j):
-    """Calculates Euclidean space residue R_j^[3,1]({m1, m2, m3}; m_mu)."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates Euclidean space residue R_j^{[3, 1]}({m1, m2, m3}; m_mu).
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    m_mu : float
+        Mass of (numerator) meson.
+    m1 : float
+        Mass of (denominator) meson.
+    m2 : float
+        Mass of (denominator) meson.
+    m3 : float
+        Mass of (denominator) meson.
+    j : int
+        Index representing particular meson.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Euclidean space residue for sets of 3 denominator, 1 numerator meson
+        masses [1].
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError
+        (1 <= j <= 3) is required for R_j^{[3, 1]}.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + Could lead to delicate cancellation between large terms.
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
     if j==1:
         mj2 = m1 ** 2
         return (m_mu ** 2 - mj2) / ((m2 ** 2 - mj2) * (m3 ** 2 - mj2))
@@ -224,4 +421,246 @@ def R31(m_mu, m1, m2, m3, j):
         return (m_mu ** 2 - mj2) / ((m1 ** 2 - mj2) * (m2 ** 2 - mj2))
     else:
         raise ValueError('1<=j<=3 is required for R31')
+
+
+def a_fermi(a_str):
+    """
+    ----------------------------------------------------------------------------
+    Calculates lattice spacing in fm corresponding to given string name.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    a_str : str
+        Lattice spacing name.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Lattice spacing in fm.
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'invalid lattice spacing name'
+        Lattice spacing name must be one of: 'coarse', 'fine', 'super_fine',
+        'ultra_fine', or 'continuum'.
+    ----------------------------------------------------------------------------
+    """
+    if a_str == 'coarse':
+        return 0.12
+    elif a_str == 'fine':
+        return 0.09
+    elif a_str == 'super_fine':
+        return 0.06
+    elif a_str == 'ultra_fine':
+        return 0.045
+    elif a_str == 'continuum':
+        return 0
+    else:
+        raise ValueError('invalid lattice spacing name')
+
+
+def deltas(a_fm):
+    """
+    ----------------------------------------------------------------------------
+    Returns hairpin parameters for lattice spacing a_fm in fm.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    a_fm : float
+        Lattice spacing in fm.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    dict of floats
+        Hairpin parameters of axial-vector taste 'A' and vector taste 'V'.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    a_atol : float, from settings.constants
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'invalid lattice spacing'
+        Lattice spacing in fm must be one of: 0.12, 0.09, 0.06, 0.045, or 0.0.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function deltas_calc.
+    ----------------------------------------------------------------------------
+    """
+    if abs(a_fm - 0.12) < a_atol:
+        return {'A': -2.800000e-01,
+                'V':  1.000000e-10}
+    elif abs(a_fm - 0.09) < a_atol:
+        return {'A': -9.506479e-02,
+                'V':  3.395171e-11}
+    elif abs(a_fm - 0.06) < a_atol:
+        return {'A': -3.307382e-02,
+                'V':  1.181208e-11}
+    elif abs(a_fm - 0.045) < a_atol:
+        return {'A': -1.306645e-02,
+                'V':  4.666589e-12}
+    elif abs(a_fm) < a_atol:
+        return {'A':  0.000000e+00,
+                'V':  0.000000e+00}
+    else:
+        raise ValueError('invalid lattice spacing')
+
+
+def deltas_calc(a_fm):
+    """
+    Calculates hairpin parameters for lattice spacing a_fm in fermi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    a_fm : float
+        Lattice spacing in fm.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    deltas : dict of floats
+        Hairpin parameters of axial-vector taste 'A' and vector taste 'V'.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    Deltabar : function
+    a_atol : float, from settings.constants
+    a_fermi : function
+    nearzero : float, from settings.constants
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'invalid lattice spacing'
+        Lattice spacing in fm must be one of: 0.12, 0.09, 0.06, 0.045, or 0.0.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function deltas.
+    ----------------------------------------------------------------------------
+    """
+    deltas = {'V': nearzero, 'A': -0.28}
+    Deltabar_coarse = Deltabar(a_fermi('coarse'))
+    if ((abs(a_fm - 0.12) < a_atol) or (abs(a_fm - 0.09) < a_atol) or
+          (abs(a_fm - 0.06) < a_atol) or (abs(a_fm - 0.045) < a_atol) or
+          (abs(a_fm) < a_atol)):
+        ratio = Deltabar(a_fm) / Deltabar_coarse
+    else:
+        raise ValueError('invalid lattice spacing')
+    for taste in deltas.keys():
+        deltas[taste] *= ratio
+    return deltas
+
+
+def df_para(inputs, g_pi, decayname):
+    """
+    ----------------------------------------------------------------------------
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_para
+    of particular decay, given inputs and heavy-light coupling constant g_pi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : dict of floats
+        Input floats for particular experiment. See fileIOs.readers.inputs for
+        complete list of inputs.
+    g_pi : float
+        Heavy-light coupling constant. See constants.py.
+    decayname : str
+        Name of particular decay of B meson.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float, from function B2{K or pi}.df_para
+        Loop corrections (incl. wavefunction renormalizations) to f_para.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function B2{K or pi}.df_para.
+    ----------------------------------------------------------------------------
+    """
+    if decayname == 'B2K':
+        from calculators.chilogs import B2K
+        return B2K.df_para(inputs, g_pi)
+    elif decayname == 'B2pi':
+        from calculators.chilogs import B2pi
+        return B2pi.df_para(inputs, g_pi)
+
+
+def df_perp(inputs, g_pi, decayname):
+    """
+    ----------------------------------------------------------------------------
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_perp
+    of particular decay, given inputs and heavy-light coupling constant g_pi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : dict of floats
+        Input floats for particular experiment. See fileIOs.readers.inputs for
+        complete list of inputs.
+    g_pi : float
+        Heavy-light coupling constant. See constants.py.
+    decayname : str
+        Name of particular decay of B meson.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float, from function B2{K or pi}.df_perp
+        Loop corrections (incl. wavefunction renormalizations) to f_perp.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function B2{K or pi}.df_perp.
+    ----------------------------------------------------------------------------
+    """
+    if decayname == 'B2K':
+        from calculators.chilogs import B2K
+        return B2K.df_perp(inputs, g_pi)
+    elif decayname == 'B2pi':
+        from calculators.chilogs import B2pi
+        return B2pi.df_perp(inputs, g_pi)
+
+
+def mu(a_fm):
+    """
+    ----------------------------------------------------------------------------
+    Calculates mass slope constant for lattice spacing a_fm in fermi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    a_fm : float
+        Lattice spacing in fm.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Coefficient of (m_l + m_l) in (m_pi^2) in r_1 units [1].
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    a_atol : float, from settings.constants
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'invalid lattice spacing'
+        Lattice spacing in fm must be one of: 0.12, 0.09, 0.06, 0.045, or 0.0.
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
+        "slopes in mass-independent r1 units",
+        <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed
+        2015-03-30.
+    ----------------------------------------------------------------------------
+    """
+    if abs(a_fm - 0.12) < a_atol:
+        return 6.831904e+00
+    elif abs(a_fm - 0.09) < a_atol:
+        return 6.638563e+00
+    elif abs(a_fm - 0.06) < a_atol:
+        return 6.486649e+00
+    elif abs(a_fm - 0.045) < a_atol:
+        return 6.417427e+00
+    elif abs(a_fm) < a_atol:
+        return 6.015349e+00
+    else:
+        raise ValueError('invalid lattice spacing')
 

@@ -1,6 +1,3 @@
-"""Calculates pole and loop contributions to B-->K form factors."""
-
-
 # Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
 # Copyright (C) 2015 Zechariah Gelzer.
 #
@@ -14,6 +11,28 @@
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 
+"""
+--------------------------------------------------------------------------------
+Calculates pole and loop contributions to B-->K form factors.
+--------------------------------------------------------------------------------
+Definitions
+-----------
+D : function
+    Calculates corrections to pole for self-energy contribution to f_perp.
+df_para : function
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_para.
+df_perp : function
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_perp.
+--------------------------------------------------------------------------------
+References
+----------
+[1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered Chiral
+    Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
+    [hep-lat]].
+--------------------------------------------------------------------------------
+"""
+
+
 from calculators.chilogs.fcns import *
 from settings.constants import *
 from settings.fit import *
@@ -21,9 +40,44 @@ from math import pi, sqrt
 
 
 def D(inputs, g_pi):
-    """Calculates correction to pole for self-energy contribution to f_perp,
-    according to given inputs, g_pi (the heavy-light coupling constant), and
-    global constants."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates corrections to pole for self-energy contribution to f_perp, given
+    inputs and heavy-light coupling constant g_pi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : dict of floats
+        Input floats for particular experiment. See fileIOs.readers.inputs for
+        complete list of inputs.
+    g_pi : float
+        Heavy-light coupling constant. See constants.py.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Corrections to pole for self-energy contribution to f_perp [1]; vanishes
+        if not using SU(3) fit.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    Deltas : function, from calculators.chilogs.fcns
+    J1sub : function, from calculators.chilogs.fcns
+    R31 : function, from calculators.chilogs.fcns
+    SU3: bool, from settings.fit
+    deltas : function, from calculators.chilogs.fcns
+    fpi : float, from settings.constants
+    mu : function, from calculators.chilogs.fcns
+    pi : function, from math
+    sqrt : function, from math
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
     E = inputs['E']
     m_l = inputs['ml_val']
     m_h = inputs['mh_val']
@@ -37,7 +91,7 @@ def D(inputs, g_pi):
                        Deltas(inputs['a_fm'])[Xi])
             m_K = sqrt(mu(inputs['a_fm']) * (m_l + m_h) +
                        Deltas(inputs['a_fm'])[Xi])
-            XiSum += (2 * J1Sub(m_K, E) + J1Sub(m_S, E)) * tastemults[Xi]
+            XiSum += (2 * J1sub(m_K, E) + J1sub(m_S, E)) * tastemults[Xi]
         jSum = 0.
         for Xi in deltas(inputs['a_fm']).keys():
             m_pi = sqrt(mu(inputs['a_fm']) * 2 * m_l +
@@ -55,18 +109,54 @@ def D(inputs, g_pi):
                            deltas(inputs['a_fm'])[Xi] + Z) / 2)
             for j, m_j in [[1, m_S], [2, m_eta], [3, m_etap]]:
                 jSum -= (deltas(inputs['a_fm'])[Xi] *
-                         R31(m_pi, m_S, m_eta, m_etap, j) * J1Sub(m_j, E))
+                         R31(m_pi, m_S, m_eta, m_etap, j) * J1sub(m_j, E))
         m_S = sqrt(mu(inputs['a_fm']) * 2 * m_h + Deltas(inputs['a_fm'])['I'])
         m_eta = sqrt(mu(inputs['a_fm']) * ((2 * m_l + 4 * m_h) / 3) +
                      Deltas(inputs['a_fm'])['I'])
-        D = (XiSum / 16) + jSum + (2. / 3) * J1Sub(m_eta, E) - J1Sub(m_S, E)
+        D = (XiSum / 16) + jSum + (2. / 3) * J1sub(m_eta, E) - J1sub(m_S, E)
         return (-3 * g_pi2 * E * D) / (4 * pi * fpi) ** 2
 
 
 def df_para(inputs, g_pi):
-    """Calculates loop corrections to f_para (including contributions from
-    wavefunction renormalizations), according to given inputs, g_pi (the
-    heavy-light coupling constant), and global constants."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_para
+    of particular decay, given inputs and heavy-light coupling constant g_pi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : dict of floats
+        Input floats for particular experiment. See fileIOs.readers.inputs for
+        complete list of inputs.
+    g_pi : float
+        Heavy-light coupling constant. See constants.py.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Loop corrections (incl. wavefunction renormalizations) to f_para [1];
+        has fewer terms if not using SU(3) fit.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    Deltas : function, from calculators.chilogs.fcns
+    I1 : function, from calculators.chilogs.fcns
+    I2 : function, from calculators.chilogs.fcns
+    R31 : function, from calculators.chilogs.fcns
+    SU3: bool, from settings.fit
+    deltas : function, from calculators.chilogs.fcns
+    fpi : float, from settings.constants
+    mu : function, from calculators.chilogs.fcns
+    pi : function, from math
+    sqrt : function, from math
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
     E = inputs['E']
     m_l = inputs['ml_val']
     m_h = inputs['mh_val']
@@ -119,9 +209,45 @@ def df_para(inputs, g_pi):
 
 
 def df_perp(inputs, g_pi):
-    """Calculates loop corrections to f_perp (including contributions from
-    wavefunction renormalizations), according to given inputs, g_pi (the
-    heavy-light coupling constant), and global constants."""
+    """
+    ----------------------------------------------------------------------------
+    Calculates loop corrections (incl. wavefunction renormalizations) to f_perp
+    of particular decay, given inputs and heavy-light coupling constant g_pi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : dict of floats
+        Input floats for particular experiment. See fileIOs.readers.inputs for
+        complete list of inputs.
+    g_pi : float
+        Heavy-light coupling constant. See constants.py.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float
+        Loop corrections (incl. wavefunction renormalizations) to f_perp [1];
+        has fewer terms if not using SU(3) fit.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    Deltas : function, from calculators.chilogs.fcns
+    I1 : function, from calculators.chilogs.fcns
+    J1sub : function, from calculators.chilogs.fcns
+    R31 : function, from calculators.chilogs.fcns
+    SU3: bool, from settings.fit
+    deltas : function, from calculators.chilogs.fcns
+    fpi : float, from settings.constants
+    mu : function, from calculators.chilogs.fcns
+    pi : function, from math
+    sqrt : function, from math
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+        Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
+        [arXiv:0704.0795 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
     E = inputs['E']
     m_l = inputs['ml_val']
     m_h = inputs['mh_val']
@@ -150,7 +276,7 @@ def df_perp(inputs, g_pi):
                        deltas(inputs['a_fm'])[Xi] + Z) / 2)
         if SU3:
             jSum += (deltas(inputs['a_fm'])[Xi] * (g_pi2 / (m_etap ** 2 - m_eta ** 2)) *
-                     (J1Sub(m_eta, E) - J1Sub(m_etap, E)))
+                     (J1sub(m_eta, E) - J1sub(m_etap, E)))
             for j, m_j in [[1, m_pi], [2, m_eta], [3, m_etap]]:
                 jSum += (deltas(inputs['a_fm'])[Xi] *
                          R31(m_S, m_pi, m_eta, m_etap, j) * I1(m_j) * 3 *
@@ -167,6 +293,6 @@ def df_perp(inputs, g_pi):
     df = (XiSum / 16) + jSum + (3. / 4) * g_pi2 * I1(m_pi)
     if SU3:
         df += ((I1(m_S) / 2) - ((4 + 3 * g_pi2) / 12) * I1(m_eta) -
-               (g_pi2 / 3) * J1Sub(m_eta, E))
+               (g_pi2 / 3) * J1sub(m_eta, E))
     return df / (4 * pi * fpi) ** 2
 

@@ -1,6 +1,3 @@
-"""Performs chiral fit to lattice QCD form factors."""
-
-
 # Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
 # Copyright (C) 2015 Zechariah Gelzer.
 #
@@ -14,6 +11,27 @@
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 
+"""
+--------------------------------------------------------------------------------
+Performs chiral fit to lattice QCD form factors.
+    --------        --------        --------        --------        --------    
+Meant to be executed from terminal. Run 'python chifit.py --help' for more info.
+--------------------------------------------------------------------------------
+Definitions
+-----------
+main : function
+    Runs chiral fits and saves results.
+--------------------------------------------------------------------------------
+Notes
+-----
++ In all file and function docstrings, 'float' describes a 64-bit float whose
+  type is either float (built-in) or numpy.float64. No distinction is made
+  between these types of floats, since they are identical on all IEEE-754
+  compliant systems.
+--------------------------------------------------------------------------------
+"""
+
+
 from datetime import datetime as dt
 from fileIOs import readers as read
 from matplotlib import pyplot as plt
@@ -22,8 +40,41 @@ import os
 
 
 def main():
-    """Runs chiral fit and saves results
-    (default save directory: ./results_{decayname}_{formfactor})."""
+    """
+    ----------------------------------------------------------------------------
+    Runs chiral fits and saves results.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Default save directory: ./results_{decayname}_{formfactor}
+    ----------------------------------------------------------------------------
+    Results
+    -------
+    result.dat : file
+        Values from plot of input data with error bars.
+    result.p : file
+        Fit parameter results in pickled binary format.
+    result.pdf : file
+        Aggregate of all plots.
+    result.txt : file
+        Fit settings, and results for fit qualities and parameters.
+    result_fit.dat : file
+        Values from plot of continuum fit with errors.
+    result_fits.dat : file
+        Values from plot of ensemble fit averages.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    datetime : class, from datetime, as dt
+    os : module
+    pyplot : module, from matplotlib, as plt
+    readers : module, from fileIOs, as read
+    stdout : file, from sys
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + Meant to be run automatically when script is called from the terminal.
+    + Results have date/time (as YYYYMMDD-hhmm) appended by default.
+    ----------------------------------------------------------------------------
+    """
 
     #~ datetime may be set to False to disable date/time suffixes in results. ~#
     datetime = dt.now().strftime('%Y%m%d-%H%M')
@@ -53,8 +104,8 @@ def main():
 
     #~ Obtain chi^2, degrees of freedom, and p-value Q from one-time least
     #  squares fit. ~#
-    _, chi2, dof, Q = fitlsq.one(inputs, data, priors=params_apriori,
-                                 p0s=params_initval)
+    _, chi2, dof, Q = fitlsq.one(inputs, data, p0s=params_initval,
+                                 priors=params_apriori)
 
     #~ Create output directory if it does not exist. ~#
     if not os.path.exists(args.outputdir):
@@ -76,8 +127,8 @@ def main():
         #~ Run least squares fit for all bootstrap/jackknife samples. ~#
         stdout.write('\nRunning chiral fit...\n')
         params_result, cvals, cov = fitlsq.all(inputs, data,
-                                               priors=params_apriori,
-                                               p0s=params_initval)
+                                               p0s=params_initval,
+                                               priors=params_apriori)
 
         #~ Move to output directory; write resulting fit parameters
         #  params_result to 'result.p'; write all results to stdout and
@@ -120,6 +171,7 @@ def main():
         plt.show()
 
 
+#~ If script is being called from terminal, run main function. ~#
 if __name__ == '__main__':
     main()
 
