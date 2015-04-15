@@ -269,12 +269,15 @@ def plot_errfill(x, y, yerr, alphafill=0.3, axis=None, color=None, label=None):
     axis = axis if axis is not None else plt.gca()
     if color is None:
         color = axis._get_lines.color_cycle.next()
-    if np.isscalar(yerr) or len(yerr) == len(y):
+    if np.isscalar(yerr) or ((len(yerr) == len(y)) and (len(yerr.shape) == 1)):
         ymin = y - yerr
         ymax = y + yerr
     elif len(yerr) == 2:
         ymin = y - yerr[0]
         ymax = y + yerr[1]
+    elif len(yerr.shape) == 2:
+        ymin = y - yerr[:, 0]
+        ymax = y + yerr[:, 1]
     else:
         raise ValueError('invalid shape for yerr')
     axis.plot(x, y, color=color, label=label)
