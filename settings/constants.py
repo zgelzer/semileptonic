@@ -57,7 +57,7 @@ a_atol : float
     spacings is typically of order 1e-02 fm. 
 nearzero : float
     Number used to represent essentially zero, where exactly zero would be
-    problematic in practice; taken to be 1e-10.
+    problematic in practice; taken to be 1e-30.
 --------------------------------------------------------------------------------
 Notes
 -----
@@ -100,5 +100,5 @@ r1_continuum = 3.744241
 ml_continuum = r1_continuum * 0.0009646
 mh_continuum = r1_continuum * 0.02645
 a_atol = 1e-06
-nearzero = 1e-10
+nearzero = 1e-30
 
