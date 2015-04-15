@@ -65,7 +65,7 @@ def D(inputs, g_pi):
     J1sub : function, from calculators.chilogs.fcns
     R31 : function, from calculators.chilogs.fcns
     SU3: bool, from settings.fit
-    deltas : function, from calculators.chilogs.fcns
+    deltaps : function, from calculators.chilogs.fcns
     fpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
     pi : function, from math
@@ -90,21 +90,21 @@ def D(inputs, g_pi):
                    Deltas(inputs['a_fm'])[Xi])
         Xisum += ((2 * J1sub(m_pi, E) + SU3 * J1sub(m_K, E)) * tastemults[Xi])
     jsum = 0.
-    for Xi in deltas(inputs['a_fm']).keys():
+    for Xi in deltaps(inputs['a_fm']).keys():
         m_pi = sqrt(mu(inputs['a_fm']) * 2 * m_l + Deltas(inputs['a_fm'])[Xi])
         m_S = sqrt(mu(inputs['a_fm']) * 2 * m_h + Deltas(inputs['a_fm'])[Xi])
         m_pi2 = m_pi ** 2
         m_S2 = m_S ** 2
         Z = sqrt((m_S2 - m_pi2) ** 2 -
-                 (deltas(inputs['a_fm'])[Xi] / 2) * (m_S2 - m_pi2) +
-                 (9. / 16) * deltas(inputs['a_fm'])[Xi] ** 2)
+                 (deltaps(inputs['a_fm'])[Xi] / 2) * (m_S2 - m_pi2) +
+                 (9. / 16) * deltaps(inputs['a_fm'])[Xi] ** 2)
         m_eta = sqrt((m_pi2 + m_S2 + (3. / 4) *
-                      deltas(inputs['a_fm'])[Xi] - Z) / 2)
+                      deltaps(inputs['a_fm'])[Xi] - Z) / 2)
         m_etap = sqrt((m_pi2 + m_S2 + (3. / 4) *
-                       deltas(inputs['a_fm'])[Xi] + Z) / 2)
+                       deltaps(inputs['a_fm'])[Xi] + Z) / 2)
         if SU3:
             for j, m_j in [[1, m_pi], [2, m_eta], [3, m_etap]]:
-                jsum -= (deltas(inputs['a_fm'])[Xi] *
+                jsum -= (deltaps(inputs['a_fm'])[Xi] *
                          R31(m_S, m_pi, m_eta, m_etap, j) * J1sub(m_j, E))
         else:
             jsum += 2 * (J1sub(m_eta, E) - J1sub(m_pi, E))
@@ -143,7 +143,7 @@ def df_para(inputs, g_pi):
     I2 : function, from calculators.chilogs.fcns
     R31 : function, from calculators.chilogs.fcns
     SU3: bool, from settings.fit
-    deltas : function, from calculators.chilogs.fcns
+    deltaps : function, from calculators.chilogs.fcns
     fpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
     pi : function, from math
@@ -169,21 +169,21 @@ def df_para(inputs, g_pi):
         Xisum += ((((1 - 3 * g_pi2) / 2) * (2 * I1(m_pi) + SU3 * I1(m_K)) +
                    2 * I2(m_pi, E) + SU3 * I2(m_K, E)) * tastemults[Xi])
     jsum = 0.
-    for Xi in deltas(inputs['a_fm']).keys():
+    for Xi in deltaps(inputs['a_fm']).keys():
         m_pi = sqrt(mu(inputs['a_fm']) * 2 * m_l + Deltas(inputs['a_fm'])[Xi])
         m_S = sqrt(mu(inputs['a_fm']) * 2 * m_h + Deltas(inputs['a_fm'])[Xi])
         m_pi2 = m_pi ** 2
         m_S2 = m_S ** 2
         Z = sqrt((m_S2 - m_pi2) ** 2 -
-                 (deltas(inputs['a_fm'])[Xi] / 2) * (m_S2 - m_pi2) +
-                 (9. / 16) * deltas(inputs['a_fm'])[Xi] ** 2)
+                 (deltaps(inputs['a_fm'])[Xi] / 2) * (m_S2 - m_pi2) +
+                 (9. / 16) * deltaps(inputs['a_fm'])[Xi] ** 2)
         m_eta = sqrt((m_pi2 + m_S2 + (3. / 4) *
-                      deltas(inputs['a_fm'])[Xi] - Z) / 2)
+                      deltaps(inputs['a_fm'])[Xi] - Z) / 2)
         m_etap = sqrt((m_pi2 + m_S2 + (3. / 4) *
-                       deltas(inputs['a_fm'])[Xi] + Z) / 2)
+                       deltaps(inputs['a_fm'])[Xi] + Z) / 2)
         if SU3:
             for j, m_j in [[1, m_pi], [2, m_eta], [3, m_etap]]:
-                jsum += (deltas(inputs['a_fm'])[Xi] *
+                jsum += (deltaps(inputs['a_fm'])[Xi] *
                          R31(m_S, m_pi, m_eta, m_etap, j) *
                          ((3. / 2) * (g_pi2 - 1) * I1(m_j) - 2 * I2(m_j, E)))
         else:
@@ -224,7 +224,7 @@ def df_perp(inputs, g_pi):
     J1sub : function, from calculators.chilogs.fcns
     R31 : function, from calculators.chilogs.fcns
     SU3: bool, from settings.fit
-    deltas : function, from calculators.chilogs.fcns
+    deltaps : function, from calculators.chilogs.fcns
     fpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
     pi : function, from math
@@ -250,21 +250,21 @@ def df_perp(inputs, g_pi):
         Xisum -= (2 * I1(m_pi) + SU3 * I1(m_K)) * tastemults[Xi]
     Xisum *= (1 + 3 * g_pi2) / 2
     jsum = 0.
-    for Xi in deltas(inputs['a_fm']).keys():
+    for Xi in deltaps(inputs['a_fm']).keys():
         m_pi = sqrt(mu(inputs['a_fm']) * 2 * m_l + Deltas(inputs['a_fm'])[Xi])
         m_S = sqrt(mu(inputs['a_fm']) * 2 * m_h + Deltas(inputs['a_fm'])[Xi])
         m_pi2 = m_pi ** 2
         m_S2 = m_S ** 2
         Z = sqrt((m_S2 - m_pi2) ** 2 -
-                 (deltas(inputs['a_fm'])[Xi] / 2) * (m_S2 - m_pi2) +
-                 (9. / 16) * deltas(inputs['a_fm'])[Xi] ** 2)
+                 (deltaps(inputs['a_fm'])[Xi] / 2) * (m_S2 - m_pi2) +
+                 (9. / 16) * deltaps(inputs['a_fm'])[Xi] ** 2)
         m_eta = sqrt((m_pi2 + m_S2 + (3. / 4) *
-                      deltas(inputs['a_fm'])[Xi] - Z) / 2)
+                      deltaps(inputs['a_fm'])[Xi] - Z) / 2)
         m_etap = sqrt((m_pi2 + m_S2 + (3. / 4) *
-                       deltas(inputs['a_fm'])[Xi] + Z) / 2)
+                       deltaps(inputs['a_fm'])[Xi] + Z) / 2)
         if SU3:
             for j, m_j in [[1, m_pi], [2, m_eta], [3, m_etap]]:
-                jsum += (deltas(inputs['a_fm'])[Xi] *
+                jsum += (deltaps(inputs['a_fm'])[Xi] *
                          R31(m_S, m_pi, m_eta, m_etap, j) *
                          (g_pi2 * J1sub(m_j, E) +
                           ((1 + 3 * g_pi2) / 2) * I1(m_j)))

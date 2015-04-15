@@ -61,12 +61,8 @@ nearzero : float
 --------------------------------------------------------------------------------
 Notes
 -----
-+ Currently, nearzero is used exclusively to calculate hairpin parameters in
-  calculators.chilogs.fcns.deltas_calc. Since hairpin parameters reported in
-  calculators.chilogs.fcns.deltas were generated with deltas_calc at (nearzero =
-  1e-10), user would have to manually run deltas_calc at new nearzero value and
-  then update deltas to reflect changes. As such, nearzero is defined here only
-  to provide consistency and transparency for this kind of "magic number".
++ Currently, nearzero is not used; it is defined here only to provide
+  consistency and transparency for this kind of "magic number".
 --------------------------------------------------------------------------------
 References
 ----------

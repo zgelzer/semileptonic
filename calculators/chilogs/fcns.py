@@ -37,9 +37,9 @@ R31 : function
     Calculates Euclidean space residue R_j^{[3, 1]} [2].
 a_fermi : function
     Calculates lattice spacing in fm.
-deltas : function
+deltaps : function
     Returns hairpin parameters for lattice spacing.
-deltas_calc : function
+deltaps_calc : function
     Calculates hairpin parameters for lattice spacing.
 df_para : function
     Calculates loop corrections (incl. wavefunction renormalizations) to f_para.
@@ -63,7 +63,7 @@ References
 """
 
 
-__all__ = ['Deltabar', 'Deltas', 'F', 'I1', 'I2', 'J1sub', 'R31', 'deltas',
+__all__ = ['Deltabar', 'Deltas', 'F', 'I1', 'I2', 'J1sub', 'R31', 'deltaps',
            'mu']
 
 
@@ -459,7 +459,7 @@ def a_fermi(a_str):
         raise ValueError('invalid lattice spacing name')
 
 
-def deltas(a_fm):
+def deltaps(a_fm):
     """
     ----------------------------------------------------------------------------
     Returns hairpin parameters for lattice spacing a_fm in fm.
@@ -485,21 +485,21 @@ def deltas(a_fm):
     ----------------------------------------------------------------------------
     Notes
     -----
-    + See function deltas_calc.
+    + See function deltaps_calc.
     ----------------------------------------------------------------------------
     """
     if abs(a_fm - 0.12) < a_atol:
         return {'A': -2.800000e-01,
-                'V':  1.000000e-10}
+                'V':  0.000000e+00}
     elif abs(a_fm - 0.09) < a_atol:
         return {'A': -9.506479e-02,
-                'V':  3.395171e-11}
+                'V':  0.000000e+00}
     elif abs(a_fm - 0.06) < a_atol:
         return {'A': -3.307382e-02,
-                'V':  1.181208e-11}
+                'V':  0.000000e+00}
     elif abs(a_fm - 0.045) < a_atol:
         return {'A': -1.306645e-02,
-                'V':  4.666589e-12}
+                'V':  0.000000e+00}
     elif abs(a_fm) < a_atol:
         return {'A':  0.000000e+00,
                 'V':  0.000000e+00}
@@ -507,7 +507,7 @@ def deltas(a_fm):
         raise ValueError('invalid lattice spacing')
 
 
-def deltas_calc(a_fm):
+def deltaps_calc(a_fm):
     """
     Calculates hairpin parameters for lattice spacing a_fm in fermi.
     ----------------------------------------------------------------------------
@@ -518,7 +518,7 @@ def deltas_calc(a_fm):
     ----------------------------------------------------------------------------
     Returns
     -------
-    deltas : dict of floats
+    deltaps : dict of floats
         Hairpin parameters of axial-vector taste 'A' and vector taste 'V'.
     ----------------------------------------------------------------------------
     Requirements
@@ -526,7 +526,6 @@ def deltas_calc(a_fm):
     Deltabar : function
     a_atol : float, from settings.constants
     a_fermi : function
-    nearzero : float, from settings.constants
     ----------------------------------------------------------------------------
     Raises
     ------
@@ -535,10 +534,10 @@ def deltas_calc(a_fm):
     ----------------------------------------------------------------------------
     Notes
     -----
-    + See function deltas.
+    + See function deltaps.
     ----------------------------------------------------------------------------
     """
-    deltas = {'V': nearzero, 'A': -0.28}
+    deltaps = {'A': -0.28, 'V': 0.00}
     Deltabar_coarse = Deltabar(a_fermi('coarse'))
     if ((abs(a_fm - 0.12) < a_atol) or (abs(a_fm - 0.09) < a_atol) or
           (abs(a_fm - 0.06) < a_atol) or (abs(a_fm - 0.045) < a_atol) or
@@ -546,9 +545,9 @@ def deltas_calc(a_fm):
         ratio = Deltabar(a_fm) / Deltabar_coarse
     else:
         raise ValueError('invalid lattice spacing')
-    for taste in deltas.keys():
-        deltas[taste] *= ratio
-    return deltas
+    for taste in deltaps.keys():
+        deltaps[taste] *= ratio
+    return deltaps
 
 
 def df_para(inputs, g_pi, decayname):
