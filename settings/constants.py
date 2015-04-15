@@ -27,12 +27,12 @@ hbarc : float
     length or inverse time; taken from PDG as 197.327 MeV fm [3].
 Lambda : float
     Renormalization scale characteristic of heavy-quark expansion; taken to be
-    1000 MeV to provide liberal widths for chiral log terms.
+    700 MeV to provide liberal widths for chiral log terms [4].
 fpi : float
     Pion decay constant f_pi that characterizes energy scale of chiral symmetry
-    breaking; estimated from PDG as approximately 131 MeV [3].
+    breaking; taken from PDG as 130.41 MeV [3].
 gpi : float
-    Lattice determination [4] of central value of leading order axial coupling
+    Lattice determination [5] of central value of leading order axial coupling
     constant g_pi (i.e., between pions and heavy-light mesons). Hereafter, g_pi
     is referred to simply as the heavy-light coupling constant.
 Delta_B : float
@@ -72,7 +72,9 @@ References
     "UPDATED mass-independent r1 values",
     <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
 [3] K. Olive, et al. (Particle Data Group), Chin. Phys. C, 38, 090001 (2014).
-[4] W. Detmold, C.-J. D. Lin, S. Meinel, "Calculation of the heavy-hadron axial
+[4] A. Kronfeld and J. Simone, Phys. Lett. B 490, 228 (2000) [Erratum-ibid. B
+    495, 441 (2000)] [arXiv:0006345 [hep-ph]].
+[5] W. Detmold, C.-J. D. Lin, S. Meinel, "Calculation of the heavy-hadron axial
     couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85, 114508
     (2012) [arXiv:1203.3378 [hep-lat]].
 --------------------------------------------------------------------------------
@@ -84,8 +86,8 @@ from settings.fit import decayname
 
 r1 = 0.31174
 hbarc = 197.327
-Lambda = 1000 * r1 / hbarc
-fpi = 131 * r1 / hbarc
+Lambda = 700 * r1 / hbarc
+fpi = 130.41 * r1 / hbarc
 gpi = 0.45
 if decayname == 'B2K':
     Delta_B = (5415.4 - 5279.58) * r1 / hbarc
