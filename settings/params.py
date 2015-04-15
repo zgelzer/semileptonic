@@ -23,16 +23,20 @@ Definitions
 -----------
 params : dict of gvar.GVars
     Dictionary of chiral fit parameters as Gaussian variables.
+width_NLO : float
+    Default width of next-to-leading-order (NLO) fit parameters.
+width_NNLO : float
+    Default width of next-to-next-to-leading-order (NNLO) fit parameters.
 --------------------------------------------------------------------------------
 Notes
 -----
 + Fit parameters are implemented in chiral fit function in fitters/chiral.py.
 + Fit parameter names match those from heavy-light meson staggered chiral
   perturbation theory (HMSchiPT) [1].
-    > C0 : Parameterizes leading-order (LO) term (1 + logs).
-    > CE : Parameterizes next-to-leading-order (NLO) term chi_E.
+    > C0 : Parameterizes leading-order (LO) term ({~1} + {logs}).
+    > CE : Parameterizes NLO term chi_E.
     > CE2 : Parameterizes NLO term chi_E^2.
-    > CE3 : Parameterizes next-to-next-to-leading-order (NNLO) term chi_E^3.
+    > CE3 : Parameterizes NNLO term chi_E^3.
     > CE4 : Parameterizes NNLO term chi_E^4.
     > Ca2 : Parameterizes NLO term chi_{a2}.
     > Ca2E : Parameterizes NNLO term (chi_{a2} * chi_E).
@@ -69,21 +73,23 @@ from settings.constants import gpi
 from gvar import gvar
 
 
+width_NLO  = 2.
+width_NNLO = 1.
 params = {}
 params['C0']    = gvar(0., 2.)
-params['CE']    = gvar(0., 2.)
-params['CE2']   = gvar(0., 2.)
-params['CE3']   = gvar(0., 2.)
-params['CE4']   = gvar(0., 2.)
-params['Ca2']   = gvar(0., 2.)
-params['Ca2E']  = gvar(0., 2.)
-params['Ca2E2'] = gvar(0., 2.)
-params['Ca4']   = gvar(0., 2.)
-params['Ch']    = gvar(0., 2.)
-params['Cl']    = gvar(0., 2.)
-params['Cl2']   = gvar(0., 2.)
-params['ClE']   = gvar(0., 2.)
-params['ClE2']  = gvar(0., 2.)
-params['Cla2']  = gvar(0., 2.)
+params['CE']    = gvar(0., width_NLO)
+params['CE2']   = gvar(0., width_NLO)
+params['CE3']   = gvar(0., width_NNLO)
+params['CE4']   = gvar(0., width_NNLO)
+params['Ca2']   = gvar(0., width_NLO)
+params['Ca2E']  = gvar(0., width_NNLO)
+params['Ca2E2'] = gvar(0., width_NNLO)
+params['Ca4']   = gvar(0., width_NNLO)
+params['Ch']    = gvar(0., width_NLO)
+params['Cl']    = gvar(0., width_NLO)
+params['Cl2']   = gvar(0., width_NNLO)
+params['ClE']   = gvar(0., width_NNLO)
+params['ClE2']  = gvar(0., width_NNLO)
+params['Cla2']  = gvar(0., width_NNLO)
 params['gpi']   = gvar(gpi, 0.08)
 
