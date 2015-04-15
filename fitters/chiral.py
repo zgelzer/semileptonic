@@ -24,8 +24,8 @@ fitfcn : function
 
 
 from calculators.chilogs.fcns import D, df_para, df_perp, mu, Deltabar
-from settings.constants import *
-from settings.fit import *
+from settings.constants import Delta_B, fpi, gpi
+from settings.fit import decayname, formfactor, nexperiments
 from math import pi, sqrt
 import numpy as np
 

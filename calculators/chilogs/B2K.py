@@ -34,8 +34,8 @@ References
 
 
 from calculators.chilogs.fcns import *
-from settings.constants import *
-from settings.fit import *
+from settings.constants import fpi, tastemults
+from settings.fit import SU3
 from math import pi, sqrt
 
 
@@ -70,6 +70,7 @@ def D(inputs, g_pi):
     mu : function, from calculators.chilogs.fcns
     pi : function, from math
     sqrt : function, from math
+    tastemults : dict, from settings.constants
     ----------------------------------------------------------------------------
     References
     ----------
@@ -149,6 +150,7 @@ def df_para(inputs, g_pi):
     mu : function, from calculators.chilogs.fcns
     pi : function, from math
     sqrt : function, from math
+    tastemults : dict, from settings.constants
     ----------------------------------------------------------------------------
     References
     ----------
@@ -240,6 +242,7 @@ def df_perp(inputs, g_pi):
     mu : function, from calculators.chilogs.fcns
     pi : function, from math
     sqrt : function, from math
+    tastemults : dict, from settings.constants
     ----------------------------------------------------------------------------
     References
     ----------

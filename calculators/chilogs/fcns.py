@@ -63,12 +63,12 @@ References
 """
 
 
-__all__ = ['a_fermi', 'Deltabar', 'deltas', 'Deltas', 'F', 'I1', 'I2', 'J1sub',
-           'mu', 'R31']
+__all__ = ['Deltabar', 'Deltas', 'F', 'I1', 'I2', 'J1sub', 'R31', 'deltas',
+           'mu']
 
 
-from settings.constants import *
-from settings.fit import *
+from settings.constants import Lambda, a_atol, nearzero, tastemults
+from settings.fit import hardpiK
 from math import atan, atanh, log, pi, sqrt
 
 

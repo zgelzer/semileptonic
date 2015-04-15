@@ -380,7 +380,7 @@ def plot_fit(lattspace, inputs, params, linelength, alphafill=0.3, axis=None,
                             range(len(fit_E2s))])
     plot_errfill(fit_E2s, fit_ffs_avg, fit_ffs_err, color=color, label=label,
                  alphafill=alphafill, axis=axis)
-    aml = str(`(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
+    aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
     amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
     np.savetxt('result_fit' + date_time(datetime) + '.dat',
                np.vstack((fit_E2s, fit_ffs_avg, fit_ffs_err)).T,
