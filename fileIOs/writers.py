@@ -376,7 +376,7 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     fit_ffs_gvar = []
     for E2 in fit_E2s:
         fit_inputs[0]['E'] = sqrt(E2)
-        fit_ffs_gvar.append(chiral.fitfcn(fit_inputs, params, nouts=1)[0])
+        fit_ffs_gvar.append(chiral.fitfcn(fit_inputs, params)[0])
     fit_ffs_avg = np.array([fit_ffs_gvar[E2index].mean for E2index in
                             range(len(fit_E2s))])
     fit_ffs_err = np.array([fit_ffs_gvar[E2index].sdev for E2index in
@@ -471,7 +471,7 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
             fit_inputs[0][param] = inputs[ensemble * ensemblesize][param]
         for E2index, E2 in enumerate(fit_E2s):
             fit_inputs[0]['E'] = sqrt(E2)
-            fit_ffs[E2index] = chiral.fitfcn(fit_inputs, params_avg, nouts=1)[0]
+            fit_ffs[E2index] = chiral.fitfcn(fit_inputs, params_avg)[0]
         axis.plot(fit_E2s, fit_ffs, color=colors[ensemble], label=label,
                   linewidth=linewidth)
         outputs[ensemble] = fit_ffs

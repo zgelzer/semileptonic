@@ -25,12 +25,12 @@ fitfcn : function
 
 from calculators.chilogs.fcns import D, df_para, df_perp, mu, Deltabar
 from settings.constants import Delta_B, fpi, gpi
-from settings.fit import decayname, formfactor, nexperiments
+from settings.fit import decayname, formfactor
 from math import pi, sqrt
 import numpy as np
 
 
-def fitfcn(inputs, params, nouts=nexperiments):
+def fitfcn(inputs, params):
     """
     ----------------------------------------------------------------------------
     Returns chiral estimates f(X, p) of pertinent form factor for all
@@ -56,18 +56,16 @@ def fitfcn(inputs, params, nouts=nexperiments):
     Parameters
     ----------
     inputs : numpy.ndarray of dicts
-        Array of {nouts} total input dictionaries, where each dictionary stores
-        input floats for particular experiment. See fileIOs.readers.inputs for
-        complete list of inputs.
+        Array of input dictionaries, where each dictionary stores input floats
+        for particular experiment. See fileIOs.readers.inputs for complete list
+        of inputs.
     params : dict of floats or gvar.BufferDict
         Current fit parameters in dictionary-like container.
-    nouts : int (optional; default is {number of experiments})
-        Number of floats to return in output array; must match {size of inputs}.
     ----------------------------------------------------------------------------
     Returns
     -------
     numpy.ndarray of floats or of gvar.GVars
-        Array of nouts total form factors.
+        Array of form factors with size {size of inputs}.
     ----------------------------------------------------------------------------
     Requirements
     ------------
@@ -81,7 +79,6 @@ def fitfcn(inputs, params, nouts=nexperiments):
     fpi : float, from settings.constants
     gpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
-    nexperiments : int, from settings.fit
     numpy : module, as np
     pi : function, from math
     sqrt : function, from math
@@ -94,6 +91,7 @@ def fitfcn(inputs, params, nouts=nexperiments):
         [arXiv:0811.3640 [hep-lat]].
     ----------------------------------------------------------------------------
     """
+    nouts = len(inputs)
     Es = np.array([inputs[i]['E'] for i in range(nouts)])
     fpis = fpi * np.ones(nouts)
     chi_E = (Es * sqrt(2)) / (4 * pi * fpi)
