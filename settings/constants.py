@@ -72,8 +72,9 @@ References
     "UPDATED mass-independent r1 values",
     <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
 [3] K. Olive, et al. (Particle Data Group), Chin. Phys. C, 38, 090001 (2014).
-[4] A. Kronfeld and J. Simone, Phys. Lett. B 490, 228 (2000) [Erratum-ibid. B
-    495, 441 (2000)] [arXiv:0006345 [hep-ph]].
+[4] A. Kronfeld and J. Simone, "Computation of Λ-bar and λ_1 with Lattice QCD",
+    Phys. Lett. B 490, 228 (2000) [Erratum-ibid. B 495, 441 (2000)]
+    [arXiv:0006345 [hep-ph]].
 [5] W. Detmold, C.-J. D. Lin, S. Meinel, "Calculation of the heavy-hadron axial
     couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85, 114508
     (2012) [arXiv:1203.3378 [hep-lat]].
