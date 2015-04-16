@@ -12,73 +12,89 @@
   FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 -->
 
-Semileptonic
-============
+[Semileptonic](https://github.com/zgelzer/semileptonic)
+=======================================================
 
 Python implementation of chiral fits to lattice QCD form factors for
 semileptonic decays of *B* mesons.
 
 ---
 
-+ To install, see **INSTALL.md**.
-+ To view the change history, see **CHANGES.md**.
-+ To view examples and usage suggestions, see **examples/README.md**.
++ To install, see [INSTALL.md](INSTALL.md).
++ To view the history of version changes, see [CHANGES.md](CHANGES.md).
++ To view examples and usage suggestions, see
+  [examples/README.md](examples/README.md).
 
 ---
 
 File Tree
 ---------
 
-+ **semileptonic**
-  + `chifit.py`: Main program; performs chiral fit to lattice QCD form factors.
-  + `CHANGES.md`: Lists change history in chronologically descending order.
-  + `constants.py`: Defines lattice QCD constants. User should edit if
-    necessary.
-  + `INSTALL.md`: Details how to install or uninstall this project.
-  + `params.py`: Defines chiral fit parameters. User should edit if necessary.
-  + `README.md`: Provides an overview of this project.
-  + `.gitignore`: Lists files for git to ignore during commits.
-  + **calculators**: Contains modules for calculating chiral logs and
-    statistics.
-    + **chilogs**: Contains modules for calculating chiral logs that are
-      separated by decay channel, with their basic functions stored in a
-      communal module.
-      + `B2K.py`: Calculate pole and loop contributions to *B* to *K* form
-        factors.
-      + `B2pi.py`: Calculate pole and loop contributions to *B* to *pi* form
-        factors.
-      + `fcns.py`: Defines basic functions for use in calculating terms related
-        to chiral logs. Imported by other modules in this directory.
-    + **stats**: Contains modules for resampling data and for reporting
-      statistical estimates of unsampled/resampled data.
-      + `bootstrap.py`: Defines functions for bootstrapping raw data and
-        averaging bootstrapped data.
-  + **examples**: Contains example inputs and outputs for use with `chifit.py`.
-    + `README.md`: Details suggested runs of `chifit.py` and explains the
-      included examples.
-    + `result.dat`: Plot results of `Y.dat` vs `X.dat` with error bars.
-    + `result.p`: Fit parameter results from previous run (for *f_perp* of
-      bootstrapped *B* to *K* data) stored in pickled binary form.
-    + `result.pdf`: Plot from previous run (for *f_perp* of bootstrapped *B* to
-      *K* data).
-    + `result.txt`: Fit results from stdout of previous run (for *f_perp* of
-      bootstrapped *B* to *K* data).
-    + `result_fit.dat`: Plot results of continuum fit (for *f_perp* of
-      bootstrapped *B* to *K* data) with error bars.
-    + `result_fits.dat`: Plot results of ensemble fit averages (for *f_perp* of
-      bootstrapped *B* to *K* data)
-    + `X.dat`: Inputs for each experiment, organized by ensemble.
-    + `Y.dat`: Bootstrapped *B* to *K* form factors, with organization matching
-      that of `X.dat`.
-  + **fileIOs**: Contains modules for reading inputs and writing outputs.
-    + `readers.py`: Defines functions for reading command-line arguments,
-      inputs, data, and initial fit parameters.
-    + `writers.py`: Defines functions for writing and plotting data.
-  + **fitters**: Contains modules
-    + `chiral.py`: Defines chiral fit function for B decay form factors.
-    + `lsq.py`: Performs least squares fit(s) to data using Prof. G. Peter
-      LePage's `lsqfit.nonlinear_fit`.
++ [.gitattributes](.gitattributes): Lists attributes for given paths.
++ [.gitignore](.gitignore): Lists files for git to ignore during commits.
++ [CHANGES.md](CHANGES.md): Lists history of version changes in chronologically
+  descending order.
++ [INSTALL.md](INSTALL.md): Details how to install or uninstall this project.
++ [README.md](README.md): Provides an overview of this project.
++ [chifit.py](chifit.py): Main program. Performs chiral fit to lattice QCD form
+  factors.
++ [calculators](calculators): Contains modules for calculating chiral logs and
+  statistics.
+  + [chilogs](calculators/chilogs): Contains modules for calculating chiral logs
+    that are separated by decay channel, with their basic functions stored in a
+    communal module.
+    + [B2K.py](calculators/chilogs/B2K.py): Calculate pole and loop
+      contributions to *B* to *K* form factors.
+    + [B2pi.py](calculators/chilogs/B2pi.py): Calculate pole and loop
+      contributions to *B* to *pi* form factors.
+    + [fcns.py](calculators/chilogs/fcns.py): Defines basic functions for use in
+      calculating terms related to chiral logs. Imported by other modules in
+      this directory.
+  + [stats](calculators/stats): Contains modules for resampling data and for
+    reporting statistical estimates of resampled data.
+    + [bootstrap.py](calculators/stats/bootstrap.py): Defines functions for
+      bootstrapping raw data and reporting averages and errors of bootstrapped
+      data.
++ [examples](examples): Contains example inputs for and outputs from
+  `chifit.py`. Results are from run for *f_perp* of bootstrapped *B* to *K*
+  data.
+  + [README.md](examples/README.md): Details suggested runs of `chifit.py` and
+    explains the included examples.
+  + [X.dat](examples/X.dat): Inputs for each experiment, organized by ensemble.
+  + [Y.dat](examples/Y.dat): Bootstrap samples of *B* to *K* form factors, with
+    organization matching that of `X.dat`.
+  + [result.dat](examples/result.dat): Plot results of `Y.dat` vs. `X.dat` with
+    error bars.
+  + [result.p](examples/result.p): Fit parameter results from previous run
+    stored in pickled binary format.
+  + [result.pdf](examples/result.pdf): Plot results from previous run.
+  + [result.txt](examples/result.txt): Fit results from stdout of previous run.
+  + [result_fit.dat](examples/result_fit.dat): Plot results of continuum fit
+    with error bars.
+  + [result_fits.dat](examples/result_fits.dat): Plot results of ensemble fit
+    averages.
++ [fileIOs](fileIOs): Contains modules for reading inputs and writing outputs.
+  + [readers.py](fileIOs/readers.py): Defines functions for reading command-line
+    arguments, inputs, data, initial fit parameters, and previous results.
+  + [writers.py](fileIOs/writers.py): Defines functions for writing and plotting
+    data.
++ [fitters](fitters): Contains modules for fitters and their functions.
+  + [chiral.py](fitters/chiral.py): Defines chiral fit function for *B* decay
+    form factors.
+  + [lsq.py](fitters/lsq.py): Performs least squares fit(s) to data using Prof.
+    G. P. LePage's [lsqfit.nonlinear_fit](https://github.com/gplepage/lsqfit).
++ [settings](settings) : Contains modules for definitions of settings,
+  constants, and parameters.
+  + [constants.py](settings/constants.py): Defines lattice QCD constants. User
+    should edit if necessary.
+  + [params.py](settings/params.py): Defines chiral fit parameters. User should
+    edit if necessary.
 
-*Note that all* `__init__.py` *files render their given directories importable
-by python. This is required so that the various python files may communicate
-with one another.*
+*Note that all [\_\_init\_\_.py](__init__.py) files render their given
+directories importable by python. This is required so that the various python
+files may communicate with one another.*
+
+---
+
+> Special thanks is given to Dr. Ran Zhou of Fermilab for providing example
+> datasets, assisting with debugging, and offering invaluable advice.

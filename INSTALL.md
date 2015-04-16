@@ -17,7 +17,7 @@ To Install:
 
 1. Install **python 2.7**.
   + This guide recommends that you use
-    [**Anaconda**](http://http://continuum.io/downloads). Anaconda is a free
+    [**Anaconda**](http://continuum.io/downloads). Anaconda is a free
     python distribution that has many popular packages for scientific analyses.
     It may be easily updated and expanded since it installs to the user's home
     directory. This also allows for simple management of package versions.
@@ -31,7 +31,7 @@ To Install:
   + *(Option b.)* Install **git**; clone this project using `$ git clone
     https://github.com/zgelzer/semileptonic` in desired directory.
 4. *(Optional)* Examine the provided examples.
-  + Consult **examples/README.md**.
+  + Consult [examples/README.md](examples/README.md).
 
 ---
 

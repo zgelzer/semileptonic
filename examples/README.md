@@ -20,12 +20,13 @@ Built-In Documentation
 Important Notices
 -----------------
 
-+ `chifit.py` can currently handle only bootstrapped data.
-  + `calculators/stats/*.py` are prepped for conversions from raw to
-    bootstrapped data, but this is not currently implemented in `main()` of
-    `chifit.py`.
++ [chifit.py](../chifit.py) can currently handle only bootstrapped data.
+  + Modules in [calculators/stats](../calculators/stats) are prepped for
+    conversions from raw to bootstrapped data, but this is not currently
+    implemented in `chifit.main()`.
   + Future releases will interact with jackknifed data.
-+ `lsq.py` currently performs each least squares fit in series.
++ [lsq.py](../fitters/lsq.py) currently performs each least squares fit in
+  series.
   + Older systems may take ~60 seconds to perform ~1,000 fits.
   + Future releases will incorporate parallel least squares fitting.
 
@@ -65,29 +66,29 @@ plot:
     $ python chifit.py B2K perp bs -c -C -p -i 0,1,2,27,28,29
     ```
 
-+ **exclude** high-energy **experiments** from each ensemble, effectively
-setting ensemble size to 2, run fit, and plot:
++ **exclude** high-energy **experiments** from each ensemble (effectively
+setting **ensemble size** to two), run fit, and plot:
     ```
     $ python chifit.py B2K perp bs -c -C -p -x 2,5,8,11,14,17,20,23,26,29 -e 2
     ```
 
-File Tree
----------
+List of Files
+-------------
 
-+ **examples**: Contains example inputs and outputs for use with `chifit.py`.
-  + `README.md`: Details suggested runs of `chifit.py` and explains the
-    included examples.
-  + `result.dat`: Plot results of `Y.dat` vs `X.dat` with error bars.
-  + `result.p`: Fit parameter results from previous run (for *f_perp* of
-    bootstrapped *B* to *K* data) stored in pickled binary form.
-  + `result.pdf`: Plot from previous run (for *f_perp* of bootstrapped *B* to
-    *K* data).
-  + `result.txt`: Fit results from stdout of previous run (for *f_perp* of
-    bootstrapped *B* to *K* data).
-  + `result_fit.dat`: Plot results of continuum fit (for *f_perp* of
-    bootstrapped *B* to *K* data) with error bars.
-  + `result_fits.dat`: Plot results of ensemble fit averages (for *f_perp* of
-    bootstrapped *B* to *K* data)
-  + `X.dat`: Inputs for each experiment, organized by ensemble.
-  + `Y.dat`: Bootstrapped *B* to *K* form factors, with organization matching
-    that of `X.dat`.
+All results are from single run of [chifit.py](../chifit.py) for *f_perp* of
+bootstrapped *B* to *K* data.
+
++ [README.md](README.md): Details suggested runs of `chifit.py` and explains the
+  included examples.
++ [X.dat](X.dat): Inputs for each experiment, organized by ensemble.
++ [Y.dat](Y.dat): Bootstrap samples of *B* to *K* form factors, with
+  organization matching that of `X.dat`.
++ [result.dat](result.dat): Plot results of `Y.dat` vs. `X.dat` with error bars.
++ [result.p](result.p): Fit parameter results from previous run stored in
+  pickled binary format.
++ [result.pdf](result.pdf): Plot results from previous run.
++ [result.txt](result.txt): Fit results from stdout of previous run.
++ [result_fit.dat](result_fit.dat): Plot results of continuum fit with error
+  bars.
++ [result_fits.dat](result_fits.dat): Plot results of ensemble fit averages.
+
