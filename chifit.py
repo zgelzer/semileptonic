@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Created by Zechariah Gelzer (University of Iowa) on 2015-03-30.
 # Copyright (C) 2015 Zechariah Gelzer.
 #
@@ -15,7 +16,7 @@
 --------------------------------------------------------------------------------
 Performs chiral fit to lattice QCD form factors.
     --------        --------        --------        --------        --------    
-Meant to be executed from terminal. Run 'python chifit.py --help' for more info.
+Meant to be executed from terminal. Run './chifit.py --help' for more info.
 --------------------------------------------------------------------------------
 Definitions
 -----------

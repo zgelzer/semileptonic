@@ -15,7 +15,7 @@
 Built-In Documentation
 ----------------------
 
-    $ python chifit.py --help
+    $ ./chifit.py --help
 
 Important Notices
 -----------------
@@ -40,36 +40,36 @@ Usage Suggestions
 
 + **run fit** for *f_perp* of *B* to *K*:
     ```
-    $ python chifit.py B2K perp bs --constrained --correlated
+    $ ./chifit.py B2K perp bs --constrained --correlated
     ```
 
 + **load results** from previous run (at datetime=`dt`) and **plot**:
     ```
-    $ python chifit.py B2K perp bs -c -C --load chifit_B2K_perp/result_{dt} --plot
+    $ ./chifit.py B2K perp bs -c -C --load chifit_B2K_perp/result_{dt} --plot
     ```
 
 + **load results** from previous run (at datetime=`dt`) and plot with custom
 **fit length** (`min,max,numpoints`):
     ```
-    $ python chifit.py B2K perp bs -c -C -L chifit_B2K_perp/result_{dt} -p --length 0.5,4.0,100
+    $ ./chifit.py B2K perp bs -c -C -L chifit_B2K_perp/result_{dt} -p --length 0.5,4.0,100
     ```
 
 + **include** only first 100 bootstrap **samples** (as quick test), run fit,
 and plot:
     ```
-    $ python chifit.py B2K perp bs -c -C -p -n 100
+    $ ./chifit.py B2K perp bs -c -C -p -n 100
     ```
 
 + **include** only first and last ensembles of **experiments**, run fit, and
 plot:
     ```
-    $ python chifit.py B2K perp bs -c -C -p -i 0,1,2,27,28,29
+    $ ./chifit.py B2K perp bs -c -C -p -i 0,1,2,27,28,29
     ```
 
 + **exclude** high-energy **experiments** from each ensemble (effectively
 setting **ensemble size** to two), run fit, and plot:
     ```
-    $ python chifit.py B2K perp bs -c -C -p -x 2,5,8,11,14,17,20,23,26,29 -e 2
+    $ ./chifit.py B2K perp bs -c -C -p -x 2,5,8,11,14,17,20,23,26,29 -e 2
     ```
 
 List of Files
