@@ -13,20 +13,22 @@
 -->
 
 > + *Possible changes in a future release:*
-    + add ability to save values from plot data/fits
-    + add comprehensive info to all subfunction docstrings
-    + add abilities to create and interact with jackknifed data
-    + parallelize least squares fitter
+>   + *add abilities to interact with and convert jackknifed data*
+>   + *parallelize least squares fitter*
 
 ---
 
-<!---
 + Version 0.2.0
+  + added comprehensive info to all function docstrings
   + added ability to save values from plot data/fits to formatted `.dat` files
-  + changed handling of `.dat` headers
   + added example `result*.dat` files
-  + added comprehensive info to all subfunction docstrings
--->
+  + changed handling of `.dat` headers
+  + changed default NNLO fit parameter widths
+  + changed default f_pi and Lambda constants
+  + changed default bootstrap errors
+  + removed handling of raw data
+
+---
 
 + Version 0.1.1
   + added example plot
