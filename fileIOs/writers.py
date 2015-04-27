@@ -181,7 +181,7 @@ def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
     ----------------------------------------------------------------------------
     """
     axis = axis if axis is not None else plt.gca()
-    E2s = np.array([inputs[xpmt]['E']**2 for xpmt in range(nexperiments)])
+    Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
     if datatype == 'bs':
         from calculators.stats.bootstrap import avg, middle_bounds as err
     data_avg = np.asarray([avg(data[xpmt, :]) for xpmt in range(nexperiments)])
@@ -199,7 +199,7 @@ def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
         amh = str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['mh_val'], n=3))
         label = r'$a m_\ell / a m_h$ = ' + aml + ' / ' + amh
         for ensxpmt in range(ensemblesize):
-            plt.errorbar(E2s[xpmt + ensxpmt], data_avg[xpmt + ensxpmt],
+            plt.errorbar(Es[xpmt + ensxpmt], data_avg[xpmt + ensxpmt],
                          yerr=([data_errlower[xpmt + ensxpmt]],
                                [data_errupper[xpmt + ensxpmt]]),
                          label=label, color=colors[ensemble], fmt=markershape,
@@ -207,18 +207,18 @@ def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
             label = None
             aml_amhs.append(str(aml + ' / ' + amh).ljust(18))
     outputs = np.empty(nexperiments, dtype=[('aml_amh', 'a18'),
-                                            ('E2', float),
+                                            ('E', float),
                                             ('ff_avg', float),
                                             ('ff_err+', float),
                                             ('ff_err-', float)])
     outputs['aml_amh'] = aml_amhs
-    outputs['E2'] = E2s
+    outputs['E'] = Es
     outputs['ff_avg'] = data_avg
     outputs['ff_err+'] = data_errupper
     outputs['ff_err-'] = data_errlower
     np.savetxt('result' + date_time(datetime) + '.dat', outputs,
                fmt=('%18s', '%.6e', '%.6e', '%.6e', '%.6e'), delimiter='  ',
-               header='  '.join(['a*ml / a*mh'.ljust(16), 'E2'.ljust(12),
+               header='  '.join(['a*ml / a*mh'.ljust(16), 'E'.ljust(12),
                                  'ff_avg'.ljust(12), 'ff_err+'.ljust(12),
                                  'ff_err-'.ljust(12)]))
 
@@ -366,30 +366,30 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
         fit_inputs[0]['ml_val'] = ml_continuum
         fit_inputs[0]['mh_sea'] = mh_continuum
         fit_inputs[0]['mh_val'] = mh_continuum
-    E2s = np.array([inputs[xpmt]['E'] ** 2 for xpmt in range(nexperiments)])
+    Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
     if linelength is None:
-        fit_E2s = np.linspace(min(E2s), max(E2s), num=50)
+        fit_Es = np.linspace(min(Es), max(Es), num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
-        fit_E2s = np.linspace(linelength[0], linelength[1], num=linelength[2])
-    fit_ffs_avg = np.empty_like(fit_E2s)
-    fit_ffs_err = np.empty_like(fit_E2s)
+        fit_Es = np.linspace(linelength[0], linelength[1], num=linelength[2])
+    fit_ffs_avg = np.empty_like(fit_Es)
+    fit_ffs_err = np.empty_like(fit_Es)
     fit_ffs_gvar = []
-    for E2 in fit_E2s:
-        fit_inputs[0]['E'] = sqrt(E2)
+    for E in fit_Es:
+        fit_inputs[0]['E'] = E
         fit_ffs_gvar.append(chiral.fitfcn(fit_inputs, params)[0])
-    fit_ffs_avg = np.array([fit_ffs_gvar[E2index].mean for E2index in
-                            range(len(fit_E2s))])
-    fit_ffs_err = np.array([fit_ffs_gvar[E2index].sdev for E2index in
-                            range(len(fit_E2s))])
-    plot_errfill(fit_E2s, fit_ffs_avg, fit_ffs_err, color=color, label=label,
+    fit_ffs_avg = np.array([fit_ffs_gvar[Eindex].mean for Eindex in
+                            range(len(fit_Es))])
+    fit_ffs_err = np.array([fit_ffs_gvar[Eindex].sdev for Eindex in
+                            range(len(fit_Es))])
+    plot_errfill(fit_Es, fit_ffs_avg, fit_ffs_err, color=color, label=label,
                  alphafill=alphafill, axis=axis)
     aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
     amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
     np.savetxt('result_fit' + date_time(datetime) + '.dat',
-               np.vstack((fit_E2s, fit_ffs_avg, fit_ffs_err)).T,
+               np.vstack((fit_Es, fit_ffs_avg, fit_ffs_err)).T,
                fmt=('%.6e', '%.6e', '%.6e'), delimiter='  ',
                header='a*ml / a*mh = {}\n'.format(aml + ' / ' + amh) +
-                      '  '.join(['E2'.ljust(10), 'ff_avg'.ljust(12),
+                      '  '.join(['E'.ljust(10), 'ff_avg'.ljust(12),
                                  'ff_err'.ljust(12)]))
 
 
@@ -455,30 +455,30 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
     nensembles = int(nexperiments / ensemblesize)
     colors = [colormap(1. * ensemble / nensembles) for ensemble in
               range(nensembles)]
-    E2s = np.array([inputs[xpmt]['E'] ** 2 for xpmt in range(nexperiments)])
+    Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
     if linelength is None:
-        fit_E2s = np.linspace(min(E2s), max(E2s), num=50)
+        fit_Es = np.linspace(min(Es), max(Es), num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
-        fit_E2s = np.linspace(linelength[0], linelength[1], num=linelength[2])
+        fit_Es = np.linspace(linelength[0], linelength[1], num=linelength[2])
     params_avg = {}
     for param in params.keys():
         params_avg[param] = params[param].mean
-    outputs = np.empty((nensembles, len(fit_E2s)))
+    outputs = np.empty((nensembles, len(fit_Es)))
     for ensemble in range(nensembles):
-        fit_ffs = np.empty_like(fit_E2s)
+        fit_ffs = np.empty_like(fit_Es)
         fit_inputs = np.array([{'ensemble': ensemble}])
         for param in inputs[ensemble * ensemblesize].keys():
             fit_inputs[0][param] = inputs[ensemble * ensemblesize][param]
-        for E2index, E2 in enumerate(fit_E2s):
-            fit_inputs[0]['E'] = sqrt(E2)
-            fit_ffs[E2index] = chiral.fitfcn(fit_inputs, params_avg)[0]
-        axis.plot(fit_E2s, fit_ffs, color=colors[ensemble], label=label,
+        for Eindex, E in enumerate(fit_Es):
+            fit_inputs[0]['E'] = E
+            fit_ffs[Eindex] = chiral.fitfcn(fit_inputs, params_avg)[0]
+        axis.plot(fit_Es, fit_ffs, color=colors[ensemble], label=label,
                   linewidth=linewidth)
         outputs[ensemble] = fit_ffs
-    outputs = np.vstack((fit_E2s, outputs)).T
+    outputs = np.vstack((fit_Es, outputs)).T
     np.savetxt('result_fits' + date_time(datetime) + '.dat', outputs,
                fmt='%.6e', delimiter='  ',
-               header='  '.join(['E2'.ljust(10)] +
+               header='  '.join(['E'.ljust(10)] +
                                 ['ff_avg(e={})'.format(ens).ljust(12)
                                  for ens in range(nensembles)]))
 
@@ -509,9 +509,9 @@ def plot_labels(legendloc='upper right', legendsize='8'):
     ----------------------------------------------------------------------------
     """
     if decayname == 'B2K':
-        plt.xlabel(r'$\left( r_1 E_K \right) ^2$')
+        plt.xlabel(r'$r_1 E_K$')
     elif decayname == 'B2pi':
-        plt.xlabel(r'$\left( r_1 E_\pi \right) ^2$')
+        plt.xlabel(r'$r_1 E_\pi$')
     if formfactor == 'para':
         plt.ylabel(r'$r_1^{1 / 2} f_\parallel$')
     elif formfactor == 'perp':
