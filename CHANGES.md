@@ -18,6 +18,11 @@
 
 ---
 
++ Version 0.2.1
+  + changed default x axis in plots
+
+---
+
 + Version 0.2.0
   + added comprehensive info to all function docstrings
   + added ability to save values from plot data/fits to formatted `.dat` files
@@ -27,8 +32,6 @@
   + changed default f_pi and Lambda constants
   + changed default bootstrap errors
   + removed handling of raw data
-
----
 
 + Version 0.1.1
   + added example plot
