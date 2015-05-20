@@ -76,7 +76,7 @@ def args(maindir):
                       help="form factor to be computed (must be 'perp' or " +
                            "'para')")
     args.add_argument('datatype',
-                      help="type of data (must be 'bs', 'jk', or 'jk2bs')")
+                      help="type of data (must be 'bs')")
     args.add_argument('-c', '--constrained', dest='constrained',
                       action='store_true',
                       help='uses constrained fit')
@@ -109,7 +109,7 @@ def args(maindir):
                       help='number of samples to use from resampled data')
     args.add_argument('-o', '--outputdir', dest='outputdir',
                       default=None,
-                      help="data directory; default='./result_{decayname}_" +
+                      help="data directory; default='{decayname}" + os.sep +
                            "{formfactor}'")
     args.add_argument('-p', '--plot', dest='plot',
                       action='store_true',
@@ -120,7 +120,7 @@ def args(maindir):
     args.add_argument('-x', '--exclude', dest='exclude',
                       default=None,
                       help='excludes given experiment numbers (must be comma-' +
-                           '-separated list)')
+                           'separated list)')
     args.add_argument('-X', '--inputs', dest='inputsource',
                       default='X.dat',
                       help="inputs source; default='X.dat'")
@@ -182,8 +182,7 @@ def args_parse(args, maindir):
         Form factor must be one of: 'para' (for parallel) or 'perp' (for
         perpendicular).
     ValueError : 'invalid data type'
-        Data type must be one of: 'bs' (for bootstrap), 'jk' (for jackknife), or
-        'jk2bs' (for jackknife that will be converted to bootstrap).
+        Data type must be 'bs' (for bootstrap).
     ValueError : 'invalid fit length' [...]
         Fit length must be comma-separated list entered as: {min,max,numpoints}.
     ValueError : 'invalid experiment list' [...]
@@ -201,7 +200,7 @@ def args_parse(args, maindir):
         raise ValueError('invalid decay name')
     if args.formfactor not in ['para', 'perp']:
         raise ValueError('invalid form factor')
-    if args.datatype not in ['bs', 'jk', 'jk2bs']:
+    if args.datatype not in ['bs']:
         raise ValueError('invalid data type')
     if args.fitlength is not None:
         args.fitlength = [float(n) for n in args.fitlength.split(',')]
