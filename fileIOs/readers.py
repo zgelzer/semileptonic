@@ -209,16 +209,16 @@ def args_parse(args, maindir):
             raise ValueError('invalid length of fit line (must be comma-' +
                              'separated list entered as min,max,numpoints)')
     if args.outputdir is None:
-        args.outputdir = './chifit_' + args.decayname + '_' + args.formfactor
+        args.outputdir = args.decayname + os.sep + args.formfactor
     if (args.include is not None) and (args.exclude is not None):
         raise ValueError('invalid experiment list (cannot specify both ' +
                          'include and exclude experiment lists)')
-    workdir = os.getcwd()
+    args.workdir = os.getcwd()
     os.chdir(args.datadir)
     args.nexperiments_source = len(np.loadtxt(args.inputsource))
     args.nsamples_source = int(len(np.loadtxt(args.datasource)) /
                                args.nexperiments_source)
-    os.chdir(workdir)
+    os.chdir(args.workdir)
     if args.include is not None:
         args.include = [int(xpmt) for xpmt in args.include.split(',')]
         args.nexperiments = len(args.include)

@@ -79,7 +79,6 @@ def main():
 
     #~ datetime may be set to False to disable date/time suffixes in results. ~#
     datetime = dt.now().strftime('%Y%m%d-%H%M')
-    workdir = os.getcwd()
     scriptdir = os.path.dirname(os.path.realpath(__file__))
 
     #~ Read and parse command-line arguments. ~#
@@ -97,7 +96,7 @@ def main():
     inputs = read.inputs(args.inputsource, args.xpmtlist)
     data = read.data(args.datasource, args.xpmtlist, args.nexperiments_source,
                      args.nsamples, args.nsamples_source)
-    os.chdir(workdir)
+    os.chdir(args.workdir)
 
     #~ Read a priori fit parameters (or their initial values) from
     #  settings/params.py; see settings/params.py for editing instructions. ~#
@@ -108,9 +107,9 @@ def main():
     _, chi2, dof, Q = fitlsq.one(inputs, data, p0s=params_initval,
                                  priors=params_apriori)
 
-    #~ Create output directory if it does not exist. ~#
+    #~ Create output directories if they do not exist. ~#
     if not os.path.exists(args.outputdir):
-        os.mkdir(args.outputdir)
+        os.makedirs(args.outputdir)
 
     #~ If fit parameter results are supplied, load them. ~#
     if args.load is not None:
