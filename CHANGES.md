@@ -13,15 +13,19 @@
 -->
 
 > + *Possible changes in a future release:*
+>   + *add functionality for vector and scalar form factors*
 >   + *add abilities to interact with and convert jackknifed data*
 >   + *parallelize least squares fitter*
 
 ---
 
-+ Version 0.2.1
-  + changed default x axis in plots
++ Version 0.2.2
+  + fixed *g_pi* fit usage
 
 ---
+
++ Version 0.2.1
+  + changed default x axis in plots
 
 + Version 0.2.0
   + added comprehensive info to all function docstrings
@@ -29,7 +33,7 @@
   + added example `result*.dat` files
   + changed handling of `.dat` headers
   + changed default NNLO fit parameter widths
-  + changed default f_pi and Lambda constants
+  + changed default *f_pi* and *Lambda* constants
   + changed default bootstrap errors
   + removed handling of raw data
 
