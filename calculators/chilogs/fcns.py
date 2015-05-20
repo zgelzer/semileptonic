@@ -67,9 +67,9 @@ __all__ = ['Deltabar', 'Deltas', 'F', 'I1', 'I2', 'J1sub', 'R31', 'deltaps',
            'mu']
 
 
+from math import atan, atanh, log, pi, sqrt
 from settings.constants import Lambda, a_atol, nearzero, tastemults
 from settings.fit import hardpiK
-from math import atan, atanh, log, pi, sqrt
 
 
 def D(inputs, g_pi, decayname):

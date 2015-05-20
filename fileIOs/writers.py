@@ -46,11 +46,11 @@ from datetime import datetime as dt
 from fitters import chiral
 from math import copysign, floor, log10, sqrt
 from matplotlib import pyplot as plt
-import numpy as np
 from os import getcwd
 from settings import fit
 from settings.fit import *
 from sys import stdout
+import numpy as np
 import pickle
 
 

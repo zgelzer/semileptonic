@@ -25,10 +25,10 @@ all : function
 """
 
 
+from fileIOs.readers import array2dict
 from fitters.chiral import fitfcn
 from gvar import gvar
 from lsqfit import nonlinear_fit
-from fileIOs.readers import array2dict
 from settings.fit import correlated, datatype, ensemblesize, nexperiments
 import numpy as np
 

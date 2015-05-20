@@ -69,8 +69,8 @@ References
 """
 
 
-from settings.constants import gpi
 from gvar import gvar
+from settings.constants import gpi
 
 
 width_NLO  = 2.

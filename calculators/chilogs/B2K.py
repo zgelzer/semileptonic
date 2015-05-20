@@ -34,9 +34,9 @@ References
 
 
 from calculators.chilogs.fcns import *
+from math import pi, sqrt
 from settings.constants import fpi, tastemults
 from settings.fit import SU3
-from math import pi, sqrt
 
 
 def D(inputs, g_pi):
