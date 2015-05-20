@@ -205,5 +205,5 @@ def fitfcn(inputs, params):
                  ClE * chi_l * chi_E +
                  ClE2 * chi_l * chi_E ** 2 +
                  Cla2 * chi_l * chi_a2) *
-                (gpi / (fpis * (Es + Delta_Bs))))
+                (g_pi / (fpis * (Es + Delta_Bs))))
 
