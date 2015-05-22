@@ -157,16 +157,18 @@ def args_parse(args, maindir):
     fit.py : file
         Storage of important settings, located in script directory 'settings'.
     args : argparse.Namespace
-        Alteration and addition of arguments, as follows...
-        args.exclude or args.include is converted to list of integers.
+        Alteration and addition of arguments, as follows:
+        args.exclude or args.include is converted to list of integers if
+        specified.
         args.fitlength is converted to list of floats if specified.
         args.nensembles is added.
         args.nexperiments is added.
         args.nexperiments_source is added.
         args.nsamples is converted to integer if specified.
         args.nsamples_source is added.
-        args.outputdir is set to './chifit_{args.decayname}_{args.formfactor}'
-                       if not specified.
+        args.outputdir is set to './{args.decayname}/{args.formfactor}' if not
+        specified.
+        args.workdir is added.
         args.xpmtlist is added.
     ----------------------------------------------------------------------------
     Requirements
