@@ -591,19 +591,19 @@ def results(params, chi2, dof, Q, datetime=None, fileouts=True, stdouts=True):
         stdout.write('\nWriting results to {}\n'.format(getcwd()))
     output = '#\n# Settings:\n'
     for setting in sorted(fit.__all__):
-        output += '#\t{0}\t{1}\n'.format(setting.rjust(12), eval(setting))
+        output += '\t{0}\t{1}\n'.format(setting.rjust(12), eval(setting))
     if correlated:
         output += '#\n# Correlated'
     else:
         output += '#\n# Uncorrelated'
     output += ' Least Squares Fit:\n'
-    output += '#\tchi2/dof [dof] = {0} [{1}]\n'.format(sigfig(chi2 / dof, n=2),
-                                                     int(np.round(dof)))
+    output += '#\tchi^2 / dof = {0} / {1}\n'.format(sigfig(chi2, n=3),
+                                                       int(np.round(dof)))
     output += '#\tQ = {}\n'.format(sigfig(Q, n=2))
     output += '#\n# Parameters:\n'
     for param in sorted(params.keys()):
         output += '\t{0}\t{1}\n'.format(param.rjust(5), params[param])
-    output += '\n'
+    output += '#\n'
     if stdouts:
         stdout.write(output)
     if fileouts:

@@ -37,25 +37,19 @@ results : function
 
 
 from gvar import gvar
-from sys import stdout
 import argparse
 import numpy as np
 import os
 import pickle
 
 
-def args(maindir):
+def args():
     """
     ----------------------------------------------------------------------------
-    Reads in command-line arguments of main script run from directory maindir.
+    Reads in command-line arguments of main script.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    Passes maindir and arguments to function args_parse. Intended to be called
+    Passes command-line arguments to function args_parse. Intended to be called
     before any other function in semileptonic module.
-    ----------------------------------------------------------------------------
-    Parameters
-    ----------
-    maindir : str
-        Directory of main script.
     ----------------------------------------------------------------------------
     Returns
     -------
@@ -68,27 +62,27 @@ def args(maindir):
     args_parse : function
     ----------------------------------------------------------------------------
     """
-    args = argparse.ArgumentParser(description='Perform chiral fit on ' +
-                                                    'form factors data.')
-    args.add_argument('decayname',
-                      help="name of decay (must be 'B2K' or 'B2pi')")
-    args.add_argument('formfactor',
-                      help="form factor to be computed (must be 'perp' or " +
-                           "'para')")
-    args.add_argument('datatype',
-                      help="type of data (must be 'bs')")
+    args = argparse.ArgumentParser(description='Perform chiral fits on ' +
+                                               'semileptonic form factors.')
     args.add_argument('-c', '--constrained', dest='constrained',
                       action='store_true',
                       help='uses constrained fit')
     args.add_argument('-C', '--correlated', dest='correlated',
                       action='store_true',
                       help='uses correlated fit')
-    args.add_argument('-d', '--datadir', dest='datadir',
+    args.add_argument('-d', '--decay', dest='decayname',
+                      default=None,
+                      help="name of decay (must be 'B2K' or 'B2pi')")
+    args.add_argument('-D', '--dir', dest='datadir',
                       default='.',
                       help="data directory; default='.'")
-    args.add_argument('-e', '--esize', dest='ensemblesize',
+    args.add_argument('-e', '--enssize', dest='ensemblesize',
                       default=3, type=int,
                       help='ensemble size; default=3')
+    args.add_argument('-f', '--formfactor', dest='formfactor',
+                      default=None,
+                      help="form factor to be computed (must be 'para' or " +
+                           "'perp')")
     args.add_argument('-H', '--hard', dest='hardpiK',
                       action='store_true',
                       help='uses hard pion/kaon')
@@ -103,7 +97,9 @@ def args(maindir):
                            'numpoints)')
     args.add_argument('-L', '--load', dest='load',
                       default=None,
-                      help='loads fit results from given LOAD.p and LOAD.txt')
+                      help='loads fit parameters from LOAD.p and fit ' +
+                           'settings from LOAD.txt (except for ENSEMBLESIZE ' +
+                           'and INCLUDE/EXCLUDE)')
     args.add_argument('-n', '--nsamples', dest='nsamples',
                       default=None,
                       help='number of samples to use from resampled data')
@@ -117,6 +113,9 @@ def args(maindir):
     args.add_argument('-s', '--su3', dest='SU3',
                       action='store_true',
                       help='uses SU(3) gauge')
+    args.add_argument('-t', '--type', dest='datatype',
+                      default='bs',
+                      help="type of data (must be 'bs'); default='bs'")
     args.add_argument('-x', '--exclude', dest='exclude',
                       default=None,
                       help='excludes given experiment numbers (must be comma-' +
@@ -128,24 +127,21 @@ def args(maindir):
                       default='Y.dat',
                       help="data source; default='Y.dat'")
     args = args.parse_args()
-    return args_parse(args, maindir)
+    return args_parse(args)
 
 
-def args_parse(args, maindir):
+def args_parse(args):
     """
     ----------------------------------------------------------------------------
-    Parses command-line arguments args of main script run from directory
-    maindir.
+    Parses command-line arguments args of main script.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Applies tests; alters formats if necessary; adds arguments relating to data
-    sizes; and saves important arguments to semileptonic/settings/fit.py.
+    and defaults; and saves important arguments to semileptonic/settings/fit.py.
     ----------------------------------------------------------------------------
     Parameters
     ----------
     args : argparse.Namespace
         Strings of command-line arguments along with their values.
-    maindir : str
-        Directory of main script.
     ----------------------------------------------------------------------------
     Returns
     -------
@@ -175,35 +171,69 @@ def args_parse(args, maindir):
     ------------
     numpy : module, as np
     os : module
+    results : function
     ----------------------------------------------------------------------------
     Raises
     ------
+    ValueError : 'must specify decay name'
+        Must specify decay name if not loading previous results.
     ValueError : 'invalid decay name'
         Decay name must be one of: 'B2K' (for B-->K) or 'B2pi' (for B-->pi).
+    ValueError : 'must specify form factor'
+        Must specify form factor if not loading previous results.
     ValueError : 'invalid form factor'
         Form factor must be one of: 'para' (for parallel) or 'perp' (for
         perpendicular).
+    ValueError : 'must specify data type'
+        Must specify data type if not loading previous results.
     ValueError : 'invalid data type'
         Data type must be 'bs' (for bootstrap).
-    ValueError : 'invalid fit length' [...]
+    ValueError : 'invalid fit length [...]'
         Fit length must be comma-separated list entered as: {min,max,numpoints}.
-    ValueError : 'invalid experiment list' [...]
+    ValueError : 'invalid experiment list [...]'
         Cannot simultaneously specify lists of experiments both to include and
         to exclude. Instead, summarize choices as single list of inclusions or
         of exclusions.
-    ValueError : 'invalid number of experiments' [...]
+    ValueError : 'invalid number of experiments [...]'
         Number of experiments must be multiple of {ensemble size}.
-    ValueError : 'invalid number of samples' [...]
+    ValueError : 'invalid number of samples [...]'
         Number of bootstrap/jackknife samples must be greater than zero and less
         than {number of samples in data source}.
     ----------------------------------------------------------------------------
+    Notes
+    -----
+    + Ignores previous values of args.ensemblesize and args.nexperiments if
+      loading fit settings from results of previous run, so that user may have
+      full control when importing data during each run.
+    ----------------------------------------------------------------------------
     """
-    if args.decayname not in ['B2K', 'B2pi']:
-        raise ValueError('invalid decay name')
-    if args.formfactor not in ['para', 'perp']:
-        raise ValueError('invalid form factor')
-    if args.datatype not in ['bs']:
-        raise ValueError('invalid data type')
+    if args.load is not None:
+        fitsettings = np.loadtxt(args.load + '.txt', delimiter='\t', dtype=str,
+                                 usecols=(1, 2))[:results.func_defaults[1]]
+        names = [fitsetting.strip() for fitsetting in fitsettings[:, 0]]
+        values = []
+        for value in fitsettings[:, 1]:
+            try:
+                values.append(eval(value))
+            except NameError:
+                values.append(str(value))
+        for name in names:
+            if (name != 'ensemblesize') and (name != 'nexperiments'):
+                value = values[np.where(np.asarray(names) == name)[0][0]]
+                args.__setattr__(name, value)
+    else:
+        if args.decayname is None:
+            raise ValueError('must specify decay name')
+        elif args.decayname not in ['B2K', 'B2pi']:
+            raise ValueError('invalid decay name')
+        if args.formfactor is None:
+            raise ValueError('must specify form factor')
+        elif args.formfactor not in ['para', 'perp']:
+            raise ValueError('invalid form factor')
+        if args.datatype is None:
+            raise ValueError('must specify data type')
+        elif args.datatype not in ['bs']:
+            raise ValueError('invalid data type')
     if args.fitlength is not None:
         args.fitlength = [float(n) for n in args.fitlength.split(',')]
         if len(args.fitlength) != 3:
@@ -244,27 +274,24 @@ def args_parse(args, maindir):
                              'number of samples in data source)')
     else:
         args.nsamples = args.nsamples_source
-    savefile = open(os.path.join(maindir, 'settings', 'fit.py'), 'w')
+    savefile = open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                   '..', 'settings', 'fit.py'), 'w')
     savefile.write('# Fit Settings #\n')
-    savefile.write('# -> generated by chifit.py\n')
+    savefile.write('# -> generated by semileptonic/fileIOs/readers.py\n')
     savefile.write('# -> not for user input; all manual changes will be ' +
                    'overwritten\n')
     savefile.write('# -> for help with changing fit settings, run ' +
                    '\'./chifit.py --help\'\n')
-    savefile.write('\n')
-    savefile.write('__all__ = [\'constrained\', \'correlated\', ' +
-                   '\'datatype\', \'decayname\', \'ensemblesize\', ' +
-                   '\'formfactor\', \'hardpiK\',  \'nexperiments\', \'SU3\']\n')
-    savefile.write('\n')
-    savefile.write('constrained = {}\n'.format(args.constrained))
-    savefile.write('correlated = {}\n'.format(args.correlated))
-    savefile.write('datatype = \'{}\'\n'.format(args.datatype))
-    savefile.write('decayname = \'{}\'\n'.format(args.decayname))
-    savefile.write('ensemblesize = {}\n'.format(args.ensemblesize))
-    savefile.write('formfactor = \'{}\'\n'.format(args.formfactor))
-    savefile.write('hardpiK = {}\n'.format(args.hardpiK))
-    savefile.write('nexperiments = {}\n'.format(args.nexperiments))
-    savefile.write('SU3 = {}\n'.format(args.SU3))
+    names = ['SU3', 'constrained', 'correlated', 'datatype', 'decayname',
+             'ensemblesize', 'formfactor', 'hardpiK', 'nexperiments']
+    savefile.write('__all__ = [' +
+                   ', '.join(["'" + name + "'" for name in names]) + ']\n')
+    for name in names:
+        value = args.__getattribute__(name)
+        if type(value) is str:
+            savefile.write("{0} = '{1}'\n".format(name, value))
+        else:
+            savefile.write('{0} = {1}\n'.format(name, value))
     savefile.close()
     return args
 
@@ -427,7 +454,7 @@ def params():
     return params_apriori, params_initval
 
 
-def results(source, usecols=(1,), delimiter='\t'):
+def results(source, delimiter='\t', skipfirst=9, skiplast=None, usecols=(1,)):
     """
     ----------------------------------------------------------------------------
     Reads array of results of fit parameters from pickled source and returns it
@@ -438,10 +465,16 @@ def results(source, usecols=(1,), delimiter='\t'):
     source : str
         Name of pickled and text sources, to which '.p' or '.txt' will be
         appended (respectively).
-    usecols : tuple of ints (optional; default is (1,))
-        Columns of data to use from text source.
     delimiter : str (optional; default is '\\t')
         String used to separate columns of data in text source.
+    skipfirst : int or NoneType (optional; default is 9)
+        Number of data values to ignore from beginning of text source. Default
+        of 9 will skip values pertaining to fit settings; should not be changed.
+    skiplast : int or NoneType (optional; default is None)
+        Number of data values to ignore from end of text source. Default of None
+        will read every last fit parameter; should not be changed.
+    usecols : tuple of ints (optional; default is (1,))
+        Columns of data to use from text source.
     ----------------------------------------------------------------------------
     Returns
     -------
@@ -456,7 +489,6 @@ def results(source, usecols=(1,), delimiter='\t'):
     numpy : module, as np
     os : module
     pickle : module
-    stdout : file, from sys
     ----------------------------------------------------------------------------
     Notes
     -----
@@ -466,10 +498,8 @@ def results(source, usecols=(1,), delimiter='\t'):
     + See function fitters.lsq.all.
     ----------------------------------------------------------------------------
     """
-    stdout.write('\nReading results from {}\n'.format(
-                            os.path.dirname(os.path.realpath(source + '.txt'))))
-    dictkeys = np.loadtxt(source + '.txt', usecols=usecols, delimiter=delimiter,
-                          dtype=str)
+    dictkeys = np.loadtxt(source + '.txt', delimiter=delimiter, dtype=str,
+                          usecols=usecols)[skipfirst:skiplast]
     dictkeys = sorted([key.strip() for key in dictkeys])
     return array2dict(gvar(pickle.load(open(source + '.p', 'rb'))), dictkeys)
 

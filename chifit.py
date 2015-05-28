@@ -45,7 +45,7 @@ def main():
     ----------------------------------------------------------------------------
     Runs chiral fits and saves results.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    Default save directory: ./results_{decayname}_{formfactor}
+    Default save directory: ./{decayname}/{formfactor}
     ----------------------------------------------------------------------------
     Results
     -------
@@ -79,14 +79,12 @@ def main():
 
     #~ datetime may be set to False to disable date/time suffixes in results. ~#
     datetime = dt.now().strftime('%Y%m%d-%H%M')
-    scriptdir = os.path.dirname(os.path.realpath(__file__))
 
     #~ Read and parse command-line arguments. ~#
-    args = read.args(scriptdir)
+    args = read.args()
 
     #~ Import other semileptonic submodules (may be done only after having read
     #  arguments). ~#
-    from calculators import chilogs, stats
     from fileIOs import writers as write
     from fitters import lsq as fitlsq
 
@@ -114,12 +112,12 @@ def main():
     #~ If fit parameter results are supplied, load them. ~#
     if args.load is not None:
 
-        #~ Load fit parameter results. ~#
+        #~ Load fit parameter results; move to output directory. ~#
+        stdout.write('\nReading results from {}.{{p, txt}}\n'.format(
+                                                   os.path.basename(args.load)))
+        stdout.write(open(args.load + '.txt').read())
         params_result = read.results(args.load)
-
-        #~ Move to output directory; write results to stdout only. ~#
         os.chdir(args.outputdir)
-        write.results(params_result, chi2, dof, Q, fileouts=False)
 
     #~ If fit parameter results are not supplied, run least squares fits. ~#
     else:
