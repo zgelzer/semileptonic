@@ -548,7 +548,7 @@ def plot_save(datetime=None):
     plt.savefig('result' + date_time(datetime) + '.pdf')
 
 
-def results(params, chi2, dof, Q, datetime=None, fileouts=True, stdouts=True):
+def results(params, chi2, dof, p, datetime=None, fileouts=True, stdouts=True):
     """
     ----------------------------------------------------------------------------
     Writes results of fit settings, qualities, and parameters to stdout and/or
@@ -562,7 +562,7 @@ def results(params, chi2, dof, Q, datetime=None, fileouts=True, stdouts=True):
         Minimum chi^2 from fit.
     dof : float
         Degrees of freedom in fit.
-    Q : float
+    p : float
         p-value of fit.
     datetime : str or bool or NoneType (optional; default is None)
         Date/time to be appended to output file name.
@@ -599,7 +599,7 @@ def results(params, chi2, dof, Q, datetime=None, fileouts=True, stdouts=True):
     output += ' Least Squares Fit:\n'
     output += '#\tchi^2 / dof = {0} / {1}\n'.format(sigfig(chi2, n=3),
                                                        int(np.round(dof)))
-    output += '#\tQ = {}\n'.format(sigfig(Q, n=2))
+    output += '#\tp = {}\n'.format(sigfig(p, n=2))
     output += '#\n# Parameters:\n'
     for param in sorted(params.keys()):
         output += '\t{0}\t{1}\n'.format(param.rjust(5), params[param])

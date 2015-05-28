@@ -100,9 +100,9 @@ def main():
     #  settings/params.py; see settings/params.py for editing instructions. ~#
     params_apriori, params_initval = read.params()
 
-    #~ Obtain chi^2, degrees of freedom, and p-value Q from one-time least
-    #  squares fit. ~#
-    _, chi2, dof, Q = fitlsq.one(inputs, data, p0s=params_initval,
+    #~ Obtain chi^2, degrees of freedom, and p-value from one-time least squares
+    #  fit (discarding the resulting fit parameters). ~#
+    _, chi2, dof, p = fitlsq.one(inputs, data, inits=params_initval,
                                  priors=params_apriori)
 
     #~ Create output directories if they do not exist. ~#
@@ -125,7 +125,7 @@ def main():
         #~ Run least squares fit for all bootstrap/jackknife samples. ~#
         stdout.write('\nRunning chiral fit...\n')
         params_result, cvals, cov = fitlsq.all(inputs, data,
-                                               p0s=params_initval,
+                                               inits=params_initval,
                                                priors=params_apriori)
 
         #~ Move to output directory; write resulting fit parameters
@@ -133,7 +133,7 @@ def main():
         #  'result.txt'. ~#
         os.chdir(args.outputdir)
         write.params(cvals, cov, datetime=datetime)
-        write.results(params_result, chi2, dof, Q, datetime=datetime)
+        write.results(params_result, chi2, dof, p, datetime=datetime)
 
     #~ If plot argument is supplied, plot pertinent data and fits. ~#
     if args.plot:

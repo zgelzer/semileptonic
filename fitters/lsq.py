@@ -33,11 +33,11 @@ from settings.fit import correlated, datatype, ensemblesize, nexperiments
 import numpy as np
 
 
-def one(inputs, data, fitfcn=fitfcn, p0s=None, priors=None):
+def one(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     """
     ----------------------------------------------------------------------------
     Performs one-time fit to ((X = inputs), (Y = data)), using given fit
-    function fitfcn and one of p0s or priors as fit parameters.
+    function fitfcn and one of inits or priors as fit parameters.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Passes (x, ymean, yinfo) as data for lsqfit.nonlinear_fit, with (x = X),
     (ymean = {central values of Y}) as determined by settings.fit.datatype, and
@@ -63,7 +63,7 @@ def one(inputs, data, fitfcn=fitfcn, p0s=None, priors=None):
     priors : dict of gvar.GVars or NoneType (optional; default is None)
         A priori estimates of fit parameters, as Gaussian variables with widths,
         if specified; meant to be used with constrained fit.
-    p0s : dict of floats or NoneType (optional; default is None)
+    inits : dict of floats or NoneType (optional; default is None)
         Initial values of fit parameters, if specified; meant to be used with
         unconstrained fit.
     ----------------------------------------------------------------------------
@@ -113,16 +113,16 @@ def one(inputs, data, fitfcn=fitfcn, p0s=None, priors=None):
     data_cvals = np.asarray([avg(data[xpmt, :]) for xpmt in
                              range(nexperiments)])
     fit = nonlinear_fit(data=(inputs, data_cvals, data_info), fcn=fitfcn,
-                        prior=priors, p0=p0s)
+                        prior=priors, p0=inits)
     return fit.p, fit.chi2, fit.dof, fit.Q
 
 
-def all(inputs, data, fitfcn=fitfcn, p0s=None, priors=None):
+def all(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     """
     ----------------------------------------------------------------------------
-    Performs {number of samples} total fits to ((X = inputs), (Y = data)),
-    where ({number of samples} = {size of data} / {number of experiments}),
-    using given fit function fitfcn and one of p0s or priors as fit parameters.
+    Performs {number of samples} total fits to ((X = inputs), (Y = data)), where
+    ({number of samples} = {size of data} / {number of experiments}), using
+    given fit function fitfcn and one of inits or priors as fit parameters.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     For each bootstrap/jackknife sample, passes (x, ymean, yinfo) as data for
     lsqfit.nonlinear_fit, with (x = X[sample]), (ymean = {central values of
@@ -148,7 +148,7 @@ def all(inputs, data, fitfcn=fitfcn, p0s=None, priors=None):
     priors : dict of gvar.GVars or NoneType (optional; default is None)
         A priori estimates of fit parameters, as Gaussian variables with widths,
         if specified; meant to be used with constrained fit.
-    p0s : dict of floats or NoneType (optional; default is None)
+    inits : dict of floats or NoneType (optional; default is None)
         Initial values of fit parameters, if specified; meant to be used with
         unconstrained fit.
     ----------------------------------------------------------------------------
@@ -183,7 +183,7 @@ def all(inputs, data, fitfcn=fitfcn, p0s=None, priors=None):
       fileIOs.writers.params.
     ----------------------------------------------------------------------------
     """
-    params = sorted(priors.keys() if priors is not None else p0s.keys())
+    params = sorted(priors.keys() if priors is not None else inits.keys())
     if datatype == 'bs':
         from calculators.stats.bootstrap import avg, err
     if correlated:
@@ -203,7 +203,7 @@ def all(inputs, data, fitfcn=fitfcn, p0s=None, priors=None):
         data_samples = np.array([data[xpmt, sample] for xpmt in
                                  range(nexperiments)])
         fit = nonlinear_fit(data=(inputs, data_samples, data_info), fcn=fitfcn,
-                            prior=priors, p0=p0s)
+                            prior=priors, p0=inits)
         for param in params:
             fit_avgs[param][sample] = fit.p[param].mean
     fit_cvals = np.asarray([avg(fit_avgs[param]) for param in params])
