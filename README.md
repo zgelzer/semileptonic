@@ -55,24 +55,11 @@ File Tree
     + [bootstrap.py](calculators/stats/bootstrap.py): Defines functions for
       bootstrapping raw data and reporting averages and errors of bootstrapped
       data.
-+ [examples](examples): Contains example inputs for and outputs from
-  `chifit.py`. Results are from run for *f_perp* of bootstrapped *B* to *K*
-  data.
-  + [README.md](examples/README.md): Details suggested runs of `chifit.py` and
-    explains the included examples.
-  + [X.dat](examples/X.dat): Inputs for each experiment, organized by ensemble.
-  + [Y.dat](examples/Y.dat): Bootstrap samples of *B* to *K* form factors, with
-    organization matching that of `X.dat`.
-  + [result.dat](examples/result.dat): Plot results of `Y.dat` vs. `X.dat` with
-    error bars.
-  + [result.p](examples/result.p): Fit parameter results from previous run
-    stored in pickled binary format.
-  + [result.pdf](examples/result.pdf): Plot results from previous run.
-  + [result.txt](examples/result.txt): Fit results from stdout of previous run.
-  + [result_fit.dat](examples/result_fit.dat): Plot results of continuum fit
-    with error bars.
-  + [result_fits.dat](examples/result_fits.dat): Plot results of ensemble fit
-    averages.
++ [examples](examples): Contains example inputs for and outputs from lattice QCD
+  simulations of *f_parallel* and *f_perpendicular* for *B* to *K* semileptonic
+  decays. Contains example results from `chifit.py`.
+  + [README.md](examples/README.md): Details some suggested runs of `chifit.py`
+    and explains the included examples.
 + [fileIOs](fileIOs): Contains modules for reading inputs and writing outputs.
   + [readers.py](fileIOs/readers.py): Defines functions for reading command-line
     arguments, inputs, data, initial fit parameters, and previous results.
@@ -98,3 +85,7 @@ files may communicate with one another.*
 
 > Special thanks is given to Dr. Ran Zhou of Fermilab for providing example
 > datasets, assisting with debugging, and offering invaluable advice.
+
+> Throughout this code, "experiment" is used as shorthand for
+> "lattice QCD simulation". This is not meant to offend experimentalists, as
+> the theoretical nature of such experiments is implied.
