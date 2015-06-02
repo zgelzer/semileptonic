@@ -36,6 +36,7 @@ results : function
 """
 
 
+from datetime import datetime as dt
 from gvar import gvar
 import argparse
 import numpy as np
@@ -110,7 +111,11 @@ def args():
     args.add_argument('-p', '--plot', dest='plot',
                       action='store_true',
                       help='displays plot')
-    args.add_argument('-s', '--su3', dest='SU3',
+    args.add_argument('-s', '--save', dest='savename',
+                      default=None,
+                      help='name to use when saving results; default=' +
+                           '{date/time}')
+    args.add_argument('-S', '--SU3', dest='SU3',
                       action='store_true',
                       help='uses SU(3) gauge')
     args.add_argument('-t', '--type', dest='datatype',
@@ -164,11 +169,13 @@ def args_parse(args):
         args.nsamples_source is added.
         args.outputdir is set to './{args.decayname}/{args.formfactor}' if not
         specified.
+        args.savename is set to date/time as 'YYYYMMDD-hhmm' if not specified.
         args.workdir is added.
         args.xpmtlist is added.
     ----------------------------------------------------------------------------
     Requirements
     ------------
+    datetime : class, from datetime, as dt
     numpy : module, as np
     os : module
     results : function
@@ -234,6 +241,8 @@ def args_parse(args):
             raise ValueError('must specify data type')
         elif args.datatype not in ['bs']:
             raise ValueError('invalid data type')
+    if args.savename is None:
+        args.savename = dt.now().strftime('%Y%m%d-%H%M')
     if args.fitlength is not None:
         args.fitlength = [float(n) for n in args.fitlength.split(',')]
         if len(args.fitlength) != 3:

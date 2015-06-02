@@ -33,7 +33,6 @@ Notes
 """
 
 
-from datetime import datetime as dt
 from fileIOs import readers as read
 from matplotlib import pyplot as plt
 from sys import stdout
@@ -46,25 +45,25 @@ def main():
     Runs chiral fits and saves results.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Default save directory: ./{decayname}/{formfactor}
+    Default save name: (date/time as 'YYYYMMDD-hhmm')
     ----------------------------------------------------------------------------
     Results
     -------
-    result.dat : file
+    {savename}.dat : file
         Values from plot of input data with error bars.
-    result.p : file
+    {savename}.p : file
         Fit parameter results in pickled binary format.
-    result.pdf : file
+    {savename}.pdf : file
         Aggregate of all plots.
-    result.txt : file
+    {savename}.txt : file
         Fit settings, and results for fit qualities and parameters.
-    result_fit.dat : file
+    {savename}_fit.dat : file
         Values from plot of continuum fit with errors.
-    result_fits.dat : file
+    {savename}_fits.dat : file
         Values from plot of ensemble fit averages.
     ----------------------------------------------------------------------------
     Requirements
     ------------
-    datetime : class, from datetime, as dt
     os : module
     pyplot : module, from matplotlib, as plt
     readers : module, from fileIOs, as read
@@ -72,13 +71,9 @@ def main():
     ----------------------------------------------------------------------------
     Notes
     -----
-    + Meant to be run automatically when script is called from the terminal.
-    + Results have date/time (as YYYYMMDD-hhmm) appended by default.
+    + Meant to be run automatically when script is called from terminal.
     ----------------------------------------------------------------------------
     """
-
-    #~ datetime may be set to False to disable date/time suffixes in results. ~#
-    datetime = dt.now().strftime('%Y%m%d-%H%M')
 
     #~ Read and parse command-line arguments. ~#
     args = read.args()
@@ -112,9 +107,9 @@ def main():
     #~ If fit parameter results are supplied, load them. ~#
     if args.load is not None:
 
-        #~ Load fit parameter results; move to output directory. ~#
+        #~ Load and write fit parameter results; move to output directory. ~#
         stdout.write('\nReading results from {}.{{p, txt}}\n'.format(
-                                                   os.path.basename(args.load)))
+                                                    os.path.abspath(args.load)))
         stdout.write(open(args.load + '.txt').read())
         params_result = read.results(args.load)
         os.chdir(args.outputdir)
@@ -129,11 +124,11 @@ def main():
                                                priors=params_apriori)
 
         #~ Move to output directory; write resulting fit parameters
-        #  params_result to 'result.p'; write all results to stdout and
-        #  'result.txt'. ~#
+        #  params_result to '{savename}.p'; write all results to stdout and
+        #  '{savename}.txt'. ~#
         os.chdir(args.outputdir)
-        write.params(cvals, cov, datetime=datetime)
-        write.results(params_result, chi2, dof, p, datetime=datetime)
+        write.params(cvals, cov, savename=args.savename)
+        write.results(params_result, chi2, dof, p, savename=args.savename)
 
     #~ If plot argument is supplied, plot pertinent data and fits. ~#
     if args.plot:
@@ -141,29 +136,32 @@ def main():
         #~ Initialize figure for receiving all future plots. ~#
         fig = plt.figure()
 
-        #~ Plot input data with error bars; write values to 'result.dat'. ~#
-        write.plot_data(inputs, data, datetime=datetime)
+        #~ Plot input data with error bars; write values to '{savename}.dat'. ~#
+        write.plot_data(inputs, data, savename=args.savename)
 
         #~ Plot averages of fit results for each ensemble; write values to
-        #  'result_fits.dat'. ~#
-        write.plot_fitavgs(inputs, params_result, datetime=datetime,
-                           linelength=args.fitlength)
+        #  '{savename}_fits.dat'. ~#
+        write.plot_fitavgs(inputs, params_result, linelength=args.fitlength,
+                           savename=args.savename)
 
         #~ Plot continuum extrapolation with dark gray line color and 50%
-        #  transparency in error fills; write values to 'result_fit.dat'. ~#
+        #  transparency in error fills; write values to '{savename}_fit.dat'. ~#
         write.plot_fit(inputs, params_result, 'continuum', alphafill=0.5,
-                       color='0.25', datetime=datetime, label='continuum',
-                       linelength=args.fitlength)
+                       color='0.25', label='continuum',
+                       linelength=args.fitlength, savename=args.savename)
 
-        #~ Add axis labels and place small legend in upper right corner. ~#
-        write.plot_labels(legendloc='upper right', legendsize='8')
+        #~ Add axis labels; create title with chi^2, degrees of freedom, and
+        #  p-value from one-time fit; place small legend in upper right corner;
+        #  set bounds of x-axis to that of custom fit line (if specified). ~#
+        write.plot_labels(chi2=chi2, dof=dof, legendloc='upper right',
+                          legendsize='8', p=p, xlims=args.fitlength)
 
         #~ Remove extraneous white space from borders; adjust fit labels so that
         #  they fit within borders. ~#
         fig.tight_layout()
 
-        #~ Save plots to 'result.pdf'. ~#
-        write.plot_save(datetime=datetime)
+        #~ Save plots to '{savename}.pdf'. ~#
+        write.plot_save(savename=args.savename)
 
         #~ Display plots (may be done only after having saved plots). ~#
         plt.show()

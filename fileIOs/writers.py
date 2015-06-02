@@ -17,8 +17,6 @@ Defines functions for writing and plotting data.
 --------------------------------------------------------------------------------
 Definitions
 -----------
-date_time : function
-    Returns string of date/time to be appended to output file names.
 params : function
     Pickles fit parameters.
 plot_data : function
@@ -42,7 +40,6 @@ sigfig : function
 
 
 from calculators.chilogs.fcns import a_fermi
-from datetime import datetime as dt
 from fitters import chiral
 from math import copysign, floor, log10, sqrt
 from matplotlib import pyplot as plt
@@ -54,51 +51,11 @@ import numpy as np
 import pickle
 
 
-def date_time(use, sep='_'):
-    """
-    ----------------------------------------------------------------------------
-    Returns string of date/time, to be appended with separation sep to output
-    file names if use is not False.
-    ----------------------------------------------------------------------------
-    Parameters
-    ----------
-    use : str or bool or NoneType
-        Usage of date/time; may be string of date/time, or False, or None.
-    sep : str (optional; default is '_')
-        Separation to use before date/time.
-    ----------------------------------------------------------------------------
-    Returns
-    -------
-    str
-        (sep + use) if use is string, {empty} if use is False, or (sep +
-        {current date/time}) if use is None.
-    ----------------------------------------------------------------------------
-    Requirements
-    ------------
-    datetime : class, from datetime, as dt
-    ----------------------------------------------------------------------------
-    Raises
-    ------
-    ValueError
-        use must be one of: string, False, or None.
-    ----------------------------------------------------------------------------
-    """
-    if use is None:
-        return sep + dt.now().strftime('%Y%m%d-%H%M')
-    elif use is False:
-        return ''
-    elif type(use) is str:
-        return sep + use
-    else:
-        raise ValueError('use must be string, False, or None')
-
-
-def params(avgs, cov, datetime=None):
+def params(avgs, cov, savename='result'):
     """
     ----------------------------------------------------------------------------
     Pickles fit parameters, where avgs are their central values and cov is their
-    covariance matrix, saving result with date/time appended if datetime is not
-    False.
+    covariance matrix, saving result with name savename.
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -107,17 +64,16 @@ def params(avgs, cov, datetime=None):
     cov : numpy.ndarray of floats
         Covariance matrix of results of fit parameters with shape ({number of
         parameters, number of parameters}).
-    datetime : str or bool or NoneType (optional; default is None)
-        Date/time to be appended to output file name.
+    savename : str (optional; default is 'result')
+        Root name to use when saving output file.
     ----------------------------------------------------------------------------
     Results
     -------
-    result.p : file
+    {savename}.p : file
         Results of fit parameters in pickled binary format.
     ----------------------------------------------------------------------------
     Requirements
     ------------
-    date_time : function
     pickle : module
     ----------------------------------------------------------------------------
     Notes
@@ -125,11 +81,11 @@ def params(avgs, cov, datetime=None):
     + See function fitters.lsq.all.
     ----------------------------------------------------------------------------
     """
-    pickle.dump((avgs, cov), open('result' + date_time(datetime) + '.p', 'wb'))
+    pickle.dump((avgs, cov), open(savename + '.p', 'wb'))
 
 
-def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
-              markerfill='none', markershape='o'):
+def plot_data(inputs, data, axis=None, colormap=None, markerfill='none',
+              markershape='o', savename='result'):
     """
     ----------------------------------------------------------------------------
     Plots (Y = data) vs. (X = inputs) for all experiments.
@@ -155,16 +111,16 @@ def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
     colormap : matplotlib.colors.LinearSegmentedColormap or NoneType (optional;
                default is None)
         Color map to use when creating successive plot line/marker colors.
-    datetime : str or bool or NoneType (optional; default is None)
-        Date/time to be appended to output file name.
     markerfill : str (optional; default is 'none')
         Type of fill to use for markers of data points.
     markershape : str (optional; default is 'o')
         Type of shape to use for markers of data points.
+    savename : str (optional; default is 'result')
+        Root name to use when saving output file.
     ----------------------------------------------------------------------------
     Results
     -------
-    result.dat : file
+    {savename}.dat : file
         Values from plot of input data with error bars.
     matplotlib.container.ErrorbarContainer
         Markers at (Y = data), (X = inputs) with error bars about Y.
@@ -172,7 +128,6 @@ def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
     Requirements
     ------------
     datatype : str, from settings.fit
-    date_time : function
     ensemblesize : int, from settings.fit
     nexperiments : int, from settings.fit
     numpy : module, as np
@@ -197,7 +152,7 @@ def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
     for ensemble, xpmt in enumerate(range(0, nexperiments, ensemblesize)):
         aml = str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['ml_val'], n=3))
         amh = str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['mh_val'], n=3))
-        label = r'$a m_\ell / a m_h$ = ' + aml + ' / ' + amh
+        label = '$a m_\\ell / a m_h =\\ {0} / {1}$'.format(aml, amh)
         for ensxpmt in range(ensemblesize):
             plt.errorbar(Es[xpmt + ensxpmt], data_avg[xpmt + ensxpmt],
                          yerr=([data_errlower[xpmt + ensxpmt]],
@@ -216,7 +171,7 @@ def plot_data(inputs, data, axis=None, colormap=None, datetime=None,
     outputs['ff_avg'] = data_avg
     outputs['ff_err+'] = data_errupper
     outputs['ff_err-'] = data_errlower
-    np.savetxt('result' + date_time(datetime) + '.dat', outputs,
+    np.savetxt(savename + '.dat', outputs,
                fmt=('%18s', '%.6e', '%.6e', '%.6e', '%.6e'), delimiter='  ',
                header='  '.join(['a*ml / a*mh'.ljust(16), 'E'.ljust(12),
                                  'ff_avg'.ljust(12), 'ff_err+'.ljust(12),
@@ -285,7 +240,7 @@ def plot_errfill(x, y, yerr, alphafill=0.3, axis=None, color=None, label=None):
 
 
 def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
-             colormap=None, datetime=None, label=None, linelength=None):
+             colormap=None, label=None, linelength=None, savename='result'):
     """
     ----------------------------------------------------------------------------
     Plots fit line at some lattice spacing lattspace, given (X = inputs) and fit
@@ -320,18 +275,18 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     colormap : matplotlib.colors.LinearSegmentedColormap or NoneType (optional;
                default is None)
         Color map to use when creating successive plot line colors.
-    datetime : str or bool or NoneType (optional; default is None)
-        Date/time to be appended to output file name.
     label : str or NoneType (optional; default is None)
         Label of plot line.
     linelength : list or NoneType (optional; default is None)
         Length of fit line, as list of [min, max, numpoints] if specified, for
         use with numpy.linspace. If not specified, numpy.linspace bounds match
         those of E_(K/pi) in inputs.
+    savename : str (optional; default is 'result')
+        Root name to use when saving output file.
     ----------------------------------------------------------------------------
     Results
     -------
-    result_fit.dat : file
+    {savename}_fit.dat : file
         Values from plot of fit line at some lattice spacing with errors.
     matplotlib.lines.Line2D
         Plot line of central values of fit.
@@ -342,7 +297,6 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     ------------
     a_fermi : function, from calculators.chilogs.fcns
     chiral : module, from fitters
-    date_time : function
     nexperiments : int, from settings.fit
     numpy : module, as np
     plot_errfill : function
@@ -385,7 +339,7 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
                  alphafill=alphafill, axis=axis)
     aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
     amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
-    np.savetxt('result_fit' + date_time(datetime) + '.dat',
+    np.savetxt(savename + '_fit.dat',
                np.vstack((fit_Es, fit_ffs_avg, fit_ffs_err)).T,
                fmt=('%.6e', '%.6e', '%.6e'), delimiter='  ',
                header='a*ml / a*mh = {}\n'.format(aml + ' / ' + amh) +
@@ -393,8 +347,8 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
                                  'ff_err'.ljust(12)]))
 
 
-def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
-                 label=None, linelength=None, linewidth=1.0):
+def plot_fitavgs(inputs, params, axis=None, colormap=None, label=None,
+                 linelength=None, linewidth=1.0, savename='result'):
     """
     ----------------------------------------------------------------------------
     Plots fit lines for all ensembles, given (X = inputs) and fit parameters
@@ -421,8 +375,6 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
     colormap : matplotlib.colors.LinearSegmentedColormap or NoneType (optional;
                default is None)
         Color map to use when creating successive plot line colors.
-    datetime : str or bool or NoneType (optional; default is None)
-        Date/time to be appended to output file name.
     label : str or NoneType (optional; default is None)
         Label of plot line.
     linelength : list or NoneType (optional; default is None)
@@ -431,10 +383,12 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
         those of E_(K/pi) in inputs.
     linewidth : float (optional; default is 1.0)
         Relative width of plot line.
+    savename : str (optional; default is 'result')
+        Root name to use when saving output file.
     ----------------------------------------------------------------------------
     Results
     -------
-    result_fits.dat : file
+    {savename}_fits.dat : file
         Values from plot of ensemble fit averages.
     matplotlib.lines.Line2D
         Plot line of central values of fits.
@@ -442,7 +396,6 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
     Requirements
     ------------
     chiral : module, from fitters
-    date_time : function
     ensemblesize : int, from settings.fit
     nexperiments : int, from settings.fit
     numpy : module, as np
@@ -476,67 +429,97 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, datetime=None,
                   linewidth=linewidth)
         outputs[ensemble] = fit_ffs
     outputs = np.vstack((fit_Es, outputs)).T
-    np.savetxt('result_fits' + date_time(datetime) + '.dat', outputs,
+    np.savetxt(savename + '_fits.dat', outputs,
                fmt='%.6e', delimiter='  ',
                header='  '.join(['E'.ljust(10)] +
                                 ['ff_avg(e={})'.format(ens).ljust(12)
                                  for ens in range(nensembles)]))
 
 
-def plot_labels(legendloc='upper right', legendsize='8'):
+def plot_labels(chi2=None, dof=None, legendloc='best', legendsize='12', p=None,
+                xlims=None, ylims=None):
     """
     ----------------------------------------------------------------------------
-    Adds axis labels and legend to existing plot instance.
+    Adds axis labels and legend to existing plot instance, creates a title with
+    chi^2, degrees of freedom, and p-value (if specified), and alters x- and/or
+    y-axis limits (if specified).
     ----------------------------------------------------------------------------
     Parameters
     ----------
-    legendloc : str or int or tuple of floats (optional; default is
-                'upper right')
+    chi2 : float
+        Minimum chi^2 from fit.
+    dof : int
+        Degrees of freedom in fit.
+    legendloc : str or int or tuple of floats (optional; default is 'best')
         Location of legend in plot figure.
-    legendsize : str of int or of float (optional; default is '8')
+    legendsize : str of int or of float (optional; default is '12')
         Size of fonts used in legend.
+    p : float
+        p-value of fit.
+    xlims : list or NoneType (optional; default is None)
+        Custom bounds (min, max) to use with x-axis, if specified.
+    ylims : list or NoneType (optional; default is None)
+        Custom bounds (min, max) to use with y-axis, if specified.
     ----------------------------------------------------------------------------
     Results
     -------
     matplotlib.legend.Legend
         Plot legend that will display all previously declared plot labels.
+    matplotlib.text.Text
+        Plot text container(s) that comprise x- and y-axis labels, as well as
+        title (if specified).
     ----------------------------------------------------------------------------
     Requirements
     ------------
     decayname : str, from settings.fit
     formfactor : str, from settings.fit
+    numpy : module, as np
     pyplot : module, from matplotlib, as plt
+    sigfig : function
     ----------------------------------------------------------------------------
     """
     if decayname == 'B2K':
-        plt.xlabel(r'$r_1 E_K$')
+        plt.xlabel('$r_1 E_K$')
     elif decayname == 'B2pi':
-        plt.xlabel(r'$r_1 E_\pi$')
+        plt.xlabel('$r_1 E_\\pi$')
     if formfactor == 'para':
-        plt.ylabel(r'$r_1^{1 / 2} f_\parallel$')
+        plt.ylabel('$r_1^{1 / 2} f_\\parallel$')
     elif formfactor == 'perp':
-        plt.ylabel(r'$r_1^{-1 / 2} f_\perp$')
+        plt.ylabel('$r_1^{-1 / 2} f_\\perp$')
+    if xlims is not None:
+        plt.xlim(xlims[0], xlims[1])
+    if ylims is not None:
+        plt.ylim(ylims[0], ylims[1])
+    title = ''
+    if (chi2 is not None) and (dof is not None):
+        title += '$\\chi^2\\! / \\mathrm{{dof}} = {0} / {1}$'.format(
+                                          sigfig(chi2, n=3), int(np.round(dof)))
+        if p is not None:
+            title += '$,\\ $'
+    if p is not None:
+        title += '$p = {}$'.format(sigfig(p, n=2))
+    if title != '':
+        plt.title(title)
     plt.legend(loc=legendloc, prop={'size': legendsize}, numpoints=1)
 
 
-def plot_save(datetime=None):
+def plot_save(savename='result'):
     """
     ----------------------------------------------------------------------------
-    Saves plot instance with date/time appended if datetime is not False.
+    Saves plot instance with name savename.
     ----------------------------------------------------------------------------
     Parameters
     ----------
-    datetime : str or bool or NoneType (optional; default is None)
-        Date/time to be appended to output file name.
+    savename : str (optional; default is 'result')
+        Root name to use when saving output file.
     ----------------------------------------------------------------------------
     Results
     -------
-    result.pdf : file
+    {savename}.pdf : file
         Saves plot instance.
     ----------------------------------------------------------------------------
     Requirements
     ------------
-    date_time : function
     pyplot : module, from matplotlib, as plt
     ----------------------------------------------------------------------------
     Notes
@@ -545,14 +528,15 @@ def plot_save(datetime=None):
       matplotlib.pyplot.show.
     ----------------------------------------------------------------------------
     """
-    plt.savefig('result' + date_time(datetime) + '.pdf')
+    plt.savefig(savename + '.pdf')
 
 
-def results(params, chi2, dof, p, datetime=None, fileouts=True, stdouts=True):
+def results(params, chi2, dof, p, fileouts=True, savename='result',
+            stdouts=True):
     """
     ----------------------------------------------------------------------------
     Writes results of fit settings, qualities, and parameters to stdout and/or
-    output file, saving latter with date/time appended if datetime is not False.
+    output file, saving latter with name savename.
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -564,22 +548,21 @@ def results(params, chi2, dof, p, datetime=None, fileouts=True, stdouts=True):
         Degrees of freedom in fit.
     p : float
         p-value of fit.
-    datetime : str or bool or NoneType (optional; default is None)
-        Date/time to be appended to output file name.
     fileouts : bool (optional; default is True)
         Determines if outputs are written to file.
+    savename : str (optional; default is 'result')
+        Root name to use when saving output file.
     stdouts : bool (optional; default is True)
         Determines if outputs are written to stdout.
     ----------------------------------------------------------------------------
     Results
     -------
-    result.txt : file (optional; created by default)
+    {savename}.txt : file (optional; created by default)
         Results of fit settings, qualities, and parameters.
     ----------------------------------------------------------------------------
     Requirements
     ------------
     correlated : bool, from settings.fit
-    date_time : function
     fit : module, from settings
     getcwd : function, from os
     numpy : module, as np
@@ -607,7 +590,7 @@ def results(params, chi2, dof, p, datetime=None, fileouts=True, stdouts=True):
     if stdouts:
         stdout.write(output)
     if fileouts:
-        outfile = open('result' + date_time(datetime) + '.txt', 'w')
+        outfile = open(savename + '.txt', 'w')
         outfile.write(output)
         outfile.close()
 
