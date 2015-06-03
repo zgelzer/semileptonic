@@ -40,6 +40,8 @@ File Tree
   factors.
 + [calculators](calculators): Contains modules for calculating chiral logs and
   statistics.
+  + [fcns.py](calculators/fcns.py): Defines functions for use in relating
+    particle energies.
   + [chilogs](calculators/chilogs): Contains modules for calculating chiral logs
     that are separated by decay channel, with their basic functions stored in a
     communal module.
