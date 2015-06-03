@@ -63,8 +63,8 @@ def args():
     args_parse : function
     ----------------------------------------------------------------------------
     """
-    args = argparse.ArgumentParser(description='Perform chiral fits on ' +
-                                               'semileptonic form factors.')
+    args = argparse.ArgumentParser(description='Performs chiral fit to ' +
+                                               'lattice QCD form factors.')
     args.add_argument('-c', '--constrained', dest='constrained',
                       action='store_true',
                       help='uses constrained fit')
@@ -169,7 +169,8 @@ def args_parse(args):
         args.nsamples_source is added.
         args.outputdir is set to './{args.decayname}/{args.formfactor}' if not
         specified.
-        args.savename is set to date/time as 'YYYYMMDD-hhmm' if not specified.
+        args.savename is set to date/time as 'YYYYMMDD-hhmm' if not specified or
+        if empty.
         args.workdir is added.
         args.xpmtlist is added.
     ----------------------------------------------------------------------------
@@ -241,7 +242,7 @@ def args_parse(args):
             raise ValueError('must specify data type')
         elif args.datatype not in ['bs']:
             raise ValueError('invalid data type')
-    if args.savename is None:
+    if (args.savename is None) or (args.savename == ''):
         args.savename = dt.now().strftime('%Y%m%d-%H%M')
     if args.fitlength is not None:
         args.fitlength = [float(n) for n in args.fitlength.split(',')]
