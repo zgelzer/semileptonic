@@ -61,6 +61,7 @@ def args():
     ------------
     argparse : module
     args_parse : function
+    os : module
     ----------------------------------------------------------------------------
     """
     args = argparse.ArgumentParser(description='Performs chiral fit to ' +
@@ -78,8 +79,8 @@ def args():
                       default='.',
                       help="data directory; default='.'")
     args.add_argument('-e', '--enssize', dest='ensemblesize',
-                      default=3, type=int,
-                      help='ensemble size; default=3')
+                      default=None,
+                      help='ensemble size; default is guessed from INPUTSOURCE')
     args.add_argument('-f', '--formfactor', dest='formfactor',
                       default=None,
                       help="form factor to be computed (must be 'para' or " +
@@ -161,6 +162,8 @@ def args_parse(args):
         Alteration and addition of arguments, as follows:
         args.exclude or args.include is converted to list of integers if
         specified.
+        args.ensemblesize is converted to integer if specified; otherwise it is
+        guessed from args.inputsource (see Notes).
         args.fitlength is converted to list of floats if specified.
         args.nensembles is added.
         args.nexperiments is added.
@@ -210,21 +213,25 @@ def args_parse(args):
     ----------------------------------------------------------------------------
     Notes
     -----
-    + Ignores previous values of args.ensemblesize and args.nexperiments if
-      loading fit settings from results of previous run, so that user may have
+    + If loading fit settings from results of previous run, ignores previous
+      values of args.ensemblesize and args.nexperiments so that user may have
       full control when importing data during each run.
+    + If not specified, args.ensemblesize is guessed from args.inputsource by
+      comparing ratios of valence light- to heavy-quark masses to that of the
+      first experiment. This assumes that valence light- and heavy-quark masses
+      are located in the third and fifth columns of args.inputsource (resp.).
     ----------------------------------------------------------------------------
     """
     if args.load is not None:
         fitsettings = np.loadtxt(args.load + '.txt', delimiter='\t', dtype=str,
                                  usecols=(1, 2))[:results.func_defaults[1]]
-        names = [fitsetting.strip() for fitsetting in fitsettings[:, 0]]
         values = []
         for value in fitsettings[:, 1]:
             try:
                 values.append(eval(value))
             except NameError:
                 values.append(str(value))
+        names = [fitsetting.strip() for fitsetting in fitsettings[:, 0]]
         for name in names:
             if (name != 'ensemblesize') and (name != 'nexperiments'):
                 value = values[np.where(np.asarray(names) == name)[0][0]]
@@ -256,9 +263,17 @@ def args_parse(args):
                          'include and exclude experiment lists)')
     args.workdir = os.getcwd()
     os.chdir(args.datadir)
-    args.nexperiments_source = len(np.loadtxt(args.inputsource))
+    Xsource = np.loadtxt(args.inputsource)
+    args.nexperiments_source = len(Xsource)
     args.nsamples_source = int(len(np.loadtxt(args.datasource)) /
                                args.nexperiments_source)
+    if args.ensemblesize is None:
+        Xratios = np.array([Xsource[x][2] / Xsource[x][4] for x in
+                            range(args.nexperiments_source)])
+        args.ensemblesize = np.sum([np.allclose(Xratios[:1], Xratios[:x]) for x
+                                    in range(1, len(Xratios))])
+    else:
+        args.ensemblesize = int(args.ensemblesize)
     os.chdir(args.workdir)
     if args.include is not None:
         args.include = [int(xpmt) for xpmt in args.include.split(',')]
@@ -497,7 +512,6 @@ def results(source, delimiter='\t', skipfirst=9, skiplast=None, usecols=(1,)):
     array2dict : function
     gvar : class, from gvar
     numpy : module, as np
-    os : module
     pickle : module
     ----------------------------------------------------------------------------
     Notes

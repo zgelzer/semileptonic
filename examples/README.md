@@ -87,8 +87,8 @@ File Tree
     simulations of *f_parallel*. Contains results from `chifit.py` executed in
     the hard-kaon limit with all constrained NNLO fit parameters:
     ```
-    $ ./chifit.py -d B2K -f para -D examples/B2K/para/ -e 4 -c -C -H \
-    -s chiral_NNLO -p -l 0.8,2.0,100
+    $ ./chifit.py -d B2K -f para -D examples/B2K/para/ -c -C -H -s chiral_NNLO \
+    -p -l 0.8,2.0,100
     ```
     + [X.dat](B2K/para/X.dat): Inputs for each simulation, organized by
       ensemble.
@@ -109,8 +109,8 @@ File Tree
     simulations of *f_perpendicular*. Contains results from `chifit.py` executed
     in the hard-kaon limit with all constrained NNLO fit parameters:
     ```
-    $ ./chifit.py -d B2K -f perp -D examples/B2K/perp/ -e 3 -c -C -H \
-    -s chiral_NNLO -p -l 0.8,2.0,100
+    $ ./chifit.py -d B2K -f perp -D examples/B2K/perp/ -c -C -H -s chiral_NNLO \
+    -p -l 0.8,2.0,100
     ```
     + [X.dat](B2K/perp/X.dat): Inputs for each simulation, organized by
       ensemble.
