@@ -134,7 +134,7 @@ def main():
     if args.plot:
 
         #~ Initialize figure for receiving all future plots. ~#
-        fig = plt.figure()
+        figure = plt.figure()
 
         #~ Plot input data with error bars; write values to '{savename}.dat'. ~#
         write.plot_data(inputs, data, savename=args.savename)
@@ -157,11 +157,9 @@ def main():
                           legendsize='8', p=p, xlims=args.fitlength)
 
         #~ Remove extraneous white space from borders; adjust fit labels so that
-        #  they fit within borders. ~#
-        fig.tight_layout()
-
-        #~ Save plots to '{savename}.pdf'. ~#
-        write.plot_save(savename=args.savename)
+        #  they fit within borders; save plots to '{savename}.pdf' ~#
+        figure.tight_layout()
+        plt.savefig(args.savename + '.pdf')
 
         #~ Display plots (may be done only after having saved plots). ~#
         plt.show()

@@ -29,8 +29,6 @@ plot_fitavgs : function
     Plots fit lines vs. E_(K/pi) in r_1 units for all ensembles.
 plot_labels : function
     Adds axis labels and legend to existing plot instance.
-plot_save : function
-    Saves plot instance.
 results : function
     Writes results of fit settings, qualities, and parameters.
 sigfig : function
@@ -503,34 +501,6 @@ def plot_labels(chi2=None, dof=None, legendloc='best', legendsize='12', p=None,
     if title != '':
         plt.title(title)
     plt.legend(loc=legendloc, prop={'size': legendsize}, numpoints=1)
-
-
-def plot_save(savename='result'):
-    """
-    ----------------------------------------------------------------------------
-    Saves plot instance with name savename.
-    ----------------------------------------------------------------------------
-    Parameters
-    ----------
-    savename : str (optional; default is 'result')
-        Root name to use when saving output file.
-    ----------------------------------------------------------------------------
-    Results
-    -------
-    {savename}.pdf : file
-        Saves plot instance.
-    ----------------------------------------------------------------------------
-    Requirements
-    ------------
-    pyplot : module, from matplotlib, as plt
-    ----------------------------------------------------------------------------
-    Notes
-    -----
-    + plot_save should be called before plot instance is displayed via function
-      matplotlib.pyplot.show.
-    ----------------------------------------------------------------------------
-    """
-    plt.savefig(savename + '.pdf')
 
 
 def results(params, chi2, dof, p, fileouts=True, savename='result',
