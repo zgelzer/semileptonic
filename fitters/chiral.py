@@ -53,6 +53,7 @@ def fitfcn(inputs, params):
         f_perp = [g_pi / (f_pi * (E_(K/pi) + Delta_B))] *
                  [C^(0) * ((E_(K/pi) + Delta_B) / (E_(K/pi) + Delta_B + D) + df)
                   + Sum_(i){C^(i) * chi_(i)}]
+        f_tensor = (same form as f_perp)
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -185,7 +186,7 @@ def fitfcn(inputs, params):
                  ClE2 * chi_l * chi_E ** 2 +
                  Cla2 * chi_l * chi_a2) /
                 fpis)
-    elif formfactor == 'perp':
+    elif (formfactor == 'perp') or (formfactor == 'tensor'):
         Delta_Bs = Delta_B * np.ones(nouts)
         Ds = np.array([D(inputs[i], g_pi, decayname) for i in range(nouts)])
         dfs = np.array([df_perp(inputs[i], g_pi, decayname) for i in

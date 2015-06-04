@@ -31,7 +31,7 @@ __all__ = ['E_out', 'q2']
 
 
 from settings.constants import hbarc, r1
-from settings.fit import decayname, formfactor
+from settings.fit import decayname
 
 
 def E_out(q2):

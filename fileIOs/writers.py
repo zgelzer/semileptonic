@@ -486,6 +486,8 @@ def plot_labels(chi2=None, dof=None, legendloc='best', legendsize='12', p=None,
         plt.ylabel('$r_1^{1 / 2} f_\\parallel$')
     elif formfactor == 'perp':
         plt.ylabel('$r_1^{-1 / 2} f_\\perp$')
+    elif formfactor == 'tensor':
+        plt.ylabel('$r_1^{-1 / 2} f_T$')
     if xlims is not None:
         plt.xlim(xlims[0], xlims[1])
     if ylims is not None:

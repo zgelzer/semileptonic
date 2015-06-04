@@ -243,7 +243,7 @@ def args_parse(args):
             raise ValueError('invalid decay name')
         if args.formfactor is None:
             raise ValueError('must specify form factor')
-        elif args.formfactor not in ['para', 'perp']:
+        elif args.formfactor not in ['para', 'perp', 'tensor']:
             raise ValueError('invalid form factor')
         if args.datatype is None:
             raise ValueError('must specify data type')
