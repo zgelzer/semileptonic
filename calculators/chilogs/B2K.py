@@ -68,7 +68,7 @@ def D(inputs, g_pi):
     deltaps : function, from calculators.chilogs.fcns
     fpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
-    pi : function, from math
+    pi : float, from math
     sqrt : function, from math
     tastemults : dict, from settings.constants
     ----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ def df_para(inputs, g_pi):
     deltaps : function, from calculators.chilogs.fcns
     fpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
-    pi : function, from math
+    pi : float, from math
     sqrt : function, from math
     tastemults : dict, from settings.constants
     ----------------------------------------------------------------------------
@@ -241,7 +241,7 @@ def df_perp(inputs, g_pi):
     deltaps : function, from calculators.chilogs.fcns
     fpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
-    pi : function, from math
+    pi : float, from math
     sqrt : function, from math
     tastemults : dict, from settings.constants
     ----------------------------------------------------------------------------
