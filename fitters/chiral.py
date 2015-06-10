@@ -13,7 +13,7 @@
 
 """
 --------------------------------------------------------------------------------
-Defines chiral fit function for decay form factors of B mesons.
+Defines chiral fit functions for decay form factors of B mesons.
 --------------------------------------------------------------------------------
 Definitions
 -----------

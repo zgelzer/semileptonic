@@ -68,7 +68,7 @@ File Tree
   + [writers.py](fileIOs/writers.py): Defines functions for writing and plotting
     data.
 + [fitters](fitters): Contains modules for fitters and their functions.
-  + [chiral.py](fitters/chiral.py): Defines chiral fit function for *B* decay
+  + [chiral.py](fitters/chiral.py): Defines chiral fit functions for *B* decay
     form factors.
   + [lsq.py](fitters/lsq.py): Performs least squares fit(s) to data using Prof.
     G. P. LePage's [lsqfit.nonlinear_fit](https://github.com/gplepage/lsqfit).
