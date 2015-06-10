@@ -424,8 +424,7 @@ def args_parse_single(args, savenames):
       'nexperiments'.
     + If not specified, args.ensemblesize is guessed from args.inputsource by
       comparing ratios of valence light- to heavy-quark masses to that of the
-      first experiment. This assumes that valence light- and heavy-quark masses
-      are located in the third and fifth columns of args.inputsource (resp.).
+      first experiment.
     + See function args_parse.
     ----------------------------------------------------------------------------
     """
@@ -469,14 +468,17 @@ def args_parse_single(args, savenames):
         raise ValueError('invalid experiment list (cannot specify both ' +
                          'include and exclude experiment lists)')
     os.chdir(args.datadir)
+    Xheader = np.array(open(args.inputsource).readline().split()[1:])
+    Xcol_mh = np.where(Xheader == 'mh_val')[0][0]
+    Xcol_ml = np.where(Xheader == 'ml_val')[0][0]
     Xsource = np.loadtxt(args.inputsource)
     args.nexperiments_source = len(Xsource)
     args.nsamples_source = int(len(np.loadtxt(args.datasource)) /
                                args.nexperiments_source)
     os.chdir(args.workdir)
     if args.ensemblesize is None:
-        Xratios = np.array([Xsource[xpmt][2] / Xsource[xpmt][4] for xpmt in
-                            range(args.nexperiments_source)])
+        Xratios = np.array([Xsource[xpmt][Xcol_ml] / Xsource[xpmt][Xcol_mh]
+                            for xpmt in range(args.nexperiments_source)])
         args.ensemblesize = np.sum([np.allclose(Xratios[:1], Xratios[:xpmt])
                                     for xpmt in range(1, len(Xratios))])
     else:
@@ -539,13 +541,12 @@ def array2dict(array, keys):
     return dictionary
 
 
-def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source,
-         usecols=(2,)):
+def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source):
     """
     ----------------------------------------------------------------------------
-    Reads in data from columns usecols in source according to experiment list
-    xpmtlist, sampling desired number of samples nsamples from original data
-    whose shape is (nexperiments_source, nsamples_source).
+    Reads in data from source according to experiment list xpmtlist, sampling
+    desired number of samples nsamples from original data whose shape is
+    (nexperiments_source, nsamples_source).
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -559,8 +560,6 @@ def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source,
         Number of samples to use from data source.
     nsamples_source : int
         Number of samples in data source.
-    usecols : tuple of ints (optional; default is (2,))
-        Columns of data to use from data source.
     ----------------------------------------------------------------------------
     Returns
     -------
@@ -571,8 +570,23 @@ def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source,
     ------------
     numpy : module, as np
     ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'header in {source} must contain ff'
+        Source must contain commented header line containing 'ff' (see Notes);
+        this implies that source must also contain float values for 'ff'.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + Source should have commented ('#') header line with variable name 'ff'
+      (form factor) describing its corresponding column of float values.
+    ----------------------------------------------------------------------------
     """
-    data = np.loadtxt(source, usecols=usecols)
+    header = np.array(open(source).readline().split()[1:])
+    if ('ff' not in header):
+        raise ValueError('header in ' + source + ' must contain ff')
+    usecol = (np.where(header == 'ff')[0][0],)
+    data = np.loadtxt(source, usecols=usecol)
     data = data.reshape((nexperiments_source, nsamples_source))
     return data[xpmtlist, :nsamples]
 
@@ -599,28 +613,51 @@ def inputs(source, xpmtlist):
     ------------
     numpy : module, as np
     ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'header in {source} must contain [...]'
+        Source must contain commented header line describing all inputs (see
+        Notes); this implies that source must also contain float values for each
+        of these variable names.
+    ----------------------------------------------------------------------------
     Notes
     -----
     + Input floats for each experiment are as follows:
-        > 'a_fm' : lattice spacing in fm
-        > 'a' : lattice spacing in r_1 units
-        > 'ml_val' : mass of light valence quark in r_1 units
-        > 'ml_sea' : mass of light sea quark in r_1 units
-        > 'mh_val' : mass of heavy valence quark in r_1 units
-        > 'mh_sea' : mass of heavy sea quark in r_1 units
-        > 'E' : energy of pion/Kaon in r_1 units
+        > E : energy of pion/Kaon in r_1 units
+        > a : lattice spacing in r_1 units
+        > a_fm : lattice spacing in fm
+        > mh_sea : mass of heavy sea quark in r_1 units
+        > mh_val : mass of heavy valence quark in r_1 units
+        > ml_sea : mass of light sea quark in r_1 units
+        > ml_val : mass of light valence quark in r_1 units
+    + Source should have commented ('#') header line with variable names
+      describing each corresponding column of float values. These variable names
+      must exactly match those listed in the previous note (see above).
     ----------------------------------------------------------------------------
     """
+    header = np.array(open(source).readline().split()[1:])
+    if (('E' not in header) or ('a' not in header) or ('a_fm' not in header) or
+        ('mh_sea' not in header) or ('mh_val' not in header) or
+        ('ml_sea' not in header) or ('ml_val' not in header)):
+        raise ValueError('header in ' + source + ' must contain ' +
+                         'E, a, a_fm, mh_sea, mh_val, ml_sea, ml_val')
+    column_E = np.where(header == 'E')[0][0]
+    column_a = np.where(header == 'a')[0][0]
+    column_afm = np.where(header == 'a_fm')[0][0]
+    column_mhsea = np.where(header == 'mh_sea')[0][0]
+    column_mhval = np.where(header == 'mh_val')[0][0]
+    column_mlsea = np.where(header == 'ml_sea')[0][0]
+    column_mlval = np.where(header == 'ml_val')[0][0]
     source = np.loadtxt(source)
     inputs = np.array([{'xpmt': xpmt} for xpmt in xpmtlist])
     for i, xpmt in enumerate(xpmtlist):
-        inputs[i]['a_fm']   = float(source[xpmt][0])
-        inputs[i]['a']      = float(source[xpmt][1])
-        inputs[i]['ml_val'] = float(source[xpmt][2])
-        inputs[i]['ml_sea'] = float(source[xpmt][3])
-        inputs[i]['mh_val'] = float(source[xpmt][4])
-        inputs[i]['mh_sea'] = float(source[xpmt][5])
-        inputs[i]['E']      = float(source[xpmt][6])
+        inputs[i]['E']      = float(source[xpmt][column_E])
+        inputs[i]['a']      = float(source[xpmt][column_a])
+        inputs[i]['a_fm']   = float(source[xpmt][column_afm])
+        inputs[i]['mh_sea'] = float(source[xpmt][column_mhsea])
+        inputs[i]['mh_val'] = float(source[xpmt][column_mhval])
+        inputs[i]['ml_sea'] = float(source[xpmt][column_mlsea])
+        inputs[i]['ml_val'] = float(source[xpmt][column_mlval])
     return inputs
 
 
