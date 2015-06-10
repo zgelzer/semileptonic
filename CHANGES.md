@@ -13,16 +13,26 @@
 -->
 
 > + *Possible changes in a future release:*
->   + *add functionality for vector and scalar form factors*
+>   + *incorporate heavy quark discretization errors*
 >   + *add abilities to interact with and convert jackknifed data*
 >   + *parallelize least squares fitter*
 
 ---
 
-+ Version 0.2.2
-  + fixed *g_pi* fit usage
++ Version 0.3.0
+  + added *f_0*, *f_+* functionality and examples
+  + added *f_T* functionality
+  + added *f_para*, *f_perp* examples
+  + added constants
+  + added energy relation functions
+  + changed plot saving and output structure
+  + changed loading of previous results
+  + changed reading of input sources and detection of ensemble size
 
 ---
+
++ Version 0.2.2
+  + fixed *g_pi* fit usage
 
 + Version 0.2.1
   + changed default x axis in plots
