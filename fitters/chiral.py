@@ -17,8 +17,18 @@ Defines chiral fit function for decay form factors of B mesons.
 --------------------------------------------------------------------------------
 Definitions
 -----------
+f_para : function
+    Returns chiral estimates of parallel form factor for each experiment.
+f_perp : function
+    Returns chiral estimates of perpendicular form factor for each experiment.
+f_scalar : function
+    Returns chiral estimates of scalar form factor for each experiment.
+f_vector : function
+    Returns chiral estimates of vector form factor for each experiment.
 fitfcn : function
     Returns chiral estimates of pertinent form factor for each experiment.
+fitparse : function
+    Sets absent fit parameters to zero (or to constant value, where applicable).
 --------------------------------------------------------------------------------
 """
 
@@ -30,14 +40,13 @@ from settings.fit import decayname, formfactor
 import numpy as np
 
 
-def fitfcn(inputs, params):
+def f_para(inputs, params):
     """
     ----------------------------------------------------------------------------
-    Returns chiral estimates f(X, p) of pertinent form factor for all
-    experiments in (X = inputs) given fit parameters (p = params).
+    Returns chiral estimates f(X, p) of parallel form factor for all experiments
+    in (X = inputs) given fit parameters (p = params).
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    Sets any fit parameter (other than g_pi) to zero if not supplied in params;
-    sets g_pi to settings.constants.gpi if g_pi not supplied in params. All
+    Sets absent fit parameters to zero via fitparse(params) (see fitparse). All
     (next-to-)next-to-leading-order (N)NLO fit parameters C^(i) (with (i) > 0)
     enter into chiral fit function as products of dimensionless expansion terms
     chi_(i). chi_E is proportional to E_(K/pi); chi_a2 is proportional to
@@ -50,6 +59,88 @@ def fitfcn(inputs, params):
     parameterizes (chi_l * (chi_E)^2). NLO chiral fit function, similar in form
     to that in [1], is as follows:
         f_para = (1 / f_pi) * [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}]
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : numpy.ndarray of dicts
+        Array of input dictionaries, where each dictionary stores input floats
+        for particular experiment. See fileIOs.readers.inputs for complete list
+        of inputs.
+    params : dict of floats or gvar.BufferDict
+        Current fit parameters in dictionary-like container.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    numpy.ndarray of floats or of gvar.GVars
+        Array of form factors with size {size of inputs}.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    Deltabar : function, from calculators.chilogs.fcns
+    df_para : function, from calculators.chilogs.fcns
+    fitparse : function
+    fpi : float, from settings.constants
+    mu : function, from calculators.chilogs.fcns
+    numpy : module, as np
+    pi : float, from math
+    sqrt : function, from math
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B -->
+        pi l nu semileptonic form factor from three-flavor lattice QCD: A model-
+        independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
+        [arXiv:0811.3640 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
+    fitparams = fitparse(params)
+    nouts = len(inputs)
+    Es = np.array([inputs[i]['E'] for i in range(nouts)])
+    fpis = fpi * np.ones(nouts)
+    chi_E = (Es * sqrt(2)) / (4 * pi * fpi)
+    chi_a2 = np.array([Deltabar(inputs[i]['a_fm']) /
+                       (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
+    chi_h = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['mh_val']) /
+                      (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
+    chi_l = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
+                      (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
+    dfs = np.array([df_para(inputs[i], fitparams['gpi']) for i in range(nouts)])
+    return ((fitparams['C0'] * (1 + dfs) +
+             fitparams['CE'] * chi_E +
+             fitparams['CE2'] * chi_E ** 2 +
+             fitparams['CE3'] * chi_E ** 3 +
+             fitparams['CE4'] * chi_E ** 4 +
+             fitparams['Ca2'] * chi_a2 +
+             fitparams['Ca2E'] * chi_a2 * chi_E +
+             fitparams['Ca2E2'] * chi_a2 * chi_E ** 2 +
+             fitparams['Ca4'] * chi_a2 ** 2 +
+             fitparams['Ch'] * chi_h +
+             fitparams['Cl'] * chi_l +
+             fitparams['Cl2'] * chi_l ** 2 +
+             fitparams['ClE'] * chi_l * chi_E +
+             fitparams['ClE2'] * chi_l * chi_E ** 2 +
+             fitparams['Cla2'] * chi_l * chi_a2) /
+            fpis)
+
+
+def f_perp(inputs, params):
+    """
+    ----------------------------------------------------------------------------
+    Returns chiral estimates f(X, p) of perpendicular (or tensor) form factor
+    for all experiments in (X = inputs) given fit parameters (p = params).
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Sets absent fit parameters to zero via fitparse(params) (see fitparse). All
+    (next-to-)next-to-leading-order (N)NLO fit parameters C^(i) (with (i) > 0)
+    enter into chiral fit function as products of dimensionless expansion terms
+    chi_(i). chi_E is proportional to E_(K/pi); chi_a2 is proportional to
+    (a^2 * Deltabar = calculators.chilogs.fcns.Deltabar); chi_h is proportional
+    to (mu * m_h), where m_h is heavy quark mass and mu is mass slope constant
+    (see calculators.chilogs.fcns.mu); chi_l is proportional to (mu * m_l),
+    where m_l is light quark mass. All chi_(i) have appropriate number of
+    factors of f_pi in their denominators in order to remain dimensionless. NNLO
+    expansion terms involve products of multiple chi_(i); e.g., ClE2
+    parameterizes (chi_l * (chi_E)^2). NLO chiral fit function, similar in form
+    to that in [1], is as follows:
         f_perp = [g_pi / (f_pi * (E_(K/pi) + Delta_B))] *
                  [C^(0) * ((E_(K/pi) + Delta_B) / (E_(K/pi) + Delta_B + D) + df)
                   + Sum_(i){C^(i) * chi_(i)}]
@@ -74,15 +165,12 @@ def fitfcn(inputs, params):
     D : function, from calculators.chilogs.fcns
     Delta_B : float, from settings.constants
     Deltabar : function, from calculators.chilogs.fcns
-    decayname : str, from settings.fit
-    df_para : function, from calculators.chilogs.fcns
     df_perp : function, from calculators.chilogs.fcns
-    formfactor : str, from settings.fit
+    fitparse : function
     fpi : float, from settings.constants
-    gpi : float, from settings.constants
     mu : function, from calculators.chilogs.fcns
     numpy : module, as np
-    pi : function, from math
+    pi : float, from math
     sqrt : function, from math
     ----------------------------------------------------------------------------
     References
@@ -93,118 +181,237 @@ def fitfcn(inputs, params):
         [arXiv:0811.3640 [hep-lat]].
     ----------------------------------------------------------------------------
     """
+    fitparams = fitparse(params)
     nouts = len(inputs)
     Es = np.array([inputs[i]['E'] for i in range(nouts)])
     fpis = fpi * np.ones(nouts)
     chi_E = (Es * sqrt(2)) / (4 * pi * fpi)
     chi_a2 = np.array([Deltabar(inputs[i]['a_fm']) /
-                       (8 * pi**2 * fpi ** 2) for i in range(nouts)])
+                       (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
     chi_h = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['mh_val']) /
-                      (8 * pi**2 * fpi ** 2) for i in range(nouts)])
+                      (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
     chi_l = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
                       (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
-    if 'C0' in params.keys():
-        C0 = params['C0']
-    else:
-        C0 = 0
-    if 'CE' in params.keys():
-        CE = params['CE']
-    else:
-        CE = 0
-    if 'CE2' in params.keys():
-        CE2 = params['CE2']
-    else:
-        CE2 = 0
-    if 'CE3' in params.keys():
-        CE3 = params['CE3']
-    else:
-        CE3 = 0
-    if 'CE4' in params.keys():
-        CE4 = params['CE4']
-    else:
-        CE4 = 0
-    if 'Ca2' in params.keys():
-        Ca2 = params['Ca2']
-    else:
-        Ca2 = 0
-    if 'Ca2E' in params.keys():
-        Ca2E = params['Ca2E']
-    else:
-        Ca2E = 0
-    if 'Ca2E2' in params.keys():
-        Ca2E2 = params['Ca2E2']
-    else:
-        Ca2E2 = 0
-    if 'Ca4' in params.keys():
-        Ca4 = params['Ca4']
-    else:
-        Ca4 = 0
-    if 'Ch' in params.keys():
-        Ch = params['Ch']
-    else:
-        Ch = 0
-    if 'Cl' in params.keys():
-        Cl = params['Cl']
-    else:
-        Cl = 0
-    if 'Cl2' in params.keys():
-        Cl2 = params['Cl2']
-    else:
-        Cl2 = 0
-    if 'ClE' in params.keys():
-        ClE = params['ClE']
-    else:
-        ClE = 0
-    if 'ClE2' in params.keys():
-        ClE2 = params['ClE2']
-    else:
-        ClE2 = 0
-    if 'Cla2' in params.keys():
-        Cla2 = params['Cla2']
-    else:
-        Cla2 = 0
-    if 'gpi' in params.keys():
-        g_pi = params['gpi']
-    else:
-        g_pi = gpi
+    Delta_Bs = Delta_B * np.ones(nouts)
+    Ds = np.array([D(inputs[i], fitparams['gpi']) for i in range(nouts)])
+    dfs = np.array([df_perp(inputs[i], fitparams['gpi']) for i in range(nouts)])
+    return ((fitparams['C0'] * ((Es + Delta_Bs) / (Es + Delta_Bs + Ds) + dfs) +
+             fitparams['CE'] * chi_E +
+             fitparams['CE2'] * chi_E ** 2 +
+             fitparams['CE3'] * chi_E ** 3 +
+             fitparams['CE4'] * chi_E ** 4 +
+             fitparams['Ca2'] * chi_a2 +
+             fitparams['Ca2E'] * chi_a2 * chi_E +
+             fitparams['Ca2E2'] * chi_a2 * chi_E ** 2 +
+             fitparams['Ca4'] * chi_a2 ** 2 +
+             fitparams['Ch'] * chi_h +
+             fitparams['Cl'] * chi_l +
+             fitparams['Cl2'] * chi_l ** 2 +
+             fitparams['ClE'] * chi_l * chi_E +
+             fitparams['ClE2'] * chi_l * chi_E ** 2 +
+             fitparams['Cla2'] * chi_l * chi_a2) *
+            (fitparams['gpi'] / (fpis * (Es + Delta_Bs))))
+
+
+def f_scalar(inputs, params_para, params_perp):
+    """
+    ----------------------------------------------------------------------------
+    Returns chiral estimates f(X, P) of scalar form factor for all experiments
+    in (X = inputs) given fit parameters (P = params) for both parallel and
+    perpendicular form factors.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Imports masses of pertinent incoming and outgoing mesons (M_in and M_out,
+    resp.) for particular decay. Scalar form factor is as follows [1]:
+        f_0(q^2) = [sqrt(2 * M_in) / (M_in^2 - M_out^2)] *
+                   [(M_in - E_(K/pi)) * f_para(E_(K/pi)) +
+                    (E_(K/pi)^2 - M_out^2) * f_perp(E_(K/pi))]
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : numpy.ndarray of dicts
+        Array of input dictionaries, where each dictionary stores input floats
+        for particular experiment. See fileIOs.readers.inputs for complete list
+        of inputs.
+    params_para : dict of floats or gvar.BufferDict
+        Current parallel fit parameters in dictionary-like container.
+    params_perp : dict of floats or gvar.BufferDict
+        Current perpendicular fit parameters in dictionary-like container.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    numpy.ndarray of floats or of gvar.GVars
+        Array of form factors with size {size of inputs}.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    decayname : str, from settings.fit
+    f_para : function
+    f_perp : function
+    numpy : module, as np
+    sqrt : function, from math
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See functions f_para, f_perp.
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B -->
+        pi l nu semileptonic form factor from three-flavor lattice QCD: A model-
+        independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
+        [arXiv:0811.3640 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
+    if decayname == 'B2K':
+        from settings.constants import mB as M_in, mK as M_out
+    elif decayname == 'B2pi':
+        from settings.constants import mB as M_in, mpi as M_out
+    Es = np.array([inputs[i]['E'] for i in range(len(inputs))])
+    return (((M_in - Es) * f_para(inputs, params_para) +
+             (np.square(Es) - M_out ** 2) * f_perp(inputs, params_perp)) *
+            sqrt(2 * M_in) / (M_in ** 2 - M_out ** 2))
+
+
+def f_vector(inputs, params_para, params_perp):
+    """
+    ----------------------------------------------------------------------------
+    Returns chiral estimates f(X, P) of vector form factor for all experiments
+    in (X = inputs) given fit parameters (P = params) for both parallel and
+    perpendicular form factors.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Imports masses of pertinent incoming and outgoing mesons (M_in and M_out,
+    resp.) for particular decay. Vector form factor is as follows [1]:
+        f_+(q^2) = [1 / sqrt(2 * M_in)] *
+                   [f_para(E_(K/pi)) + (M_in - E_(K/pi)) * f_perp(E_(K/pi))]
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : numpy.ndarray of dicts
+        Array of input dictionaries, where each dictionary stores input floats
+        for particular experiment. See fileIOs.readers.inputs for complete list
+        of inputs.
+    params_para : dict of floats or gvar.BufferDict
+        Current parallel fit parameters in dictionary-like container.
+    params_perp : dict of floats or gvar.BufferDict
+        Current perpendicular fit parameters in dictionary-like container.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    numpy.ndarray of floats or of gvar.GVars
+        Array of form factors with size {size of inputs}.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    decayname : str, from settings.fit
+    f_para : function
+    f_perp : function
+    numpy : module, as np
+    sqrt : function, from math
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See functions f_para, f_perp.
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B -->
+        pi l nu semileptonic form factor from three-flavor lattice QCD: A model-
+        independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
+        [arXiv:0811.3640 [hep-lat]].
+    ----------------------------------------------------------------------------
+    """
+    if (decayname == 'B2K') or (decayname == 'B2pi'):
+        from settings.constants import mB as M_in
+    Es = np.array([inputs[i]['E'] for i in range(len(inputs))])
+    return ((f_para(inputs, params_para) +
+            (M_in - Es) * f_perp(inputs, params_perp)) /
+            sqrt(2 * M_in))
+
+
+def fitfcn(*args):
+    """
+    ----------------------------------------------------------------------------
+    Returns chiral estimates f_{form factor}(X, P) of particular form factor for
+    all experiments in (X = inputs) given one or more sets of fit parameters
+    (P = params).
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Positional arguments *args are {inputs, params} for single (parallel,
+    perpendicular, or tensor) form factors; *args are {inputs, params_para,
+    params_perp} for combined (scalar or vector) form factors.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : numpy.ndarray of dicts
+        Array of input dictionaries, where each dictionary stores input floats
+        for particular experiment. See fileIOs.readers.inputs for complete list
+        of inputs.
+    params : dict of floats or gvar.BufferDict
+        Current fit parameters in dictionary-like container.
+    params_para : dict of floats or gvar.BufferDict
+        Current parallel fit parameters in dictionary-like container.
+    params_perp : dict of floats or gvar.BufferDict
+        Current perpendicular fit parameters in dictionary-like container.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    numpy.ndarray of floats or of gvar.GVars
+        Array of form factors with size {size of inputs}.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    f_para : function
+    f_perp : function
+    f_scalar : function
+    f_vector : function
+    formfactor : str, from settings.fit
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See functions f_para, f_perp, f_scalar, f_vector.
+    ----------------------------------------------------------------------------
+    """
     if formfactor == 'para':
-        dfs = np.array([df_para(inputs[i], g_pi, decayname) for i in
-                        range(nouts)])
-        return ((C0 * (1 + dfs) +
-                 CE * chi_E +
-                 CE2 * chi_E ** 2 +
-                 CE3 * chi_E ** 3 +
-                 CE4 * chi_E ** 4 +
-                 Ca2 * chi_a2 +
-                 Ca2E * chi_a2 * chi_E +
-                 Ca2E2 * chi_a2 * chi_E ** 2 +
-                 Ca4 * chi_a2 ** 2 +
-                 Ch * chi_h +
-                 Cl * chi_l +
-                 Cl2 * chi_l ** 2 +
-                 ClE * chi_l * chi_E +
-                 ClE2 * chi_l * chi_E ** 2 +
-                 Cla2 * chi_l * chi_a2) /
-                fpis)
+        return f_para(*args)
     elif (formfactor == 'perp') or (formfactor == 'tensor'):
-        Delta_Bs = Delta_B * np.ones(nouts)
-        Ds = np.array([D(inputs[i], g_pi, decayname) for i in range(nouts)])
-        dfs = np.array([df_perp(inputs[i], g_pi, decayname) for i in
-                        range(nouts)])
-        return ((C0 * ((Es + Delta_Bs) / (Es + Delta_Bs + Ds) + dfs) +
-                 CE * chi_E +
-                 CE2 * chi_E ** 2 +
-                 CE3 * chi_E ** 3 +
-                 CE4 * chi_E ** 4 +
-                 Ca2 * chi_a2 +
-                 Ca2E * chi_a2 * chi_E +
-                 Ca2E2 * chi_a2 * chi_E ** 2 +
-                 Ca4 * chi_a2 ** 2 +
-                 Ch * chi_h +
-                 Cl * chi_l +
-                 Cl2 * chi_l ** 2 +
-                 ClE * chi_l * chi_E +
-                 ClE2 * chi_l * chi_E ** 2 +
-                 Cla2 * chi_l * chi_a2) *
-                (g_pi / (fpis * (Es + Delta_Bs))))
+        return f_perp(*args)
+    elif formfactor == 'scalar':
+        return f_scalar(*args)
+    elif formfactor == 'vector':
+        return f_vector(*args)
+
+
+def fitparse(params):
+    """
+    ----------------------------------------------------------------------------
+    Sets any fit parameter (other than g_pi) to zero if not supplied in params;
+    sets g_pi to settings.constants.gpi if not supplied in params.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    params : dict of floats or gvar.BufferDict
+        Current fit parameters in dictionary-like container.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    fitparams : dict of floats or gvar.BufferDict
+        Parsed current fit parameters in dictionary-like container.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    gpi : float, from settings.constants
+    ----------------------------------------------------------------------------
+    """
+    paramlist = ['C0', 'CE', 'CE2', 'CE3', 'CE4', 'Ca2', 'Ca2E', 'Ca2E2', 'Ca4',
+                 'Ch', 'Cl', 'Cl2', 'ClE', 'ClE2', 'Cla2']
+    fitparams = {}
+    for param in paramlist:
+        if param in params.keys():
+            fitparams[param] = params[param]
+        else:
+            fitparams[param] = 0
+    if 'gpi' in params.keys():
+        fitparams['gpi'] = params['gpi']
+    else:
+        fitparams['gpi'] = gpi
+    return fitparams
 

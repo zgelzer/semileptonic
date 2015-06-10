@@ -21,7 +21,11 @@ Meant to be executed from terminal. Run './chifit.py --help' for more info.
 Definitions
 -----------
 main : function
-    Runs chiral fits and saves results.
+    Runs or loads chiral fits and saves results.
+run_combined : function
+    Loads chiral fits for combined form factor and saves results.
+run_single : function
+    Runs or loads chiral fits for single form factor and saves results.
 --------------------------------------------------------------------------------
 Notes
 -----
@@ -42,10 +46,119 @@ import os
 def main():
     """
     ----------------------------------------------------------------------------
-    Runs chiral fits and saves results.
+    Runs or loads chiral fits and saves results.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    Default save directory: ./{decayname}/{formfactor}
-    Default save name: (date/time as 'YYYYMMDD-hhmm')
+    Default save directory: './{decay name}/{form factor}'
+    Default save name: {date/time as 'YYYYMMDD-hhmm'}
+    ----------------------------------------------------------------------------
+    Results
+    -------
+    files
+        Various files, as determined by nature of form factor (combined or
+        single), with root name {save name} in directory {save directory}.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    readers : module, from fileIOs, as read
+    run_combined : function
+    run_single : function
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + Meant to be run automatically when script is called from terminal.
+    + See functions run_combined, run_single.
+    ----------------------------------------------------------------------------
+    """
+
+    #~ Read and parse command-line arguments (must be done before importing
+    #  other semileptonic submodules). ~#
+    args = read.args()
+
+    #~ Run combined or single fits, depending on form factor. ~#
+    if (args.formfactor == 'scalar') or (args.formfactor == 'vector'):
+        run_combined(args)
+    else:
+        run_single(args)
+
+
+def run_combined(args):
+    """
+    ----------------------------------------------------------------------------
+    Loads chiral fits for combined form factor (scalar or vector) and saves
+    results.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Default save directory: './{decay name}/{form factor}'
+    Default save name: {date/time as 'YYYYMMDD-hhmm'}
+    ----------------------------------------------------------------------------
+    Results
+    -------
+    {savename}.dat : file
+        asdf.
+    {savename}.pdf : file
+        asdf.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    os : module
+    pyplot : module, from matplotlib, as plt
+    readers : module, from fileIOs, as read
+    stdout : file, from sys
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function main.
+    ----------------------------------------------------------------------------
+    """
+
+    #~ Import other semileptonic submodules. ~#
+    from fileIOs import writers as write
+
+    #~ Load fit parameter results for both parallel and perpendicular form
+    #  factors. ~#
+    params_para = read.results(args.loadpara)
+    params_perp = read.results(args.loadperp)
+
+    #~ Move to output directory; write fit settings to stdout and
+    #  '{savename}.txt'. ~#
+    os.chdir(args.outputdir)
+    write.results(savename=args.savename)
+
+    #~ If plot argument is supplied, plot continuum extrapolation. ~#
+    if args.plot:
+
+        #~ Initialize figure for receiving all future plots. ~#
+        figure = plt.figure()
+
+        #~ Plot continuum fit for combined form factor, with default color and
+        #  transparency in error fills; write values to '{savename}.dat'. ~#
+        write.plot_fitcombo(params_para, params_perp, linelength=args.fitlength,
+                            savename=args.savename)
+
+        #~ Add axis labels; set bounds of x-axis to that of custom fit line (if
+        #  specified). ~#
+        write.plot_labels(legendloc=None, xlims=args.fitlength)
+
+        #~ Remove extraneous white space from borders; adjust fit labels so that
+        #  they fit within borders; save plots to '{savename}.pdf' ~#
+        figure.tight_layout()
+        plt.savefig(args.savename + '.pdf')
+
+        #~ Display plots (may be done only after having saved plots). ~#
+        plt.show()
+
+    #~ If plot argument is not supplied, warn user. ~#
+    else:
+        stdout.write("\nIf you would like to plot, use '-p' or '--plot'.\n\n")
+
+
+def run_single(args):
+    """
+    ----------------------------------------------------------------------------
+    Runs or loads chiral fits for single form factor (parallel, perpendicular,
+    or tensor) and saves results.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Default save directory: './{decay name}/{form factor}'
+    Default save name: {date/time as 'YYYYMMDD-hhmm'}
     ----------------------------------------------------------------------------
     Results
     -------
@@ -71,15 +184,11 @@ def main():
     ----------------------------------------------------------------------------
     Notes
     -----
-    + Meant to be run automatically when script is called from terminal.
+    + See function main.
     ----------------------------------------------------------------------------
     """
 
-    #~ Read and parse command-line arguments. ~#
-    args = read.args()
-
-    #~ Import other semileptonic submodules (may be done only after having read
-    #  arguments). ~#
+    #~ Import other semileptonic submodules. ~#
     from fileIOs import writers as write
     from fitters import lsq as fitlsq
 
@@ -99,10 +208,6 @@ def main():
     #  fit (discarding the resulting fit parameters). ~#
     _, chi2, dof, p = fitlsq.one(inputs, data, inits=params_initval,
                                  priors=params_apriori)
-
-    #~ Create output directories if they do not exist. ~#
-    if not os.path.exists(args.outputdir):
-        os.makedirs(args.outputdir)
 
     #~ If fit parameter results are supplied, load them. ~#
     if args.load is not None:
@@ -128,7 +233,8 @@ def main():
         #  '{savename}.txt'. ~#
         os.chdir(args.outputdir)
         write.params(cvals, cov, savename=args.savename)
-        write.results(params_result, chi2, dof, p, savename=args.savename)
+        write.results(chi2=chi2, dof=dof, p=p, params=params_result,
+                      savename=args.savename)
 
     #~ If plot argument is supplied, plot pertinent data and fits. ~#
     if args.plot:

@@ -27,6 +27,8 @@ plot_fit : function
     Plots fit line vs. E_(K/pi) in r_1 units at some lattice spacing.
 plot_fitavgs : function
     Plots fit lines vs. E_(K/pi) in r_1 units for all ensembles.
+plot_fitcombo : function
+    Plots continuum extrapolation for combined (scalar or vector) form factor.
 plot_labels : function
     Adds axis labels and legend to existing plot instance.
 results : function
@@ -38,11 +40,13 @@ sigfig : function
 
 
 from calculators.chilogs.fcns import a_fermi
+from calculators.fcns import E_out
 from fitters import chiral
 from math import copysign, floor, log10, sqrt
 from matplotlib import pyplot as plt
 from os import getcwd
 from settings import fit
+from settings.constants import mh_continuum, ml_continuum, r1_continuum
 from settings.fit import *
 from sys import stdout
 import numpy as np
@@ -238,7 +242,7 @@ def plot_errfill(x, y, yerr, alphafill=0.3, axis=None, color=None, label=None):
 
 
 def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
-             colormap=None, label=None, linelength=None, savename='result'):
+             label=None, linelength=None, savename='result'):
     """
     ----------------------------------------------------------------------------
     Plots fit line at some lattice spacing lattspace, given (X = inputs) and fit
@@ -270,9 +274,6 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
         Axis container for plot items.
     color : str or NoneType (optional; default is None)
         Color of plot line.
-    colormap : matplotlib.colors.LinearSegmentedColormap or NoneType (optional;
-               default is None)
-        Color map to use when creating successive plot line colors.
     label : str or NoneType (optional; default is None)
         Label of plot line.
     linelength : list or NoneType (optional; default is None)
@@ -295,10 +296,13 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     ------------
     a_fermi : function, from calculators.chilogs.fcns
     chiral : module, from fitters
+    mh_continuum : float, from settings.constants
+    ml_continuum : float, from settings.constants
     nexperiments : int, from settings.fit
     numpy : module, as np
     plot_errfill : function
     pyplot : module, from matplotlib, as plt
+    r1_continuum : float, from settings.constants
     sigfig : function
     ----------------------------------------------------------------------------
     """
@@ -310,14 +314,13 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
         fit_inputs = np.array([{}])
         fit_inputs[0] = inputs[fit_xpmt]
     else:
-        from settings.constants import r1_continuum, ml_continuum, mh_continuum
         fit_inputs = np.array([{'extrapolation': 'continuum'}])
         fit_inputs[0]['a_fm'] = 0
         fit_inputs[0]['a'] = 1 / r1_continuum
-        fit_inputs[0]['ml_sea'] = ml_continuum
-        fit_inputs[0]['ml_val'] = ml_continuum
         fit_inputs[0]['mh_sea'] = mh_continuum
         fit_inputs[0]['mh_val'] = mh_continuum
+        fit_inputs[0]['ml_sea'] = ml_continuum
+        fit_inputs[0]['ml_val'] = ml_continuum
     Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
     if linelength is None:
         fit_Es = np.linspace(min(Es), max(Es), num=50)
@@ -434,6 +437,100 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, label=None,
                                  for ens in range(nensembles)]))
 
 
+def plot_fitcombo(params_para, params_perp, alphafill=0.3, axis=None,
+                  color=None, label=None, linelength=None, savename='result'):
+    """
+    ----------------------------------------------------------------------------
+    Plots continuum extrapolation for combined (scalar or vector) form factor,
+    given fit parameters for both parallel and perpendicular form factors.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Creates fit inputs dictionary from continuum constants. Creates values for
+    q^2 via numpy.linspace(linelength), where its bounds are set to typical
+    values if (linelength = None). Applies fitters.chiral.fitfcn(x, p1, p2) with
+    (x = {fit inputs}), (p1 = params_para), and (p2 = params_perp), which
+    returns an array of gvar.GVars with standard propagation of errors. Plot
+    values and labels are ultimately saved via numpy.savetxt.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    params_para : dict of floats or gvar.BufferDict
+        Fit parameters of parallel form factor in dictionary-like container.
+    params_perp : dict of floats or gvar.BufferDict
+        Fit parameters of perpendicular form factor in dictionary-like
+        container.
+    alphafill : float or NoneType (optional; default is 0.3)
+        Alpha transparency of shading.
+    axis : matplotlib.axes._subplots.AxesSubplot or NoneType (optional; default
+           is None)
+        Axis container for plot items.
+    color : str or NoneType (optional; default is None)
+        Color of plot line.
+    label : str or NoneType (optional; default is None)
+        Label of plot line.
+    linelength : list or NoneType (optional; default is None)
+        Length of fit line, as list of [min, max, numpoints] if specified, for
+        use with numpy.linspace. If not specified, numpy.linspace bounds are set
+        to (q^2 = {16, 23} (GeV)^2) to mirror bounds of typical datasets.
+    savename : str (optional; default is 'result')
+        Root name to use when saving output file.
+    ----------------------------------------------------------------------------
+    Results
+    -------
+    {savename}_fit.dat : file
+        Values from plot of continuum extrapolation with errors.
+    matplotlib.lines.Line2D
+        Plot line of central values.
+    matplotlib.collections.PolyCollection
+        Plot shading of error bars about central line.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    E_out : function, from calculators.fcns
+    chiral : module, from fitters
+    mh_continuum : float, from settings.constants
+    ml_continuum : float, from settings.constants
+    numpy : module, as np
+    plot_errfill : function
+    pyplot : module, from matplotlib, as plt
+    r1_continuum : float, from settings.constants
+    sigfig : function
+    ----------------------------------------------------------------------------
+    """
+    axis = axis if axis is not None else plt.gca()
+    fit_inputs = np.array([{'extrapolation': 'continuum'}])
+    fit_inputs[0]['a_fm'] = 0
+    fit_inputs[0]['a'] = 1 / r1_continuum
+    fit_inputs[0]['mh_sea'] = mh_continuum
+    fit_inputs[0]['mh_val'] = mh_continuum
+    fit_inputs[0]['ml_sea'] = ml_continuum
+    fit_inputs[0]['ml_val'] = ml_continuum
+    if linelength is None:
+        fit_q2s = np.linspace(16., 23., num=50)
+    elif (type(linelength) == list) and (len(linelength) == 3):
+        fit_q2s = np.linspace(linelength[0], linelength[1], num=linelength[2])
+    fit_ffs_avg = np.empty_like(fit_q2s)
+    fit_ffs_err = np.empty_like(fit_q2s)
+    fit_ffs_gvar = []
+    for q2 in fit_q2s:
+        fit_inputs[0]['E'] = E_out(q2)
+        fit_ffs_gvar.append(chiral.fitfcn(fit_inputs,
+                                          params_para, params_perp)[0])
+    fit_ffs_avg = np.array([fit_ffs_gvar[q2index].mean for q2index in
+                            range(len(fit_q2s))])
+    fit_ffs_err = np.array([fit_ffs_gvar[q2index].sdev for q2index in
+                            range(len(fit_q2s))])
+    plot_errfill(fit_q2s, fit_ffs_avg, fit_ffs_err, color=color, label=label,
+                 alphafill=alphafill, axis=axis)
+    aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
+    amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
+    np.savetxt(savename + '_fit.dat',
+               np.vstack((fit_q2s, fit_ffs_avg, fit_ffs_err)).T,
+               fmt=('%.6e', '%.6e', '%.6e'), delimiter='  ',
+               header='a*ml / a*mh = {}\n'.format(aml + ' / ' + amh) +
+                      '  '.join(['q2'.ljust(10), 'ff_avg'.ljust(12),
+                                 'ff_err'.ljust(12)]))
+
+
 def plot_labels(chi2=None, dof=None, legendloc='best', legendsize='12', p=None,
                 xlims=None, ylims=None):
     """
@@ -448,9 +545,10 @@ def plot_labels(chi2=None, dof=None, legendloc='best', legendsize='12', p=None,
         Minimum chi^2 from fit.
     dof : int
         Degrees of freedom in fit.
-    legendloc : str or int or tuple of floats (optional; default is 'best')
+    legendloc : str or int or tuple of floats or NoneType (optional; default is
+                'best')
         Location of legend in plot figure.
-    legendsize : str of int or of float (optional; default is '12')
+    legendsize : str of int or float (optional; default is '12')
         Size of fonts used in legend.
     p : float
         p-value of fit.
@@ -476,16 +574,24 @@ def plot_labels(chi2=None, dof=None, legendloc='best', legendsize='12', p=None,
     sigfig : function
     ----------------------------------------------------------------------------
     """
-    if decayname == 'B2K':
-        plt.xlabel('$r_1 E_K$')
-    elif decayname == 'B2pi':
-        plt.xlabel('$r_1 E_\\pi$')
+    if ((formfactor == 'para') or (formfactor == 'perp') or
+        (formfactor == 'tensor')):
+        if decayname == 'B2K':
+            plt.xlabel('$r_1 E_K$')
+        elif decayname == 'B2pi':
+            plt.xlabel('$r_1 E_\\pi$')
+    elif (formfactor == 'scalar') or (formfactor == 'vector'):
+        plt.xlabel('$q^2\\! \\ (\\mathrm{{GeV}}^2\\!)$')
     if formfactor == 'para':
         plt.ylabel('$r_1^{1 / 2} f_\\parallel$')
     elif formfactor == 'perp':
         plt.ylabel('$r_1^{-1 / 2} f_\\perp$')
+    elif formfactor == 'scalar':
+        plt.ylabel('$f_0(q^2\\!)$')
     elif formfactor == 'tensor':
         plt.ylabel('$r_1^{-1 / 2} f_T$')
+    elif formfactor == 'vector':
+        plt.ylabel('$f_{\\!+}(q^2\\!)$')
     if xlims is not None:
         plt.xlim(xlims[0], xlims[1])
     if ylims is not None:
@@ -500,25 +606,30 @@ def plot_labels(chi2=None, dof=None, legendloc='best', legendsize='12', p=None,
         title += '$p = {}$'.format(sigfig(p, n=2))
     if title != '':
         plt.title(title)
-    plt.legend(loc=legendloc, prop={'size': legendsize}, numpoints=1)
+    if legendloc is not None:
+        plt.legend(loc=legendloc, prop={'size': legendsize}, numpoints=1)
 
 
-def results(params, chi2, dof, p, fileouts=True, savename='result',
-            stdouts=True):
+def results(chi2=None, dof=None, fileouts=True, p=None, params=None,
+            savename='result', stdouts=True):
     """
     ----------------------------------------------------------------------------
     Writes results of fit settings, qualities, and parameters to stdout and/or
-    output file, saving latter with name savename.
+    output file, saving latter with root name savename.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    All of chi2, dof, p, and params must be supplied if using single (parallel,
+    perpendicular, or tensor) form factor. Only fit settings are written if
+    using combined (scalar or vector) form factor.
     ----------------------------------------------------------------------------
     Parameters
     ----------
-    params : dict of floats or gvar.BufferDict
+    params : dict of floats or gvar.BufferDict (optional; default is None)
         Fit parameters in dictionary-like container.
-    chi2 : float
+    chi2 : float (optional; default is None)
         Minimum chi^2 from fit.
-    dof : float
+    dof : float (optional; default is None)
         Degrees of freedom in fit.
-    p : float
+    p : float (optional; default is None)
         p-value of fit.
     fileouts : bool (optional; default is True)
         Determines if outputs are written to file.
@@ -541,23 +652,33 @@ def results(params, chi2, dof, p, fileouts=True, savename='result',
     sigfig : function
     stdout: file, from settings
     ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'all of chi2, dof, p, and params must be supplied [...]'
+        All of chi2, dof, p, and params must be supplied if using single
+        (parallel, perpendicular, or tensor) form factor.
+    ----------------------------------------------------------------------------
     """
     if fileouts and stdouts:
         stdout.write('\nWriting results to {}\n'.format(getcwd()))
     output = '#\n# Settings:\n'
     for setting in sorted(fit.__all__):
         output += '\t{0}\t{1}\n'.format(setting.rjust(12), eval(setting))
-    if correlated:
-        output += '#\n# Correlated'
-    else:
-        output += '#\n# Uncorrelated'
-    output += ' Least Squares Fit:\n'
-    output += '#\tchi^2 / dof = {0} / {1}\n'.format(sigfig(chi2, n=3),
-                                                       int(np.round(dof)))
-    output += '#\tp = {}\n'.format(sigfig(p, n=2))
-    output += '#\n# Parameters:\n'
-    for param in sorted(params.keys()):
-        output += '\t{0}\t{1}\n'.format(param.rjust(5), params[param])
+    if (fit.formfactor != 'vector') and (fit.formfactor != 'scalar'):
+        if (chi2 is None) or (dof is None) or (p is None) or (params is None):
+            raise ValueError('all of chi2, dof, p, and params must be ' +
+                             'supplied if using f_para, f_perp, or f_T')
+        if correlated:
+            output += '#\n# Correlated'
+        else:
+            output += '#\n# Uncorrelated'
+        output += ' Least Squares Fit:\n'
+        output += '#\tchi^2 / dof = {0} / {1}\n'.format(sigfig(chi2, n=3),
+                                                        int(np.round(dof)))
+        output += '#\tp = {}\n'.format(sigfig(p, n=2))
+        output += '#\n# Parameters:\n'
+        for param in sorted(params.keys()):
+            output += '\t{0}\t{1}\n'.format(param.rjust(5), params[param])
     output += '#\n'
     if stdouts:
         stdout.write(output)

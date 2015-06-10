@@ -83,8 +83,8 @@ def args():
                       help='ensemble size; default is guessed from INPUTSOURCE')
     args.add_argument('-f', '--formfactor', dest='formfactor',
                       default=None,
-                      help="form factor to be computed (must be 'para' or " +
-                           "'perp')")
+                      help="form factor to be computed (must be 'para', " +
+                           "'perp', 'scalar', 'tensor', or 'vector')")
     args.add_argument('-H', '--hard', dest='hardpiK',
                       action='store_true',
                       help='uses hard pion/kaon')
@@ -98,7 +98,7 @@ def args():
                            'be comma-separated list entered as min,max,' +
                            'numpoints)')
     args.add_argument('-L', '--load', dest='load',
-                      default=None,
+                      default=None, nargs='*', action='append',
                       help='loads fit parameters from LOAD.p and fit ' +
                            'settings from LOAD.txt (except for ENSEMBLESIZE ' +
                            'and INCLUDE/EXCLUDE)')
@@ -107,8 +107,8 @@ def args():
                       help='number of samples to use from resampled data')
     args.add_argument('-o', '--outputdir', dest='outputdir',
                       default=None,
-                      help="data directory; default='{decayname}" + os.sep +
-                           "{formfactor}'")
+                      help="data directory; default='{decay name}" + os.sep +
+                           "{form factor}'")
     args.add_argument('-p', '--plot', dest='plot',
                       action='store_true',
                       help='displays plot')
@@ -141,164 +141,88 @@ def args_parse(args):
     ----------------------------------------------------------------------------
     Parses command-line arguments args of main script.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    Applies tests; alters formats if necessary; adds arguments relating to data
-    and defaults; and saves important arguments to semileptonic/settings/fit.py.
+    Applies tests, alters formats if necessary, adds file-related arguments, and
+    saves important settings to 'semileptonic/settings/fit.py'.
     ----------------------------------------------------------------------------
     Parameters
     ----------
     args : argparse.Namespace
-        Strings of command-line arguments along with their values.
+        Command-line arguments as object attributes.
     ----------------------------------------------------------------------------
     Returns
     -------
     args : argparse.Namespace
-        Strings of command-line arguments along with their values.
+        Command-line arguments as object attributes. Arguments are altered or
+        added as follows:
+        args.fitlength is converted to list of floats if specified;
+        args.outputdir is set to './{args.decayname}/{args.formfactor}' if not
+        specified;
+        args.savename is set to date/time as 'YYYYMMDD-hhmm' if not specified or
+        if empty;
+        args.workdir is added.
     ----------------------------------------------------------------------------
     Results
     -------
+    {outputdir} : directory or directories
+        Output directory or directories; default is
+        './{decay name}/{form factor}'.
     fit.py : file
         Storage of important settings, located in script directory 'settings'.
-    args : argparse.Namespace
-        Alteration and addition of arguments, as follows:
-        args.exclude or args.include is converted to list of integers if
-        specified.
-        args.ensemblesize is converted to integer if specified; otherwise it is
-        guessed from args.inputsource (see Notes).
-        args.fitlength is converted to list of floats if specified.
-        args.nensembles is added.
-        args.nexperiments is added.
-        args.nexperiments_source is added.
-        args.nsamples is converted to integer if specified.
-        args.nsamples_source is added.
-        args.outputdir is set to './{args.decayname}/{args.formfactor}' if not
-        specified.
-        args.savename is set to date/time as 'YYYYMMDD-hhmm' if not specified or
-        if empty.
-        args.workdir is added.
-        args.xpmtlist is added.
     ----------------------------------------------------------------------------
     Requirements
     ------------
     datetime : class, from datetime, as dt
-    numpy : module, as np
     os : module
-    results : function
     ----------------------------------------------------------------------------
     Raises
     ------
-    ValueError : 'must specify decay name'
-        Must specify decay name if not loading previous results.
-    ValueError : 'invalid decay name'
-        Decay name must be one of: 'B2K' (for B-->K) or 'B2pi' (for B-->pi).
+    ValueError : 'must load completed runs [...]'
+        Scalar or vector form factors require parallel and perpendicular form
+        factor results to already have been obtained; these results are then
+        loaded via '--load' command-line arguments.
     ValueError : 'must specify form factor'
         Must specify form factor if not loading previous results.
     ValueError : 'invalid form factor'
-        Form factor must be one of: 'para' (for parallel) or 'perp' (for
-        perpendicular).
-    ValueError : 'must specify data type'
-        Must specify data type if not loading previous results.
-    ValueError : 'invalid data type'
-        Data type must be 'bs' (for bootstrap).
-    ValueError : 'invalid fit length [...]'
+        Form factor must be one of: 'para' (for parallel), 'perp' (for
+        perpendicular), 'scalar', 'tensor', or 'vector'.
+    ValueError : 'invalid length of fit line [...]'
         Fit length must be comma-separated list entered as: {min,max,numpoints}.
-    ValueError : 'invalid experiment list [...]'
-        Cannot simultaneously specify lists of experiments both to include and
-        to exclude. Instead, summarize choices as single list of inclusions or
-        of exclusions.
-    ValueError : 'invalid number of experiments [...]'
-        Number of experiments must be multiple of {ensemble size}.
-    ValueError : 'invalid number of samples [...]'
-        Number of bootstrap/jackknife samples must be greater than zero and less
-        than {number of samples in data source}.
     ----------------------------------------------------------------------------
     Notes
     -----
-    + If loading fit settings from results of previous run, ignores previous
-      values of args.ensemblesize and args.nexperiments so that user may have
-      full control when importing data during each run.
-    + If not specified, args.ensemblesize is guessed from args.inputsource by
-      comparing ratios of valence light- to heavy-quark masses to that of the
-      first experiment. This assumes that valence light- and heavy-quark masses
-      are located in the third and fifth columns of args.inputsource (resp.).
+    + Divided into two main parsing paths, determined by nature of form factor:
+      combined (scalar or vector) or single (parallel, perpendicular, or
+      tensor). See functions args_parse_combined, args_parse_single.
     ----------------------------------------------------------------------------
     """
-    if args.load is not None:
-        fitsettings = np.loadtxt(args.load + '.txt', delimiter='\t', dtype=str,
-                                 usecols=(1, 2))[:results.func_defaults[1]]
-        values = []
-        for value in fitsettings[:, 1]:
-            try:
-                values.append(eval(value))
-            except NameError:
-                values.append(str(value))
-        names = [fitsetting.strip() for fitsetting in fitsettings[:, 0]]
-        for name in names:
-            if (name != 'ensemblesize') and (name != 'nexperiments'):
-                value = values[np.where(np.asarray(names) == name)[0][0]]
-                args.__setattr__(name, value)
+    args.workdir = os.getcwd()
+    savenames = ['SU3', 'constrained', 'correlated', 'datatype', 'decayname',
+                 'formfactor', 'hardpiK']
+    if (args.formfactor == 'scalar') or (args.formfactor == 'vector'):
+        if args.load is not None:
+            args = args_parse_combined(args, savenames)
+        else:
+            raise ValueError("must load completed runs via '-L {para} " +
+                             "-L {perp}', in any order")
+    elif ((args.formfactor in ['para', 'perp', 'tensor']) or
+          (args.load is not None)):
+        args = args_parse_single(args, savenames)
+        savenames = sorted(savenames + ['ensemblesize', 'nexperiments'])
+    elif args.formfactor is None:
+        raise ValueError('must specify form factor')
     else:
-        if args.decayname is None:
-            raise ValueError('must specify decay name')
-        elif args.decayname not in ['B2K', 'B2pi']:
-            raise ValueError('invalid decay name')
-        if args.formfactor is None:
-            raise ValueError('must specify form factor')
-        elif args.formfactor not in ['para', 'perp', 'tensor']:
-            raise ValueError('invalid form factor')
-        if args.datatype is None:
-            raise ValueError('must specify data type')
-        elif args.datatype not in ['bs']:
-            raise ValueError('invalid data type')
+        raise ValueError('invalid form factor')
     if (args.savename is None) or (args.savename == ''):
         args.savename = dt.now().strftime('%Y%m%d-%H%M')
+    if args.outputdir is None:
+        args.outputdir = args.decayname + os.sep + args.formfactor
+    if not os.path.exists(args.outputdir):
+        os.makedirs(args.outputdir)
     if args.fitlength is not None:
         args.fitlength = [float(n) for n in args.fitlength.split(',')]
         if len(args.fitlength) != 3:
             raise ValueError('invalid length of fit line (must be comma-' +
                              'separated list entered as min,max,numpoints)')
-    if args.outputdir is None:
-        args.outputdir = args.decayname + os.sep + args.formfactor
-    if (args.include is not None) and (args.exclude is not None):
-        raise ValueError('invalid experiment list (cannot specify both ' +
-                         'include and exclude experiment lists)')
-    args.workdir = os.getcwd()
-    os.chdir(args.datadir)
-    Xsource = np.loadtxt(args.inputsource)
-    args.nexperiments_source = len(Xsource)
-    args.nsamples_source = int(len(np.loadtxt(args.datasource)) /
-                               args.nexperiments_source)
-    if args.ensemblesize is None:
-        Xratios = np.array([Xsource[x][2] / Xsource[x][4] for x in
-                            range(args.nexperiments_source)])
-        args.ensemblesize = np.sum([np.allclose(Xratios[:1], Xratios[:x]) for x
-                                    in range(1, len(Xratios))])
-    else:
-        args.ensemblesize = int(args.ensemblesize)
-    os.chdir(args.workdir)
-    if args.include is not None:
-        args.include = [int(xpmt) for xpmt in args.include.split(',')]
-        args.nexperiments = len(args.include)
-        args.xpmtlist = args.include
-    elif args.exclude is not None:
-        args.exclude = [int(xpmt) for xpmt in args.exclude.split(',')]
-        args.nexperiments = args.nexperiments_source - len(args.exclude)
-        args.xpmtlist = [xpmt for xpmt in list(range(args.nexperiments_source))
-                         if xpmt not in args.exclude]
-    else:
-        args.nexperiments = args.nexperiments_source
-        args.xpmtlist = list(range(args.nexperiments_source))
-    if args.nexperiments % args.ensemblesize == 0:
-        args.nensembles = int(args.nexperiments / args.ensemblesize)
-    else:
-        raise ValueError('invalid number of experiments (must be multiple of ' +
-                         'ensemble size)')
-    if args.nsamples is not None:
-        args.nsamples = int(args.nsamples)
-        if (args.nsamples <= 0) or (args.nsamples > args.nsamples_source):
-            raise ValueError('invalid number of samples (must be > 0 and <= ' +
-                             'number of samples in data source)')
-    else:
-        args.nsamples = args.nsamples_source
     savefile = open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                    '..', 'settings', 'fit.py'), 'w')
     savefile.write('# Fit Settings #\n')
@@ -307,17 +231,281 @@ def args_parse(args):
                    'overwritten\n')
     savefile.write('# -> for help with changing fit settings, run ' +
                    '\'./chifit.py --help\'\n')
-    names = ['SU3', 'constrained', 'correlated', 'datatype', 'decayname',
-             'ensemblesize', 'formfactor', 'hardpiK', 'nexperiments']
     savefile.write('__all__ = [' +
-                   ', '.join(["'" + name + "'" for name in names]) + ']\n')
-    for name in names:
-        value = args.__getattribute__(name)
+                   ', '.join(["'" + savename + "'" for savename in savenames]) +
+                   ']\n')
+    for savename in savenames:
+        value = args.__getattribute__(savename)
         if type(value) is str:
-            savefile.write("{0} = '{1}'\n".format(name, value))
+            savefile.write("{0} = '{1}'\n".format(savename, value))
         else:
-            savefile.write('{0} = {1}\n'.format(name, value))
+            savefile.write('{0} = {1}\n'.format(savename, value))
     savefile.close()
+    return args
+
+
+def args_parse_combined(args, savenames):
+    """
+    ----------------------------------------------------------------------------
+    Parses command-line arguments args of main script if using combined (scalar
+    or vector) form factor, loading only those fit settings that are contained
+    within savenames.
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Applies tests, alters formats if necessary, and adds file-related arguments.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Command-line arguments as object attributes.
+    savenames : list of strs
+        Names of fit settings to be loaded (and eventually saved).
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    args : argparse.Namespace
+        Command-line arguments as object attributes. Arguments are altered or
+        added as follows:
+        args.{savename} (for each savename in savenames parameter, except
+        'formfactor') is changed to its value from {args.loadpara}.txt (without
+        loss of generality);
+        args.load is converted to list of strings;
+        args.loadpara is added;
+        args.loadperp is added.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    numpy : module, as np
+    results : function
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'invalid form factor in load file [...]'
+        May only load results for parallel and perpendicular form factors.
+    ValueError : 'must load both parallel and perpendicular form factors'
+        Must load results for both parallel and perpendicular form factors.
+    ValueError : 'fit settings of both load files must agree [...]'
+        Fit settings listed in parameter savenames (except for 'formfactor')
+        must agree in both load files (see Notes); conflicts are printed.
+    ValueError : 'invalid number of load statements [...]'
+        Must specify exactly two load files (one for each parallel and
+        perpendicular form factor).
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + After it has been tested that results for both parallel and perpendicular
+      form factors were provided, all fit settings listed in parameter savenames
+      (except for 'formfactor') are compared between {args.loadpara}.txt and
+      {args.loadperp}.txt to ensure consistency. This requires that parameter
+      savenames does not currently contain 'ensemblesize' or 'nexperiments'.
+    + See function args_parse.
+    ----------------------------------------------------------------------------
+    """
+    if len(args.load) == 2:
+        args.load = [args.load[0][0], args.load[1][0]]
+        loaddicts = []
+        for loadfile in args.load:
+            loaddict = {}
+            fitsettings = np.loadtxt(loadfile + '.txt', delimiter='\t',
+                                     dtype=str, usecols=(1, 2),
+                                     )[:results.func_defaults[1]]
+            values = []
+            for value in fitsettings[:, 1]:
+                try:
+                    values.append(eval(value))
+                except NameError:
+                    values.append(str(value))
+            names = np.array([name.strip() for name in fitsettings[:, 0]])
+            for savename in savenames:
+                loaddict[savename] = values[np.where(names == savename)[0][0]]
+                if savename != 'formfactor':
+                    args.__setattr__(savename, loaddict[savename])
+            if loaddict['formfactor'] not in ['para', 'perp']:
+                raise ValueError("invalid form factor in load file (must be " +
+                                 "'para' or 'perp')")
+            elif loaddict['formfactor'] == 'para':
+                args.loadpara = loadfile
+            elif loaddict['formfactor'] == 'perp':
+                args.loadperp = loadfile
+            loaddicts.append(loaddict)
+        try:
+            assert args.loadpara != args.loadperp
+        except AttributeError:
+            raise ValueError('must load both parallel and perpendicular form' +
+                             'factors')
+        conflicts = reduce(lambda S1, S2: S1.difference(S2),
+                           (set(loaddict.items()) for loaddict in loaddicts))
+        conflicts = sorted([name[0] for name in conflicts])
+        conflicts.remove('formfactor')
+        if len(conflicts) != 0:
+            raise ValueError('fit settings of both load files must agree: ' +
+                             ', '.join(conflicts))
+    else:
+        raise ValueError("invalid number of load statements (must specify " +
+                         "exactly two load files via '-L {para} -L {perp}', " +
+                         "in any order)")
+    return args
+
+
+def args_parse_single(args, savenames):
+    """
+    ----------------------------------------------------------------------------
+    Parses command-line arguments args of main script if using single (parallel,
+    perpendicular, or tensor) form factor, loading only those fit settings that
+    are contained within savenames (if such loading is desired).
+        ----    ----    ----    ----    ----    ----    ----    ----    ----    
+    Applies tests, alters formats if necessary, and adds data-related arguments.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Command-line arguments as object attributes.
+    savenames : list of strs
+        Names of fit settings to be loaded (and eventually saved).
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    args : argparse.Namespace
+        Command-line arguments as object attributes. Arguments are altered or
+        added as follows:
+        args.{savename} (for each savename in savenames parameter) is changed to
+        its value from {args.load}.txt if loading previous results;
+        args.exclude or args.include is converted to list of integers if
+        specified;
+        args.ensemblesize is converted to integer if specified, otherwise it is
+        guessed from args.inputsource (see Notes);
+        args.load is converted to string if specified;
+        args.nensembles is added;
+        args.nexperiments is added;
+        args.nexperiments_source is added;
+        args.nsamples is converted to integer if specified;
+        args.nsamples_source is added;
+        args.xpmtlist is added.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    numpy : module, as np
+    os : module
+    results : function
+    ----------------------------------------------------------------------------
+    Raises
+    ------
+    ValueError : 'invalid form factor'
+        Form factor must be one of: 'para' (for parallel), 'perp' (for
+        perpendicular), 'scalar', 'tensor', or 'vector'.
+    ValueError : 'invalid form factor for two load statements [...]'
+        Must specify only one load file, or must specify combined form factor if
+        using two load files.
+    ValueError : 'invalid number of load statements'
+        May not use more than two load files.
+    ValueError : 'must specify decay name'
+        Must specify decay name if not loading previous results.
+    ValueError : 'invalid decay name'
+        Decay name must be one of: 'B2K' (for B-->K) or 'B2pi' (for B-->pi).
+    ValueError : 'must specify data type'
+        Must specify data type if not loading previous results.
+    ValueError : 'invalid data type'
+        Data type must be 'bs' (for bootstrap).
+    ValueError : 'invalid experiment list [...]'
+        Cannot simultaneously specify lists of experiments both to include and
+        to exclude. Instead, summarize choices as single list of inclusions or
+        of exclusions.
+    ValueError : 'invalid number of experiments [...]'
+        Number of experiments must be multiple of {ensemble size}.
+    ValueError : 'invalid number of samples [...]'
+        Number of bootstrap/jackknife samples must be greater than two and less
+        than {number of samples in data source}.
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + If loading fit settings from results of previous run (in {args.load}.txt),
+      said values of ensemblesize and nexperiments are ignored so that user may
+      have full control when importing data during each run. This requires that
+      parameter savenames does not currently contain 'ensemblesize' or
+      'nexperiments'.
+    + If not specified, args.ensemblesize is guessed from args.inputsource by
+      comparing ratios of valence light- to heavy-quark masses to that of the
+      first experiment. This assumes that valence light- and heavy-quark masses
+      are located in the third and fifth columns of args.inputsource (resp.).
+    + See function args_parse.
+    ----------------------------------------------------------------------------
+    """
+    if args.load is not None:
+        if len(args.load) == 1:
+            args.load = args.load[0][0]
+            fitsettings = np.loadtxt(args.load + '.txt', delimiter='\t',
+                                     dtype=str, usecols=(1, 2),
+                                     )[:results.func_defaults[1]]
+            values = []
+            for value in fitsettings[:, 1]:
+                try:
+                    values.append(eval(value))
+                except NameError:
+                    values.append(str(value))
+            names = np.array([name.strip() for name in fitsettings[:, 0]])
+            for savename in savenames:
+                args.__setattr__(savename,
+                                 values[np.where(names == savename)[0][0]])
+        elif len(args.load) == 2:
+            if ((args.formfactor is not None) and
+                (args.formfactor not in ['para', 'perp', 'tensor'])):
+                raise ValueError('invalid form factor')
+            else:
+                raise ValueError('invalid form factor for two load ' +
+                                 'statements (must specify only one load ' +
+                                 'file, or must specify combined form factor ' +
+                                 'if using two load files)')
+        else:
+            raise ValueError('invalid number of load statements')
+    else:
+        if args.decayname is None:
+            raise ValueError('must specify decay name')
+        elif args.decayname not in ['B2K', 'B2pi']:
+            raise ValueError('invalid decay name')
+        if args.datatype is None:
+            raise ValueError('must specify data type')
+        elif args.datatype not in ['bs']:
+            raise ValueError('invalid data type')
+    if (args.include is not None) and (args.exclude is not None):
+        raise ValueError('invalid experiment list (cannot specify both ' +
+                         'include and exclude experiment lists)')
+    os.chdir(args.datadir)
+    Xsource = np.loadtxt(args.inputsource)
+    args.nexperiments_source = len(Xsource)
+    args.nsamples_source = int(len(np.loadtxt(args.datasource)) /
+                               args.nexperiments_source)
+    os.chdir(args.workdir)
+    if args.ensemblesize is None:
+        Xratios = np.array([Xsource[xpmt][2] / Xsource[xpmt][4] for xpmt in
+                            range(args.nexperiments_source)])
+        args.ensemblesize = np.sum([np.allclose(Xratios[:1], Xratios[:xpmt])
+                                    for xpmt in range(1, len(Xratios))])
+    else:
+        args.ensemblesize = int(args.ensemblesize)
+    if args.include is not None:
+        args.include = [int(xpmt) for xpmt in args.include.split(',')]
+        args.nexperiments = len(args.include)
+        args.xpmtlist = args.include
+    elif args.exclude is not None:
+        args.exclude = [int(xpmt) for xpmt in args.exclude.split(',')]
+        args.nexperiments = args.nexperiments_source - len(args.exclude)
+        args.xpmtlist = [xpmt for xpmt in
+                         list(range(args.nexperiments_source)) if xpmt not
+                         in args.exclude]
+    else:
+        args.nexperiments = args.nexperiments_source
+        args.xpmtlist = list(range(args.nexperiments_source))
+    if args.nexperiments % args.ensemblesize == 0:
+        args.nensembles = int(args.nexperiments / args.ensemblesize)
+    else:
+        raise ValueError('invalid number of experiments (must be ' +
+                         'multiple of ensemble size)')
+    if args.nsamples is not None:
+        args.nsamples = int(args.nsamples)
+        if (args.nsamples <= 2) or (args.nsamples > args.nsamples_source):
+            raise ValueError('invalid number of samples (must be > 2 and ' +
+                             '<= number of samples in data source)')
+    else:
+        args.nsamples = args.nsamples_source
     return args
 
 

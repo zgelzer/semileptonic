@@ -69,10 +69,10 @@ __all__ = ['Deltabar', 'Deltas', 'F', 'I1', 'I2', 'J1sub', 'R31', 'deltaps',
 
 from math import atan, atanh, log, pi, sqrt
 from settings.constants import Lambda, a_atol, nearzero, tastemults
-from settings.fit import hardpiK
+from settings.fit import decayname, hardpiK
 
 
-def D(inputs, g_pi, decayname):
+def D(inputs, g_pi):
     """
     ----------------------------------------------------------------------------
     Calculates corrections to pole for self-energy contribution to f_perp of
@@ -85,13 +85,15 @@ def D(inputs, g_pi, decayname):
         complete list of inputs.
     g_pi : float
         Heavy-light coupling constant. See constants.py.
-    decayname : str
-        Name of particular decay of B meson.
     ----------------------------------------------------------------------------
     Returns
     -------
     float, from function B2{K or pi}.D
         Corrections to pole for self-energy contribution to f_perp.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    decayname : str, from settings.constants
     ----------------------------------------------------------------------------
     Notes
     -----
@@ -568,7 +570,7 @@ def deltaps_calc(a_fm):
     return deltaps
 
 
-def df_para(inputs, g_pi, decayname):
+def df_para(inputs, g_pi):
     """
     ----------------------------------------------------------------------------
     Calculates loop corrections (incl. wavefunction renormalizations) to f_para
@@ -581,13 +583,15 @@ def df_para(inputs, g_pi, decayname):
         complete list of inputs.
     g_pi : float
         Heavy-light coupling constant. See constants.py.
-    decayname : str
-        Name of particular decay of B meson.
     ----------------------------------------------------------------------------
     Returns
     -------
     float, from function B2{K or pi}.df_para
         Loop corrections (incl. wavefunction renormalizations) to f_para.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    decayname : str, from settings.constants
     ----------------------------------------------------------------------------
     Notes
     -----
@@ -602,7 +606,7 @@ def df_para(inputs, g_pi, decayname):
         return B2pi.df_para(inputs, g_pi)
 
 
-def df_perp(inputs, g_pi, decayname):
+def df_perp(inputs, g_pi):
     """
     ----------------------------------------------------------------------------
     Calculates loop corrections (incl. wavefunction renormalizations) to f_perp
@@ -615,13 +619,15 @@ def df_perp(inputs, g_pi, decayname):
         complete list of inputs.
     g_pi : float
         Heavy-light coupling constant. See constants.py.
-    decayname : str
-        Name of particular decay of B meson.
     ----------------------------------------------------------------------------
     Returns
     -------
     float, from function B2{K or pi}.df_perp
         Loop corrections (incl. wavefunction renormalizations) to f_perp.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    decayname : str, from settings.constants
     ----------------------------------------------------------------------------
     Notes
     -----
