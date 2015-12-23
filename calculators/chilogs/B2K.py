@@ -80,8 +80,8 @@ def D(inputs, g_pi):
     ----------------------------------------------------------------------------
     """
     E = inputs['E']
-    m_l = inputs['ml_val']
-    m_h = inputs['mh_val']
+    m_l = inputs['ml_sea']
+    m_h = inputs['mh_sea']
     g_pi2 = g_pi ** 2
     if not SU3:
         return 0
@@ -160,8 +160,8 @@ def df_para(inputs, g_pi):
     ----------------------------------------------------------------------------
     """
     E = inputs['E']
-    m_l = inputs['ml_val']
-    m_h = inputs['mh_val']
+    m_l = inputs['ml_sea']
+    m_h = inputs['mh_sea']
     g_pi2 = g_pi ** 2
     XiSum = 0.
     for Xi in tastemults.keys():
@@ -253,8 +253,8 @@ def df_perp(inputs, g_pi):
     ----------------------------------------------------------------------------
     """
     E = inputs['E']
-    m_l = inputs['ml_val']
-    m_h = inputs['mh_val']
+    m_l = inputs['ml_sea']
+    m_h = inputs['mh_sea']
     g_pi2 = g_pi ** 2
     XiSum = 0.
     for Xi in tastemults.keys():
