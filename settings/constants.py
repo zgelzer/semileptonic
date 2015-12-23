@@ -42,8 +42,9 @@ mK : float
 mpi : float
     Mass of pion; taken from PDG as 134.977 MeV [1].
 Delta_B : float
-    Difference between masses of B*_s and B^0 mesons for B-->K decay, or that
-    of B* and B^0 for B-->pi decay.
+    Pole in energy of kaon (or pion) arising from low-lying states; (-1 * pole)
+    is taken to reside where lepton momentum transfer equals mass of B*_s (or
+    B*) meson for B-->K (or B-->pi) decay.
 a_atol : float
     Absolute tolerance used to deterimine equality of two lattice spacings in
     fermi; taken to be 1e-06 fm, since difference between successive lattice
@@ -105,9 +106,9 @@ mBstar_s = 5415.4 / hbarc * r1
 mK = 497.614 / hbarc * r1
 mpi = 134.977 / hbarc * r1
 if decayname == 'B2K':
-    Delta_B = mBstar_s - mB
+    Delta_B = (mBstar_s ** 2 - mB ** 2 - mK ** 2) / (2 * mB)
 elif decayname == 'B2pi':
-    Delta_B = mBstar - mB
+    Delta_B = (mBstar ** 2 - mB ** 2 - mpi ** 2) / (2 * mB)
 a_atol = 1e-06
 gpi = 0.45
 nearzero = 1e-30
