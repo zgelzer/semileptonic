@@ -33,7 +33,7 @@ Notes
 + Fit parameters are implemented in chiral fit function in fitters/chiral.py.
 + Fit parameter names match those from heavy-light meson staggered chiral
   perturbation theory (HMSchiPT) [1].
-    > C0 : Parameterizes leading-order (LO) term ({~1} + {logs}).
+    > C0 : Parameterizes leading-order (LO) term (1 + {logs}).
     > CE : Parameterizes NLO term chi_E.
     > CE2 : Parameterizes NLO term chi_E^2.
     > CE3 : Parameterizes NNLO term chi_E^3.

@@ -96,31 +96,30 @@ def f_para(inputs, params):
     fitparams = fitparse(params)
     nouts = len(inputs)
     Es = np.array([inputs[i]['E'] for i in range(nouts)])
-    fpis = fpi * np.ones(nouts)
-    chi_E = (Es * sqrt(2)) / (4 * pi * fpi)
-    chi_a2 = np.array([Deltabar(inputs[i]['a_fm']) /
+    chi_Es = (Es * sqrt(2)) / (4 * pi * fpi)
+    chi_a2s = np.array([Deltabar(inputs[i]['a_fm']) /
+                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
+    chi_hs = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['mh_val']) /
                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
-    chi_h = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['mh_val']) /
-                      (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
-    chi_l = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
-                      (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
+    chi_ls = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
+                       (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
     dfs = np.array([df_para(inputs[i], fitparams['gpi']) for i in range(nouts)])
     return ((fitparams['C0'] * (1 + dfs) +
-             fitparams['CE'] * chi_E +
-             fitparams['CE2'] * chi_E ** 2 +
-             fitparams['CE3'] * chi_E ** 3 +
-             fitparams['CE4'] * chi_E ** 4 +
-             fitparams['Ca2'] * chi_a2 +
-             fitparams['Ca2E'] * chi_a2 * chi_E +
-             fitparams['Ca2E2'] * chi_a2 * chi_E ** 2 +
-             fitparams['Ca4'] * chi_a2 ** 2 +
-             fitparams['Ch'] * chi_h +
-             fitparams['Cl'] * chi_l +
-             fitparams['Cl2'] * chi_l ** 2 +
-             fitparams['ClE'] * chi_l * chi_E +
-             fitparams['ClE2'] * chi_l * chi_E ** 2 +
-             fitparams['Cla2'] * chi_l * chi_a2) /
-            fpis)
+             fitparams['CE'] * chi_Es +
+             fitparams['CE2'] * chi_Es ** 2 +
+             fitparams['CE3'] * chi_Es ** 3 +
+             fitparams['CE4'] * chi_Es ** 4 +
+             fitparams['Ca2'] * chi_a2s +
+             fitparams['Ca2E'] * chi_a2s * chi_Es +
+             fitparams['Ca2E2'] * chi_a2s * chi_Es ** 2 +
+             fitparams['Ca4'] * chi_a2s ** 2 +
+             fitparams['Ch'] * chi_hs +
+             fitparams['Cl'] * chi_ls +
+             fitparams['Cl2'] * chi_ls ** 2 +
+             fitparams['ClE'] * chi_ls * chi_Es +
+             fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
+             fitparams['Cla2'] * chi_ls * chi_a2s) /
+            fpi)
 
 
 def f_perp(inputs, params):
@@ -184,33 +183,31 @@ def f_perp(inputs, params):
     fitparams = fitparse(params)
     nouts = len(inputs)
     Es = np.array([inputs[i]['E'] for i in range(nouts)])
-    fpis = fpi * np.ones(nouts)
-    chi_E = (Es * sqrt(2)) / (4 * pi * fpi)
-    chi_a2 = np.array([Deltabar(inputs[i]['a_fm']) /
+    chi_Es = (Es * sqrt(2)) / (4 * pi * fpi)
+    chi_a2s = np.array([Deltabar(inputs[i]['a_fm']) /
+                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
+    chi_hs = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['mh_val']) /
                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
-    chi_h = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['mh_val']) /
-                      (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
-    chi_l = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
-                      (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
-    Delta_Bs = Delta_B * np.ones(nouts)
+    chi_ls = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
+                       (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
     Ds = np.array([D(inputs[i], fitparams['gpi']) for i in range(nouts)])
     dfs = np.array([df_perp(inputs[i], fitparams['gpi']) for i in range(nouts)])
-    return ((fitparams['C0'] * ((Es + Delta_Bs) / (Es + Delta_Bs + Ds) + dfs) +
-             fitparams['CE'] * chi_E +
-             fitparams['CE2'] * chi_E ** 2 +
-             fitparams['CE3'] * chi_E ** 3 +
-             fitparams['CE4'] * chi_E ** 4 +
-             fitparams['Ca2'] * chi_a2 +
-             fitparams['Ca2E'] * chi_a2 * chi_E +
-             fitparams['Ca2E2'] * chi_a2 * chi_E ** 2 +
-             fitparams['Ca4'] * chi_a2 ** 2 +
-             fitparams['Ch'] * chi_h +
-             fitparams['Cl'] * chi_l +
-             fitparams['Cl2'] * chi_l ** 2 +
-             fitparams['ClE'] * chi_l * chi_E +
-             fitparams['ClE2'] * chi_l * chi_E ** 2 +
-             fitparams['Cla2'] * chi_l * chi_a2) *
-            (fitparams['gpi'] / (fpis * (Es + Delta_Bs))))
+    return ((fitparams['C0'] * (1 + dfs) +
+             fitparams['CE'] * chi_Es +
+             fitparams['CE2'] * chi_Es ** 2 +
+             fitparams['CE3'] * chi_Es ** 3 +
+             fitparams['CE4'] * chi_Es ** 4 +
+             fitparams['Ca2'] * chi_a2s +
+             fitparams['Ca2E'] * chi_a2s * chi_Es +
+             fitparams['Ca2E2'] * chi_a2s * chi_Es ** 2 +
+             fitparams['Ca4'] * chi_a2s ** 2 +
+             fitparams['Ch'] * chi_hs +
+             fitparams['Cl'] * chi_ls +
+             fitparams['Cl2'] * chi_ls ** 2 +
+             fitparams['ClE'] * chi_ls * chi_Es +
+             fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
+             fitparams['Cla2'] * chi_ls * chi_a2s) *
+            (fitparams['gpi'] / (fpi * (Es + Delta_B + Ds))))
 
 
 def f_scalar(inputs, params_para, params_perp):
