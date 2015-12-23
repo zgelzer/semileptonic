@@ -17,6 +17,8 @@ Defines functions for writing and plotting data.
 --------------------------------------------------------------------------------
 Definitions
 -----------
+inputs_continuum : function
+    Returns inputs for continuum extrapolations.
 params : function
     Pickles fit parameters.
 plot_data : function
@@ -46,11 +48,42 @@ from math import copysign, floor, log10, sqrt
 from matplotlib import pyplot as plt
 from os import getcwd
 from settings import fit
-from settings.constants import mh_continuum, ml_continuum, r1_continuum
+from settings.constants import mh_continuum, ml_continuum, r1_a_continuum
 from settings.fit import *
 from sys import stdout
 import numpy as np
 import pickle
+
+
+def inputs_continuum():
+    """
+    ----------------------------------------------------------------------------
+    Returns inputs for continuum extrapolations.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    inputs : np.ndarray of dict
+        Array of dictionary of input floats for continuum extrapolations.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    mh_continuum : float, from settings.constants
+    ml_continuum : float, from settings.constants
+    numpy : module, as np
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See fileIOs.readers.inputs for complete list and description of inputs.
+    ----------------------------------------------------------------------------
+    """
+    inputs = np.array([{'extrapolation': 'continuum'}])
+    inputs[0]['a'] = 0
+    inputs[0]['a_fm'] = 0
+    inputs[0]['mh_sea'] = mh_continuum
+    inputs[0]['mh_val'] = mh_continuum
+    inputs[0]['ml_sea'] = ml_continuum
+    inputs[0]['ml_val'] = ml_continuum
+    return inputs
 
 
 def params(avgs, cov, savename='result'):
@@ -296,13 +329,11 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     ------------
     a_fermi : function, from calculators.chilogs.fcns
     chiral : module, from fitters
-    mh_continuum : float, from settings.constants
-    ml_continuum : float, from settings.constants
     nexperiments : int, from settings.fit
     numpy : module, as np
     plot_errfill : function
     pyplot : module, from matplotlib, as plt
-    r1_continuum : float, from settings.constants
+    r1_a_continuum : float, from settings.constants
     sigfig : function
     ----------------------------------------------------------------------------
     """
@@ -313,14 +344,12 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
                              range(nexperiments)])[0][-1]
         fit_inputs = np.array([{}])
         fit_inputs[0] = inputs[fit_xpmt]
+        aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
+        amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
     else:
-        fit_inputs = np.array([{'extrapolation': 'continuum'}])
-        fit_inputs[0]['a_fm'] = 0
-        fit_inputs[0]['a'] = 1 / r1_continuum
-        fit_inputs[0]['mh_sea'] = mh_continuum
-        fit_inputs[0]['mh_val'] = mh_continuum
-        fit_inputs[0]['ml_sea'] = ml_continuum
-        fit_inputs[0]['ml_val'] = ml_continuum
+        fit_inputs = inputs_continuum()
+        aml = str(sigfig(fit_inputs[0]['ml_val'] / r1_a_continuum, n=3))
+        amh = str(sigfig(fit_inputs[0]['mh_val'] / r1_a_continuum, n=3))
     Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
     if linelength is None:
         fit_Es = np.linspace(min(Es), max(Es), num=50)
@@ -338,8 +367,6 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
                             range(len(fit_Es))])
     plot_errfill(fit_Es, fit_ffs_avg, fit_ffs_err, color=color, label=label,
                  alphafill=alphafill, axis=axis)
-    aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
-    amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
     np.savetxt(savename + '_fit.dat',
                np.vstack((fit_Es, fit_ffs_avg, fit_ffs_err)).T,
                fmt=('%.6e', '%.6e', '%.6e'), delimiter='  ',
@@ -487,23 +514,15 @@ def plot_fitcombo(params_para, params_perp, alphafill=0.3, axis=None,
     ------------
     E_out : function, from calculators.fcns
     chiral : module, from fitters
-    mh_continuum : float, from settings.constants
-    ml_continuum : float, from settings.constants
     numpy : module, as np
     plot_errfill : function
     pyplot : module, from matplotlib, as plt
-    r1_continuum : float, from settings.constants
+    r1_a_continuum : float, from settings.constants
     sigfig : function
     ----------------------------------------------------------------------------
     """
     axis = axis if axis is not None else plt.gca()
-    fit_inputs = np.array([{'extrapolation': 'continuum'}])
-    fit_inputs[0]['a_fm'] = 0
-    fit_inputs[0]['a'] = 1 / r1_continuum
-    fit_inputs[0]['mh_sea'] = mh_continuum
-    fit_inputs[0]['mh_val'] = mh_continuum
-    fit_inputs[0]['ml_sea'] = ml_continuum
-    fit_inputs[0]['ml_val'] = ml_continuum
+    fit_inputs = inputs_continuum()
     if linelength is None:
         fit_q2s = np.linspace(16., 23., num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
@@ -521,8 +540,8 @@ def plot_fitcombo(params_para, params_perp, alphafill=0.3, axis=None,
                             range(len(fit_q2s))])
     plot_errfill(fit_q2s, fit_ffs_avg, fit_ffs_err, color=color, label=label,
                  alphafill=alphafill, axis=axis)
-    aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
-    amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
+    aml = str(sigfig(fit_inputs[0]['ml_val'] / r1_a_continuum, n=3))
+    amh = str(sigfig(fit_inputs[0]['mh_val'] / r1_a_continuum, n=3))
     np.savetxt(savename + '_fit.dat',
                np.vstack((fit_q2s, fit_ffs_avg, fit_ffs_err)).T,
                fmt=('%.6e', '%.6e', '%.6e'), delimiter='  ',

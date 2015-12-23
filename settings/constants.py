@@ -59,9 +59,9 @@ tastemults : dict of ints
     Multiplicity of tastes of staggered fermions, with tastes defined as 'P' for
     pseudoscalar, 'A' for axial vector, 'T' for tensor, 'V' for vector, and 'I'
     for singlet.
-r1_continuum : float
-    Continuum value of lattice scale r_1 in lattice units (r_1 / a); taken to be
-    3.744241 [3].
+r1_a_continuum : float
+    Continuum value of ratio (r_1 / a); taken to be 3.744241 [3], by using the
+    average of this ratio for fine lattice spacings.
 mh_continuum : float
     Continuum value of heavy quark mass m_h in lattice units (a * m_h); taken to
     be 0.02645 [3].
@@ -112,7 +112,7 @@ a_atol = 1e-06
 gpi = 0.45
 nearzero = 1e-30
 tastemults = {'P': 1, 'A': 4, 'T': 6, 'V': 4, 'I': 1}
-r1_continuum = 3.744241
-mh_continuum = r1_continuum * 0.02645
-ml_continuum = r1_continuum * 0.0009646
+r1_a_continuum = 3.744241
+mh_continuum = r1_a_continuum * 0.02645
+ml_continuum = r1_a_continuum * 0.0009646
 
