@@ -17,7 +17,7 @@ Calculates pole and loop contributions to B-->pi form factors.
 --------------------------------------------------------------------------------
 Definitions
 -----------
-D : function
+dD : function
     Calculates corrections to pole for self-energy contribution to f_perp.
 df_para : function
     Calculates loop corrections (incl. wavefunction renormalizations) to f_para.
@@ -33,7 +33,7 @@ from settings.constants import fpi, tastemults
 from settings.fit import SU3
 
 
-def D(inputs, g_pi):
+def dD(inputs, g_pi):
     """
     ----------------------------------------------------------------------------
     Calculates corrections to pole for self-energy contribution to f_perp, given
@@ -105,9 +105,9 @@ def D(inputs, g_pi):
     m_pi = sqrt(mu(inputs['a_fm']) * 2 * m_l + Deltas(inputs['a_fm'])['I'])
     m_eta = sqrt(mu(inputs['a_fm']) * ((2 * m_l + 4 * m_h) / 3) +
                  Deltas(inputs['a_fm'])['I'])
-    D = ((Xisum / 16) + jsum - (J1sub(m_pi, E) / 2) +
-         SU3 * (J1sub(m_eta, E) / 6))
-    return (-3 * g_pi2 * E * D) / (4 * pi * fpi) ** 2
+    dD = ((Xisum / 16) + jsum - (J1sub(m_pi, E) / 2) +
+          SU3 * (J1sub(m_eta, E) / 6))
+    return (-3 * g_pi2 * E * dD) / (4 * pi * fpi) ** 2
 
 
 def df_para(inputs, g_pi):

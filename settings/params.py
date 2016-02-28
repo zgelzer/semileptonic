@@ -30,7 +30,7 @@ width_NNLO : float
 --------------------------------------------------------------------------------
 Notes
 -----
-+ Fit parameters are implemented in chiral fit function in fitters/chiral.py.
++ Fit parameters are implemented in chiral fit function (see fitters.chiral).
 + Fit parameter names match those from heavy-light meson staggered chiral
   perturbation theory (HMSchiPT) [1].
     > C0 : Parameterizes leading-order (LO) term (1 + {logs}).
@@ -48,13 +48,16 @@ Notes
     > ClE : Parameterizes NNLO term (chi_{m_l} * chi_E).
     > ClE2 : Parameterizes NNLO term (chi_{m_l} * chi_E^2).
     > Cla2 : Parameterizes NNLO term (chi_{m_l} * chi_{a2}).
-    > gpi : Parameterizes LO term g_pi, whose width is set to 0.08 so as to
-      remain consistent with a direct lattice calculation [2], yet liberal
-      enough to accomodate others. See settings/constants.py.
-+ All LO, NLO, and NNLO terms are dimensionless. See fitters.chiral.fitfcn for
-  complete descriptions.
+    > D : Parameterizes LO discretization errors for light quarks and gluons.
+    > gpi : Parameterizes LO term g_pi (see settings.constants for central
+      value), whose width is set to 0.08 so as to remain consistent with a
+      direct lattice calculation [2], yet liberal enough to accomodate others.
++ All terms are dimensionless; see fitters.chiral.fitfcn for complete
+  descriptions.
 + All LO and NLO terms are expected to be of order unity.
 + All NNLO terms are expected to be of order zero.
++ All discretization errors are expected to be minimal, with widths equal to the
+  square root of the number of times each term appears.
 --------------------------------------------------------------------------------
 References
 ----------
@@ -91,5 +94,6 @@ params['Cl2']   = gvar(0., width_NNLO)
 params['ClE']   = gvar(0., width_NNLO)
 params['ClE2']  = gvar(0., width_NNLO)
 params['Cla2']  = gvar(0., width_NNLO)
+params['D']     = gvar(0., 1.)
 params['gpi']   = gvar(gpi, 0.08)
 

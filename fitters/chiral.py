@@ -33,9 +33,9 @@ fitparse : function
 """
 
 
-from calculators.chilogs.fcns import D, df_para, df_perp, mu, Deltabar
+from calculators.chilogs.fcns import dD, df_para, df_perp, mu, Deltabar
 from math import pi, sqrt
-from settings.constants import DeltaB_para, DeltaB_perp, fpi, gpi
+from settings.constants import DeltaB_para, DeltaB_perp, Lambda, fpi, gpi
 from settings.fit import decayname, formfactor
 import numpy as np
 
@@ -47,7 +47,7 @@ def f_para(inputs, params):
     in (X = inputs) given fit parameters (p = params).
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Sets absent fit parameters to zero via fitparse(params) (see fitparse). All
-    (next-to-)next-to-leading-order (N)NLO fit parameters C^(i) (with (i) > 0)
+    (next-to-)next-to-leading-order (N)NLO fit parameters C_(i) (with (i) > 0)
     enter into chiral fit function as products of dimensionless expansion terms
     chi_(i). chi_E is proportional to E_(K/pi); chi_a2 is proportional to
     (a^2 * Deltabar = calculators.chilogs.fcns.Deltabar); chi_h is proportional
@@ -58,9 +58,17 @@ def f_para(inputs, params):
     expansion terms involve products of multiple chi_(i); e.g., ClE2
     parameterizes (chi_l * (chi_E)^2). NLO chiral fit function, similar in form
     to that in [1], is as follows:
-        f_para = norms * [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}], where
+        f_para = norms * [C^(0) * (1 + df) + Sum_(i){C_(i) * chi_(i)}], where
         norms = (1 / f_pi) if DeltaB_para is 0, or
         norms = gpi / (fpi * (Es + DeltaB_para)) otherwise
+    All leading-order fit parameters D_(i) alter these expressions as products
+    of dimensionless functions f_(i) of discretization errors [1], along with
+    appropriate powers of (a * Lambda), where a is lattice spacing and Lambda is
+    renormalization scale characteristic of heavy-quark expansion. f is
+    proportional to alpha: renormalized QCD coupling in heavy-quark scheme. All
+    other f_(i) are functions of (m0 * a): bare mass of clover b-quark on
+    lattice. Final chiral fit function then becomes:
+        f_para --> f_para * [1 + Sum_(i){D_(i) * f_(i)}]
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -80,6 +88,7 @@ def f_para(inputs, params):
     ------------
     DeltaB_para : float, from settings.constants
     Deltabar : function, from calculators.chilogs.fcns
+    Lambda : float, from settings.constants
     df_para : function, from calculators.chilogs.fcns
     fitparse : function
     fpi : float, from settings.constants
@@ -107,6 +116,9 @@ def f_para(inputs, params):
     chi_ls = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
     dfs = np.array([df_para(inputs[i], fitparams['gpi']) for i in range(nouts)])
+    aLambdas = Lambda * np.array([inputs[i]['a'] for i in range(nouts)])
+    alphas = np.array([inputs[i]['alpha_V'] for i in range(nouts)])
+    fs = alphas * aLambdas ** 2
     if DeltaB_para == 0:
         norms = 1. / fpi
     else:
@@ -126,7 +138,7 @@ def f_para(inputs, params):
              fitparams['ClE'] * chi_ls * chi_Es +
              fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
              fitparams['Cla2'] * chi_ls * chi_a2s) *
-            norms)
+            norms * (1 + fitparams['D'] * fs))
 
 
 def f_perp(inputs, params):
@@ -136,7 +148,7 @@ def f_perp(inputs, params):
     for all experiments in (X = inputs) given fit parameters (p = params).
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Sets absent fit parameters to zero via fitparse(params) (see fitparse). All
-    (next-to-)next-to-leading-order (N)NLO fit parameters C^(i) (with (i) > 0)
+    (next-to-)next-to-leading-order (N)NLO fit parameters C_(i) (with (i) > 0)
     enter into chiral fit function as products of dimensionless expansion terms
     chi_(i). chi_E is proportional to E_(K/pi); chi_a2 is proportional to
     (a^2 * Deltabar = calculators.chilogs.fcns.Deltabar); chi_h is proportional
@@ -148,8 +160,17 @@ def f_perp(inputs, params):
     parameterizes (chi_l * (chi_E)^2). NLO chiral fit function, similar in form
     to that in [1], is as follows:
         f_perp = [g_pi / (f_pi * (E_(K/pi) + DeltaB_perp + D))] *
-                 [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}]
+                 [C^(0) * (1 + df) + Sum_(i){C_(i) * chi_(i)}]
         f_tensor = (same form as f_perp)
+    All leading-order fit parameters D_(i) alter these expressions as products
+    of dimensionless functions f_(i) of discretization errors [1], along with
+    appropriate powers of (a * Lambda), where a is lattice spacing and Lambda is
+    renormalization scale characteristic of heavy-quark expansion. f is
+    proportional to alpha: renormalized QCD coupling in heavy-quark scheme. All
+    other f_(i) are functions of (m0 * a): bare mass of clover b-quark on
+    lattice. Final chiral fit function then becomes:
+        f_perp --> f_perp * [1 + Sum_(i){D_(i) * f_(i)}]
+        f_tensor --> (same alterations as f_perp)
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -167,9 +188,10 @@ def f_perp(inputs, params):
     ----------------------------------------------------------------------------
     Requirements
     ------------
-    D : function, from calculators.chilogs.fcns
     DeltaB_perp : float, from settings.constants
     Deltabar : function, from calculators.chilogs.fcns
+    Lambda : float, from settings.constants
+    dD : function, from calculators.chilogs.fcns
     df_perp : function, from calculators.chilogs.fcns
     fitparse : function
     fpi : float, from settings.constants
@@ -196,8 +218,11 @@ def f_perp(inputs, params):
                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
     chi_ls = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
-    Ds = np.array([D(inputs[i], fitparams['gpi']) for i in range(nouts)])
+    dDs = np.array([dD(inputs[i], fitparams['gpi']) for i in range(nouts)])
     dfs = np.array([df_perp(inputs[i], fitparams['gpi']) for i in range(nouts)])
+    aLambdas = Lambda * np.array([inputs[i]['a'] for i in range(nouts)])
+    alphas = np.array([inputs[i]['alpha_V'] for i in range(nouts)])
+    fs = alphas * aLambdas ** 2
     return ((fitparams['C0'] * (1 + dfs) +
              fitparams['CE'] * chi_Es +
              fitparams['CE2'] * chi_Es ** 2 +
@@ -213,7 +238,8 @@ def f_perp(inputs, params):
              fitparams['ClE'] * chi_ls * chi_Es +
              fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
              fitparams['Cla2'] * chi_ls * chi_a2s) *
-            (fitparams['gpi'] / (fpi * (Es + DeltaB_perp + Ds))))
+            (fitparams['gpi'] / (fpi * (Es + DeltaB_perp + dDs))) *
+            (1 + fitparams['D'] * fs))
 
 
 def f_scalar(inputs, params_para, params_perp):
@@ -405,7 +431,7 @@ def fitparse(params):
     ----------------------------------------------------------------------------
     """
     paramlist = ['C0', 'CE', 'CE2', 'CE3', 'CE4', 'Ca2', 'Ca2E', 'Ca2E2', 'Ca4',
-                 'Ch', 'Cl', 'Cl2', 'ClE', 'ClE2', 'Cla2']
+                 'Ch', 'Cl', 'Cl2', 'ClE', 'ClE2', 'Cla2', 'D']
     fitparams = {}
     for param in paramlist:
         if param in params.keys():

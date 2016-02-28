@@ -19,8 +19,6 @@ Definitions
 -----------
 __all__ : list of strs
     Functions to be imported during 'from calculators.chilogs.fcns import *'.
-D : function
-    Calculates corrections to pole for self-energy contribution to f_perp.
 Deltabar : function
     Calculates root-mean-square taste splitting for lattice spacing.
 Deltas : function
@@ -37,6 +35,8 @@ R31 : function
     Calculates Euclidean space residue R_j^{[3, 1]}.
 a_fermi : function
     Calculates lattice spacing in fm.
+dD : function
+    Calculates corrections to pole for self-energy contribution to f_perp.
 deltaps : function
     Returns hairpin parameters for lattice spacing.
 deltaps_calc : function
@@ -58,42 +58,6 @@ __all__ = ['Deltabar', 'Deltas', 'F', 'I1', 'I2', 'J1sub', 'R31', 'deltaps',
 from math import atan, atanh, log, pi, sqrt
 from settings.constants import Lambda, a_atol, nearzero, tastemults
 from settings.fit import decayname, hardpiK
-
-
-def D(inputs, g_pi):
-    """
-    ----------------------------------------------------------------------------
-    Calculates corrections to pole for self-energy contribution to f_perp of
-    particular decay, given inputs and heavy-light coupling constant g_pi.
-    ----------------------------------------------------------------------------
-    Parameters
-    ----------
-    inputs : dict of floats
-        Input floats for particular experiment. See fileIOs.readers.inputs for
-        complete list of inputs.
-    g_pi : float
-        Heavy-light coupling constant. See constants.py.
-    ----------------------------------------------------------------------------
-    Returns
-    -------
-    float, from function B2{K or pi}.D
-        Corrections to pole for self-energy contribution to f_perp.
-    ----------------------------------------------------------------------------
-    Requirements
-    ------------
-    decayname : str, from settings.constants
-    ----------------------------------------------------------------------------
-    Notes
-    -----
-    + See function B2{K or pi}.D.
-    ----------------------------------------------------------------------------
-    """
-    if decayname == 'B2K':
-        from calculators.chilogs import B2K
-        return B2K.D(inputs, g_pi)
-    elif decayname == 'B2pi':
-        from calculators.chilogs import B2pi
-        return B2pi.D(inputs, g_pi)
 
 
 def Deltabar(a_fm):
@@ -465,6 +429,42 @@ def a_fermi(a_str):
         return 0
     else:
         raise ValueError('invalid lattice spacing name')
+
+
+def dD(inputs, g_pi):
+    """
+    ----------------------------------------------------------------------------
+    Calculates corrections to pole for self-energy contribution to f_perp of
+    particular decay, given inputs and heavy-light coupling constant g_pi.
+    ----------------------------------------------------------------------------
+    Parameters
+    ----------
+    inputs : dict of floats
+        Input floats for particular experiment. See fileIOs.readers.inputs for
+        complete list of inputs.
+    g_pi : float
+        Heavy-light coupling constant. See constants.py.
+    ----------------------------------------------------------------------------
+    Returns
+    -------
+    float, from function B2{K or pi}.dD
+        Corrections to pole for self-energy contribution to f_perp.
+    ----------------------------------------------------------------------------
+    Requirements
+    ------------
+    decayname : str, from settings.constants
+    ----------------------------------------------------------------------------
+    Notes
+    -----
+    + See function B2{K or pi}.dD.
+    ----------------------------------------------------------------------------
+    """
+    if decayname == 'B2K':
+        from calculators.chilogs import B2K
+        return B2K.dD(inputs, g_pi)
+    elif decayname == 'B2pi':
+        from calculators.chilogs import B2pi
+        return B2pi.dD(inputs, g_pi)
 
 
 def deltaps(a_fm):
