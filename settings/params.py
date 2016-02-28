@@ -49,6 +49,11 @@ Notes
     > ClE2 : Parameterizes NNLO term (chi_{m_l} * chi_E^2).
     > Cla2 : Parameterizes NNLO term (chi_{m_l} * chi_{a2}).
     > D : Parameterizes LO discretization errors for light quarks and gluons.
+    > D3 : Parameterizes heavy quark discretization errors from LO term f3.
+    > DB : Parameterizes heavy quark discretization errors from LO term fB.
+    > DE : Parameterizes heavy quark discretization errors from LO term fE.
+    > DX : Parameterizes heavy quark discretization errors from LO term fX.
+    > DY : Parameterizes heavy quark discretization errors from LO term fY.
     > gpi : Parameterizes LO term g_pi (see settings.constants for central
       value), whose width is set to 0.08 so as to remain consistent with a
       direct lattice calculation [2], yet liberal enough to accomodate others.
@@ -73,7 +78,9 @@ References
 
 
 from gvar import gvar
+from math import sqrt
 from settings.constants import gpi
+from settings.fit import formfactor
 
 
 width_NLO  = 2.
@@ -95,5 +102,10 @@ params['ClE']   = gvar(0., width_NNLO)
 params['ClE2']  = gvar(0., width_NNLO)
 params['Cla2']  = gvar(0., width_NNLO)
 params['D']     = gvar(0., 1.)
+params['D3']    = gvar(0., sqrt(2) * sqrt(2) ** (formfactor != 'para'))
+params['DB']    = gvar(0., 1.)
+params['DE']    = gvar(0., sqrt(2))
+params['DX']    = gvar(0., sqrt(2))
+params['DY']    = gvar(0., 1.)
 params['gpi']   = gvar(gpi, 0.08)
 

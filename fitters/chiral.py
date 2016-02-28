@@ -62,7 +62,7 @@ def f_para(inputs, params):
         norms = (1 / f_pi) if DeltaB_para is 0, or
         norms = gpi / (fpi * (Es + DeltaB_para)) otherwise
     All leading-order fit parameters D_(i) alter these expressions as products
-    of dimensionless functions f_(i) of discretization errors [1], along with
+    of dimensionless functions of discretization errors f_(i) [1], along with
     appropriate powers of (a * Lambda), where a is lattice spacing and Lambda is
     renormalization scale characteristic of heavy-quark expansion. f is
     proportional to alpha: renormalized QCD coupling in heavy-quark scheme. All
@@ -118,7 +118,16 @@ def f_para(inputs, params):
     dfs = np.array([df_para(inputs[i], fitparams['gpi']) for i in range(nouts)])
     aLambdas = Lambda * np.array([inputs[i]['a'] for i in range(nouts)])
     alphas = np.array([inputs[i]['alpha_V'] for i in range(nouts)])
+    am0s = np.array([inputs[i]['m0 * a'] for i in range(nouts)])
     fs = alphas * aLambdas ** 2
+    f3s = alphas / (2 * (2 + am0s)) * aLambdas
+    fBs = alphas / (2 * (1 + am0s)) * aLambdas
+    fEs = ((1 / ((2 + am0s) * (1 + am0s)) - 1 / (4 * (1 + am0s) ** 2)) / 2 *
+           aLambdas ** 2)
+    fXs = ((1 / (2 * (1 + am0s)) -
+           (am0s / (2 * (2 + am0s) * (1 + am0s))) ** 2) / 2) * aLambdas ** 2
+    fYs = ((2 + 4 * am0s + am0s ** 2) / (4 * ((2 + am0s) * (1 + am0s)) ** 2) *
+           aLambdas ** 2)
     if DeltaB_para == 0:
         norms = 1. / fpi
     else:
@@ -138,7 +147,12 @@ def f_para(inputs, params):
              fitparams['ClE'] * chi_ls * chi_Es +
              fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
              fitparams['Cla2'] * chi_ls * chi_a2s) *
-            norms * (1 + fitparams['D'] * fs))
+            norms * (1 + fitparams['D'] * fs +
+                         fitparams['D3'] * f3s +
+                         fitparams['DB'] * fBs +
+                         fitparams['DE'] * fEs +
+                         fitparams['DX'] * fXs +
+                         fitparams['DY'] * fYs))
 
 
 def f_perp(inputs, params):
@@ -163,7 +177,7 @@ def f_perp(inputs, params):
                  [C^(0) * (1 + df) + Sum_(i){C_(i) * chi_(i)}]
         f_tensor = (same form as f_perp)
     All leading-order fit parameters D_(i) alter these expressions as products
-    of dimensionless functions f_(i) of discretization errors [1], along with
+    of dimensionless functions of discretization errors f_(i) [1], along with
     appropriate powers of (a * Lambda), where a is lattice spacing and Lambda is
     renormalization scale characteristic of heavy-quark expansion. f is
     proportional to alpha: renormalized QCD coupling in heavy-quark scheme. All
@@ -171,6 +185,7 @@ def f_perp(inputs, params):
     lattice. Final chiral fit function then becomes:
         f_perp --> f_perp * [1 + Sum_(i){D_(i) * f_(i)}]
         f_tensor --> (same alterations as f_perp)
+    HQ = {2, 4} * f3 + fB + 2 * fE + 2 * fX + fY
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -222,7 +237,16 @@ def f_perp(inputs, params):
     dfs = np.array([df_perp(inputs[i], fitparams['gpi']) for i in range(nouts)])
     aLambdas = Lambda * np.array([inputs[i]['a'] for i in range(nouts)])
     alphas = np.array([inputs[i]['alpha_V'] for i in range(nouts)])
+    am0s = np.array([inputs[i]['m0 * a'] for i in range(nouts)])
     fs = alphas * aLambdas ** 2
+    f3s = alphas / (2 * (2 + am0s)) * aLambdas
+    fBs = alphas / (2 * (1 + am0s)) * aLambdas
+    fEs = ((1 / ((2 + am0s) * (1 + am0s)) - 1 / (4 * (1 + am0s) ** 2)) / 2 *
+           aLambdas ** 2)
+    fXs = ((1 / (2 * (1 + am0s)) -
+           (am0s / (2 * (2 + am0s) * (1 + am0s))) ** 2) / 2) * aLambdas ** 2
+    fYs = ((2 + 4 * am0s + am0s ** 2) / (4 * ((2 + am0s) * (1 + am0s)) ** 2) *
+           aLambdas ** 2)
     return ((fitparams['C0'] * (1 + dfs) +
              fitparams['CE'] * chi_Es +
              fitparams['CE2'] * chi_Es ** 2 +
@@ -239,7 +263,12 @@ def f_perp(inputs, params):
              fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
              fitparams['Cla2'] * chi_ls * chi_a2s) *
             (fitparams['gpi'] / (fpi * (Es + DeltaB_perp + dDs))) *
-            (1 + fitparams['D'] * fs))
+            (1 + fitparams['D'] * fs +
+                 fitparams['D3'] * f3s +
+                 fitparams['DB'] * fBs +
+                 fitparams['DE'] * fEs +
+                 fitparams['DX'] * fXs +
+                 fitparams['DY'] * fYs))
 
 
 def f_scalar(inputs, params_para, params_perp):
@@ -431,7 +460,8 @@ def fitparse(params):
     ----------------------------------------------------------------------------
     """
     paramlist = ['C0', 'CE', 'CE2', 'CE3', 'CE4', 'Ca2', 'Ca2E', 'Ca2E2', 'Ca4',
-                 'Ch', 'Cl', 'Cl2', 'ClE', 'ClE2', 'Cla2', 'D']
+                 'Ch', 'Cl', 'Cl2', 'ClE', 'ClE2', 'Cla2', 'D', 'D3', 'DB',
+                 'DE', 'DX', 'DY']
     fitparams = {}
     for param in paramlist:
         if param in params.keys():
