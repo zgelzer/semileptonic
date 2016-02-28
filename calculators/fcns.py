@@ -13,7 +13,7 @@
 
 """
 --------------------------------------------------------------------------------
-Defines functions for use in relating particle energies.
+Defines basic functions for use in various calculations.
 --------------------------------------------------------------------------------
 Definitions
 -----------
