@@ -626,6 +626,8 @@ def inputs(source, xpmtlist):
         > E : energy of pion/Kaon in r_1 units
         > a : lattice spacing in r_1 units
         > a_fm : lattice spacing in fm
+        > alpha_V : renormalized QCD coupling in the heavy-quark scheme [1]
+        > m0 * a : bare mass of clover b-quark on the lattice [2]
         > mh_sea : mass of heavy sea quark in r_1 units
         > mh_val : mass of heavy valence quark in r_1 units
         > ml_sea : mass of light sea quark in r_1 units
@@ -633,6 +635,15 @@ def inputs(source, xpmtlist):
     + Source should have commented ('#') header line with variable names
       describing each corresponding column of float values. These variable names
       must exactly match those listed in the previous note (see above).
+    ----------------------------------------------------------------------------
+    References
+    ----------
+    [1] G. P. Lepage and P. Mackenzie, "On the Viability of Lattice Perturbation
+        Theory", Phys. Rev. D 48, 2250 (1993) [arXiv:hep-lat/9209022].
+    [2] J. Bailey, et al. (Fermilab Lattice and MILC Collaborations), "Update of
+        |V_{cb}| from the B --> D* l nu form factor at zero recoil with three-
+        flavor lattice QCD", Phys. Rev. D 89, 114504 (2014) [arXiv:1403.0635
+        [hep-lat]].
     ----------------------------------------------------------------------------
     """
     header = np.array(open(source).readline().split()[1:])
@@ -644,6 +655,8 @@ def inputs(source, xpmtlist):
     column_E = np.where(header == 'E')[0][0]
     column_a = np.where(header == 'a')[0][0]
     column_afm = np.where(header == 'a_fm')[0][0]
+    column_alpha = np.where(header == 'alpha_V')[0][0]
+    column_am0 = np.where(header == 'm0*a')[0][0]
     column_mhsea = np.where(header == 'mh_sea')[0][0]
     column_mhval = np.where(header == 'mh_val')[0][0]
     column_mlsea = np.where(header == 'ml_sea')[0][0]
@@ -654,6 +667,8 @@ def inputs(source, xpmtlist):
         inputs[i]['E']      = float(source[xpmt][column_E])
         inputs[i]['a']      = float(source[xpmt][column_a])
         inputs[i]['a_fm']   = float(source[xpmt][column_afm])
+        inputs[i]['alpha_V']   = float(source[xpmt][column_alpha])
+        inputs[i]['m0 * a']   = float(source[xpmt][column_am0])
         inputs[i]['mh_sea'] = float(source[xpmt][column_mhsea])
         inputs[i]['mh_val'] = float(source[xpmt][column_mhval])
         inputs[i]['ml_sea'] = float(source[xpmt][column_mlsea])

@@ -48,7 +48,8 @@ from math import copysign, floor, log10, sqrt
 from matplotlib import pyplot as plt
 from os import getcwd
 from settings import fit
-from settings.constants import mh_continuum, ml_continuum, r1_a_continuum
+from settings.constants import (alphaV_continuum, mh_continuum, ml_continuum,
+                                r1_a_continuum)
 from settings.fit import *
 from sys import stdout
 import numpy as np
@@ -67,6 +68,7 @@ def inputs_continuum():
     ----------------------------------------------------------------------------
     Requirements
     ------------
+    alphaV_continuum : float, from settings.constants
     mh_continuum : float, from settings.constants
     ml_continuum : float, from settings.constants
     numpy : module, as np
@@ -79,6 +81,8 @@ def inputs_continuum():
     inputs = np.array([{'extrapolation': 'continuum'}])
     inputs[0]['a'] = 0
     inputs[0]['a_fm'] = 0
+    inputs[0]['m0 * a'] = 0
+    inputs[0]['alpha_V'] = alphaV_continuum
     inputs[0]['mh_sea'] = mh_continuum
     inputs[0]['mh_val'] = mh_continuum
     inputs[0]['ml_sea'] = ml_continuum

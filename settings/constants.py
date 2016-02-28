@@ -69,6 +69,11 @@ tastemults : dict of ints
     Multiplicity of tastes of staggered fermions, with tastes defined as 'P' for
     pseudoscalar, 'A' for axial vector, 'T' for tensor, 'V' for vector, and 'I'
     for singlet.
+alphaV_continuum : float
+    Continuum value of alpha_V in r_1 units; taken to be 0.26084 [7], by using
+    the average of this value for fine lattice spacings (akin to how we define
+    (r_1 / a) in the continuum). alpha_V is the renormalized QCD coupling
+    alpha_s in the heavy-quark scheme [8].
 r1_a_continuum : float
     Continuum value of ratio (r_1 / a); taken to be 3.744241 [3], by using the
     average of this ratio for fine lattice spacings.
@@ -101,6 +106,11 @@ References
 [6] W. Detmold, C.-J. D. Lin, and S. Meinel, "Calculation of the heavy-hadron
     axial couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85,
     114508 (2012) [arXiv:1203.3378 [hep-lat]].
+[7] J. Bailey, et al. (Fermilab Lattice and MILC Collaborations), "Update of
+    |V_{cb}| from the B --> D* l nu form factor at zero recoil with three-flavor
+    lattice QCD", Phys. Rev. D 89, 114504 (2014) [arXiv:1403.0635 [hep-lat]].
+[8] G. P. Lepage and P. Mackenzie, "On the Viability of Lattice Perturbation
+    Theory", Phys. Rev. D 48, 2250 (1993) [arXiv:hep-lat/9209022].
 --------------------------------------------------------------------------------
 """
 
@@ -128,6 +138,7 @@ a_atol = 1e-06
 gpi = 0.45
 nearzero = 1e-30
 tastemults = {'P': 1, 'A': 4, 'T': 6, 'V': 4, 'I': 1}
+alphaV_continuum = 0.26084
 r1_a_continuum = 3.744241
 mh_continuum = r1_a_continuum * 0.02645
 ml_continuum = r1_a_continuum * 0.0009646
