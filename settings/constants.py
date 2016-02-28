@@ -88,6 +88,9 @@ Notes
 -----
 + nearzero is used in calculators.chilogs.fcns.R31. nearzero is defined here
   only to provide consistency and transparency for this kind of "magic number".
++ alphaV_continuum is used in fileIOs.writers.inputs_continuum. Although alpha_V
+  enters into the chiral fit equation only as a product of the lattice spacing,
+  its continuum value is included here for completeness.
 --------------------------------------------------------------------------------
 References
 ----------
