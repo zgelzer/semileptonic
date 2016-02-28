@@ -35,7 +35,7 @@ fitparse : function
 
 from calculators.chilogs.fcns import D, df_para, df_perp, mu, Deltabar
 from math import pi, sqrt
-from settings.constants import Delta_B, fpi, gpi
+from settings.constants import DeltaB_para, DeltaB_perp, fpi, gpi
 from settings.fit import decayname, formfactor
 import numpy as np
 
@@ -58,7 +58,9 @@ def f_para(inputs, params):
     expansion terms involve products of multiple chi_(i); e.g., ClE2
     parameterizes (chi_l * (chi_E)^2). NLO chiral fit function, similar in form
     to that in [1], is as follows:
-        f_para = (1 / f_pi) * [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}]
+        f_para = norms * [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}], where
+        norms = (1 / f_pi) if DeltaB_para is 0, or
+        norms = gpi / (fpi * (Es + DeltaB_para)) otherwise
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -76,6 +78,7 @@ def f_para(inputs, params):
     ----------------------------------------------------------------------------
     Requirements
     ------------
+    DeltaB_para : float, from settings.constants
     Deltabar : function, from calculators.chilogs.fcns
     df_para : function, from calculators.chilogs.fcns
     fitparse : function
@@ -104,6 +107,10 @@ def f_para(inputs, params):
     chi_ls = np.array([(2 * mu(inputs[i]['a_fm']) * inputs[i]['ml_val']) /
                        (8 * pi ** 2 * fpi ** 2) for i in range(nouts)])
     dfs = np.array([df_para(inputs[i], fitparams['gpi']) for i in range(nouts)])
+    if DeltaB_para == 0:
+        norms = 1. / fpi
+    else:
+        norms = fitparams['gpi'] / (fpi * (Es + DeltaB_para))
     return ((fitparams['C0'] * (1 + dfs) +
              fitparams['CE'] * chi_Es +
              fitparams['CE2'] * chi_Es ** 2 +
@@ -118,8 +125,8 @@ def f_para(inputs, params):
              fitparams['Cl2'] * chi_ls ** 2 +
              fitparams['ClE'] * chi_ls * chi_Es +
              fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
-             fitparams['Cla2'] * chi_ls * chi_a2s) /
-            fpi)
+             fitparams['Cla2'] * chi_ls * chi_a2s) *
+            norms)
 
 
 def f_perp(inputs, params):
@@ -140,9 +147,8 @@ def f_perp(inputs, params):
     expansion terms involve products of multiple chi_(i); e.g., ClE2
     parameterizes (chi_l * (chi_E)^2). NLO chiral fit function, similar in form
     to that in [1], is as follows:
-        f_perp = [g_pi / (f_pi * (E_(K/pi) + Delta_B))] *
-                 [C^(0) * ((E_(K/pi) + Delta_B) / (E_(K/pi) + Delta_B + D) + df)
-                  + Sum_(i){C^(i) * chi_(i)}]
+        f_perp = [g_pi / (f_pi * (E_(K/pi) + DeltaB_perp + D))] *
+                 [C^(0) * (1 + df) + Sum_(i){C^(i) * chi_(i)}]
         f_tensor = (same form as f_perp)
     ----------------------------------------------------------------------------
     Parameters
@@ -162,7 +168,7 @@ def f_perp(inputs, params):
     Requirements
     ------------
     D : function, from calculators.chilogs.fcns
-    Delta_B : float, from settings.constants
+    DeltaB_perp : float, from settings.constants
     Deltabar : function, from calculators.chilogs.fcns
     df_perp : function, from calculators.chilogs.fcns
     fitparse : function
@@ -207,7 +213,7 @@ def f_perp(inputs, params):
              fitparams['ClE'] * chi_ls * chi_Es +
              fitparams['ClE2'] * chi_ls * chi_Es ** 2 +
              fitparams['Cla2'] * chi_ls * chi_a2s) *
-            (fitparams['gpi'] / (fpi * (Es + Delta_B + Ds))))
+            (fitparams['gpi'] / (fpi * (Es + DeltaB_perp + Ds))))
 
 
 def f_scalar(inputs, params_para, params_perp):

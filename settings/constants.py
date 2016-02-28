@@ -37,20 +37,29 @@ mBstar : float
     Mass of B* meson; taken from PDG as 5325.2 MeV [1].
 mBstar_s : float
     Mass of B*_s meson; taken from PDG as 5415.4 MeV [1].
+mBstar_s0 : float
+    Mass of (thus far unobserved) B*_s0 meson (spin zero, positive parity);
+    predicted from lattice QCD to be 5711 MeV [5].
 mK : float
     Mass of kaon; taken from PDG as 497.614 MeV [1].
 mpi : float
     Mass of pion; taken from PDG as 134.977 MeV [1].
-Delta_B : float
-    Pole in energy of kaon (or pion) arising from low-lying states; (-1 * pole)
-    is taken to reside where lepton momentum transfer equals mass of B*_s (or
-    B*) meson for B-->K (or B-->pi) decay.
+DeltaB_para : float
+    Pole in energy of kaon (or pion) for parallel form factor that arises from
+    low-lying states; (-1 * pole) is taken to reside where lepton momentum
+    transfer equals mass of B*_s0 meson for B-->K decay. Setting DeltaB_para to
+    zero turns off pole in chiral fit (see fitters/chiral.f_para); by default,
+    DeltaB_para is set to zero for B-->pi decay.
+DeltaB_perp : float
+    Pole in energy of kaon (or pion) for perpendicular form factor that arises
+    from low-lying states; (-1 * pole) is taken to reside where lepton momentum
+    transfer equals mass of B*_s (or B*) meson for B-->K (or B-->pi) decay.
 a_atol : float
     Absolute tolerance used to deterimine equality of two lattice spacings in
     fermi; taken to be 1e-06 fm, since difference between successive lattice
     spacings is typically of order 1e-02 fm.
 gpi : float
-    Lattice determination [5] of central value of leading order axial coupling
+    Lattice determination [6] of central value of leading order axial coupling
     constant g_pi (i.e., between pions and heavy-light mesons). Hereafter, g_pi
     is referred to simply as the heavy-light coupling constant.
 nearzero : float
@@ -86,7 +95,10 @@ References
 [4] A. Kronfeld and J. Simone, "Computation of Lambda-bar and lambda_1 with
     Lattice QCD", Phys. Lett. B 490, 228 (2000) [Erratum-ibid. B 495, 441
     (2000)] [arXiv:0006345 [hep-ph]].
-[5] W. Detmold, C.-J. D. Lin, S. Meinel, "Calculation of the heavy-hadron axial
+[5] C. B. Lang, D. Mohler, S. Prelovsek, and R. M. Woloshyn, "Predicting
+    positive parity B_s mesons from lattice QCD", Phys. Lett. B 750, 17 (2015)
+    [arXiv:1501.01646 [hep-lat]].
+[6] W. Detmold, C.-J. D. Lin, S. Meinel, "Calculation of the heavy-hadron axial
     couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85, 114508
     (2012) [arXiv:1203.3378 [hep-lat]].
 --------------------------------------------------------------------------------
@@ -103,12 +115,15 @@ fpi = 130.41 / hbarc * r1
 mB = 5279.58 / hbarc * r1
 mBstar = 5325.2 / hbarc * r1
 mBstar_s = 5415.4 / hbarc * r1
+mBstar_s0 = 5711 / hbarc * r1
 mK = 497.614 / hbarc * r1
 mpi = 134.977 / hbarc * r1
 if decayname == 'B2K':
-    Delta_B = (mBstar_s ** 2 - mB ** 2 - mK ** 2) / (2 * mB)
+    DeltaB_perp = (mBstar_s ** 2 - mB ** 2 - mK ** 2) / (2 * mB)
+    DeltaB_para = (mBstar_s0 ** 2 - mB ** 2 - mK ** 2) / (2 * mB)
 elif decayname == 'B2pi':
-    Delta_B = (mBstar ** 2 - mB ** 2 - mpi ** 2) / (2 * mB)
+    DeltaB_perp = (mBstar ** 2 - mB ** 2 - mpi ** 2) / (2 * mB)
+    DeltaB_para = 0
 a_atol = 1e-06
 gpi = 0.45
 nearzero = 1e-30
