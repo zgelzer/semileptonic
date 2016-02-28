@@ -142,7 +142,7 @@ def args_parse(args):
     Parses command-line arguments args of main script.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Applies tests, alters formats if necessary, adds file-related arguments, and
-    saves important settings to 'semileptonic/settings/fit.py'.
+    saves important settings to settings.fit.
     ----------------------------------------------------------------------------
     Parameters
     ----------
@@ -626,8 +626,8 @@ def inputs(source, xpmtlist):
         > E : energy of pion/Kaon in r_1 units
         > a : lattice spacing in r_1 units
         > a_fm : lattice spacing in fm
-        > alpha_V : renormalized QCD coupling in the heavy-quark scheme [1]
-        > m0 * a : bare mass of clover b-quark on the lattice [2]
+        > alpha_V : renormalized QCD coupling in heavy-quark scheme [1]
+        > m0 * a : bare mass of clover b-quark on lattice [2]
         > mh_sea : mass of heavy sea quark in r_1 units
         > mh_val : mass of heavy valence quark in r_1 units
         > ml_sea : mass of light sea quark in r_1 units
@@ -679,7 +679,7 @@ def inputs(source, xpmtlist):
 def params():
     """
     ----------------------------------------------------------------------------
-    Reads a priori fit parameters from settings/params.py.
+    Reads a priori fit parameters from settings.params.
     ----------------------------------------------------------------------------
     Returns
     -------
@@ -699,7 +699,7 @@ def params():
     ----------------------------------------------------------------------------
     Notes
     -----
-    + See settings/params.py for complete descriptions of fit parameters.
+    + See settings.params for complete descriptions of fit parameters.
     ----------------------------------------------------------------------------
     """
     try:

@@ -48,7 +48,7 @@ DeltaB_para : float
     Pole in energy of kaon (or pion) for parallel form factor that arises from
     low-lying states; (-1 * pole) is taken to reside where lepton momentum
     transfer equals mass of B*_s0 meson for B-->K decay. Setting DeltaB_para to
-    zero turns off pole in chiral fit (see fitters/chiral.f_para); by default,
+    zero turns off pole in chiral fit (see fitters.chiral.f_para); by default,
     DeltaB_para is set to zero for B-->pi decay.
 DeltaB_perp : float
     Pole in energy of kaon (or pion) for perpendicular form factor that arises
