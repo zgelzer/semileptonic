@@ -74,17 +74,20 @@ to be fully controlled during each run.
 One may see that the fit parameter results from low-energy simulations
 accurately predict the high-energy simulations.
 
-5. Remove NNLO **fit parameters** (see [params.py](../settings/params.py) for
-more information), run chiral fit, and plot in the same range as that of Step 4.
-If desired, reinstate NNLO fit parameters after NLO fitting is complete.
+5. **Remove** NNLO **fit parameters** and generic discretization effects (see
+[params.py](../settings/params.py) for more information), run chiral fit, and
+plot in the same range as that of Step 4. If desired, reinstate these terms
+after NLO fitting is complete.
     ```
     $ sed -i "/width_NNLO/s/^/#/g" settings/params.py
+    $ sed -i "/params\['D/s/^/#/g" settings/params.py
     $ ./chifit.py -d B2K -f perp -c -C -H -s chiral_NLO -p -l 0.8,2.0,100
     $ sed -i "/width_NNLO/s/^#//g" settings/params.py
+    $ sed -i "/params\['D/s/^#//g" settings/params.py
     ```
-One may see (by comparing with results from Step 2) that the chiral fit
+One may see, by comparing with results from Step 2, that the chiral fit
 parameters have roughly stabilized as early as NLO (at least for these
-particular datasets).
+particular datasets) and that generic discretization effects are minimal.
 
 6. **Combine** *f_parallel* and *f_perpendicular* to obtain vector form factor
 *f_+*, and plot in a typical *q^2* range (in GeV^2 units). One should load
@@ -103,7 +106,7 @@ File Tree
     simulations of *f_parallel*. Contains results from `chifit.py` executed in
     the SU(2) hard-kaon limits with all constrained NNLO fit parameters:
     ```
-    $ ./chifit.py -d B2K -f para -D examples/B2K/para/ -c -C -H -s chiral_NNLO \
+    $ ./chifit.py -d B2K -f para -D examples/B2K/para/ -c -C -H -s chiral_NNLO 
     -p -l 0.8,2.0,100
     ```
     + [X.dat](B2K/para/X.dat): Inputs for each simulation, organized by
@@ -125,7 +128,7 @@ File Tree
     simulations of *f_perpendicular*. Contains results from `chifit.py` executed
     in the SU(2) hard-kaon limits with all constrained NNLO fit parameters:
     ```
-    $ ./chifit.py -d B2K -f perp -D examples/B2K/perp/ -c -C -H -s chiral_NNLO \
+    $ ./chifit.py -d B2K -f perp -D examples/B2K/perp/ -c -C -H -s chiral_NNLO 
     -p -l 0.8,2.0,100
     ```
     + [X.dat](B2K/perp/X.dat): Inputs for each simulation, organized by
