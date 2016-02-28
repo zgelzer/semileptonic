@@ -13,9 +13,17 @@
 -->
 
 > + *Possible changes in a future release:*
->   + *incorporate heavy quark discretization errors*
->   + *add abilities to interact with and convert jackknifed data*
+>   + *interact with and convert jackknifed data*
+>   + *incorporate B_s to K decays*
 >   + *parallelize least squares fitter*
+
+---
+
++ Version 0.4.0
+  + added light quark and gluon discretization effects
+  + added heavy quark discretization effects
+  + added pole option for *f_para*
+  + changed poles to true positions
 
 ---
 
@@ -28,8 +36,6 @@
   + changed plot saving and output structure
   + changed loading of previous results
   + changed reading of input sources and detection of ensemble size
-
----
 
 + Version 0.2.2
   + fixed *g_pi* fit usage
