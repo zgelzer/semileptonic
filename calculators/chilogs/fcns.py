@@ -53,8 +53,8 @@ References
 [1] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
     "mass^2 splittings in massind r1 units",
     <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
-[2] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered Chiral
-    Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
+[2] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
     [hep-lat]].
 [3] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
     "slopes in mass-independent r1 units",
@@ -242,7 +242,7 @@ def F(x):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------
@@ -279,7 +279,7 @@ def I1(m):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------
@@ -315,7 +315,7 @@ def I2(m, Delta):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------
@@ -357,7 +357,7 @@ def J1sub(m, Delta):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------
@@ -416,7 +416,7 @@ def R31(m_mu, m1, m2, m3, j):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------

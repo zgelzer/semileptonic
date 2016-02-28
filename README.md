@@ -71,7 +71,7 @@ File Tree
   + [chiral.py](fitters/chiral.py): Defines chiral fit functions for *B* decay
     form factors.
   + [lsq.py](fitters/lsq.py): Performs least squares fit(s) to data using Prof.
-    G. P. LePage's [lsqfit.nonlinear_fit](https://github.com/gplepage/lsqfit).
+    G. P. Lepage's [lsqfit.nonlinear_fit](https://github.com/gplepage/lsqfit).
 + [settings](settings) : Contains modules for definitions of settings,
   constants, and parameters.
   + [constants.py](settings/constants.py): Defines lattice QCD constants. User

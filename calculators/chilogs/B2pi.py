@@ -26,8 +26,8 @@ df_perp : function
 --------------------------------------------------------------------------------
 References
 ----------
-[1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered Chiral
-    Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
+[1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
     [hep-lat]].
 --------------------------------------------------------------------------------
 """
@@ -74,7 +74,7 @@ def D(inputs, g_pi):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------
@@ -152,7 +152,7 @@ def df_para(inputs, g_pi):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------
@@ -233,7 +233,7 @@ def df_perp(inputs, g_pi):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] C. Aubin, C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
+    [1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
         Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007)
         [arXiv:0704.0795 [hep-lat]].
     ----------------------------------------------------------------------------

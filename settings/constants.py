@@ -88,19 +88,19 @@ References
 ----------
 [1] K. Olive, et al. (Particle Data Group), Chin. Phys. C, 38, 090001 (2014).
 [2] C. Bernard, et al., "The static quark potential in three flavor QCD", Phys.
-    Rev. D62, 034503 (2000), [arXiv:0002028 [hep-lat]].
+    Rev. D 62, 034503 (2000), [arXiv:hep-lat/0002028].
 [3] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
     "UPDATED mass-independent r1 values",
     <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
 [4] A. Kronfeld and J. Simone, "Computation of Lambda-bar and lambda_1 with
     Lattice QCD", Phys. Lett. B 490, 228 (2000) [Erratum-ibid. B 495, 441
-    (2000)] [arXiv:0006345 [hep-ph]].
+    (2000)] [arXiv:hep-ph/0006345].
 [5] C. B. Lang, D. Mohler, S. Prelovsek, and R. M. Woloshyn, "Predicting
     positive parity B_s mesons from lattice QCD", Phys. Lett. B 750, 17 (2015)
     [arXiv:1501.01646 [hep-lat]].
-[6] W. Detmold, C.-J. D. Lin, S. Meinel, "Calculation of the heavy-hadron axial
-    couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85, 114508
-    (2012) [arXiv:1203.3378 [hep-lat]].
+[6] W. Detmold, C.-J. D. Lin, and S. Meinel, "Calculation of the heavy-hadron
+    axial couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85,
+    114508 (2012) [arXiv:1203.3378 [hep-lat]].
 --------------------------------------------------------------------------------
 """
 

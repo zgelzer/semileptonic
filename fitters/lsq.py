@@ -13,7 +13,7 @@
 
 """
 --------------------------------------------------------------------------------
-Performs least squares fit(s) to data using G. P. LePage's lsqfit.nonlinear_fit.
+Performs least squares fit(s) to data using G. P. Lepage's lsqfit.nonlinear_fit.
 --------------------------------------------------------------------------------
 Definitions
 -----------

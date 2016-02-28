@@ -90,7 +90,7 @@ def f_para(inputs, params):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B -->
+    [1] J. Bailey, et al. (Fermilab Lattice and MILC Collaborations), "The B -->
         pi l nu semileptonic form factor from three-flavor lattice QCD: A model-
         independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
         [arXiv:0811.3640 [hep-lat]].
@@ -180,7 +180,7 @@ def f_perp(inputs, params):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B -->
+    [1] J. Bailey, et al. (Fermilab Lattice and MILC Collaborations), "The B -->
         pi l nu semileptonic form factor from three-flavor lattice QCD: A model-
         independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
         [arXiv:0811.3640 [hep-lat]].
@@ -259,7 +259,7 @@ def f_scalar(inputs, params_para, params_perp):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B -->
+    [1] J. Bailey, et al. (Fermilab Lattice and MILC Collaborations), "The B -->
         pi l nu semileptonic form factor from three-flavor lattice QCD: A model-
         independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
         [arXiv:0811.3640 [hep-lat]].
@@ -317,7 +317,7 @@ def f_vector(inputs, params_para, params_perp):
     ----------------------------------------------------------------------------
     References
     ----------
-    [1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B -->
+    [1] J. Bailey, et al. (Fermilab Lattice and MILC Collaborations), "The B -->
         pi l nu semileptonic form factor from three-flavor lattice QCD: A model-
         independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
         [arXiv:0811.3640 [hep-lat]].

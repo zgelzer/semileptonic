@@ -58,13 +58,13 @@ Notes
 --------------------------------------------------------------------------------
 References
 ----------
-[1] J. Bailey et al. (Fermilab Lattice and MILC Collaborations), "The B --> pi l
-    nu semileptonic form factor from three-flavor lattice QCD: A model-
+[1] J. Bailey, et al. (Fermilab Lattice and MILC Collaborations), "The B --> pi
+    l nu semileptonic form factor from three-flavor lattice QCD: A model-
     independent determination of |V(ub)|", Phys. Rev. D 79, 054507 (2009)
     [arXiv:0811.3640 [hep-lat]].
-[2] W. Detmold, C.-J. D. Lin, S. Meinel, "Calculation of the heavy-hadron axial
-    couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85, 114508
-    (2012) [arXiv:1203.3378 [hep-lat]].
+[2] W. Detmold, C.-J. D. Lin, and S. Meinel, "Calculation of the heavy-hadron
+    axial couplings g_1, g_2, and g_3 using lattice QCD", Phys. Rev. D 85,
+    114508 (2012) [arXiv:1203.3378 [hep-lat]].
 --------------------------------------------------------------------------------
 """
 
