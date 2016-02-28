@@ -24,17 +24,17 @@ D : function
 Deltabar : function
     Calculates root-mean-square taste splitting for lattice spacing.
 Deltas : function
-    Returns taste splittings for lattice spacing [1].
+    Returns taste splittings for lattice spacing.
 F : function
-    Calculates arctan(h)s for use in functions I2, J1sub [2].
+    Calculates arctan(h)s for use in functions I2, J1sub.
 I1 : function
-    Calculates chiral loop integral [2].
+    Calculates chiral loop integral.
 I2 : function
-    Calculates chiral loop integral with pole [2].
+    Calculates chiral loop integral with pole.
 J1sub : function
-    Calculates singularity-subtracted chiral loop integral with pole [2].
+    Calculates singularity-subtracted chiral loop integral with pole.
 R31 : function
-    Calculates Euclidean space residue R_j^{[3, 1]} [2].
+    Calculates Euclidean space residue R_j^{[3, 1]}.
 a_fermi : function
     Calculates lattice spacing in fm.
 deltaps : function
@@ -46,19 +46,7 @@ df_para : function
 df_perp : function
     Calculates loop corrections (incl. wavefunction renormalizations) to f_perp.
 mu : function
-    Calculates mass slope constant for lattice spacing [3].
---------------------------------------------------------------------------------
-References
-----------
-[1] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
-    "mass^2 splittings in massind r1 units",
-    <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
-[2] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
-    Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
-    [hep-lat]].
-[3] C. Bernard, et al. (Fermilab Lattice and MILC Collaborations),
-    "slopes in mass-independent r1 units",
-    <http://physics.wustl.edu/~cb/Fermilab-MILC/secure/>, accessed 2015-03-30.
+    Calculates mass slope constant for lattice spacing.
 --------------------------------------------------------------------------------
 """
 

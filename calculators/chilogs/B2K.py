@@ -24,12 +24,6 @@ df_para : function
 df_perp : function
     Calculates loop corrections (incl. wavefunction renormalizations) to f_perp.
 --------------------------------------------------------------------------------
-References
-----------
-[1] C. Aubin and C. Bernard, "Heavy-Light Semileptonic Decays in Staggered
-    Chiral Perturbation Theory", Phys. Rev. D 76, 014002 (2007) [arXiv:0704.0795
-    [hep-lat]].
---------------------------------------------------------------------------------
 """
 
 
