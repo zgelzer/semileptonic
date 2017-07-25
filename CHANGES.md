@@ -13,9 +13,13 @@
 -->
 
 > + *Possible changes in a future release:*
->   + *interact with and convert jackknifed data*
 >   + *incorporate B_s to K decays*
 >   + *parallelize least squares fitter*
+
+---
+
++ Version 0.4.1
+  + updated plots for matplotlib v2
 
 ---
 
@@ -24,8 +28,6 @@
   + added heavy quark discretization effects
   + added pole option for *f_para*
   + changed poles to true positions
-
----
 
 + Version 0.3.0
   + added *f_0*, *f_+* functionality and examples
