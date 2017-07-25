@@ -92,10 +92,12 @@ def run_combined(args):
     ----------------------------------------------------------------------------
     Results
     -------
-    {savename}.dat : file
-        asdf.
     {savename}.pdf : file
-        asdf.
+        Aggregate of all plots.
+    {savename}.txt : file
+        Fit settings.
+    {savename}_fit.dat : file
+        Values from plot of continuum fit with errors.
     ----------------------------------------------------------------------------
     Requirements
     ------------
