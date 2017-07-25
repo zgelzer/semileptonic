@@ -74,6 +74,9 @@ def main():
     #  other semileptonic submodules). ~#
     args = read.args()
 
+    #~ Use classic style for plots. ~#
+    plt.style.use('classic')
+
     #~ Run combined or single fits, depending on form factor. ~#
     if (args.formfactor == 'scalar') or (args.formfactor == 'vector'):
         run_combined(args)

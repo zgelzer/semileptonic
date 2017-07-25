@@ -262,7 +262,7 @@ def plot_errfill(x, y, yerr, alphafill=0.3, axis=None, color=None, label=None):
     """
     axis = axis if axis is not None else plt.gca()
     if color is None:
-        color = axis._get_lines.color_cycle.next()
+        color = axis._get_lines.get_next_color()
     if np.isscalar(yerr) or ((len(yerr) == len(y)) and (len(yerr.shape) == 1)):
         ymin = y - yerr
         ymax = y + yerr
