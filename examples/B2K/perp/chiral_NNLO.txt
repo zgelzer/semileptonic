@@ -5,10 +5,10 @@
 	  correlated	True
 	    datatype	bs
 	   decayname	B2K
-	ensemblesize	3
 	  formfactor	perp
 	     hardpiK	True
-	nexperiments	30
+	   nenergies	3
+	nformfactors	30
 #
 # Correlated Least Squares Fit:
 #	chi^2 / dof = 17.3 / 30

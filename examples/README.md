@@ -54,8 +54,9 @@ names for each `stdout` file).
     --save chiral_NNLO --plot
     ```
 
-3. **Exclude** high-energy simulations from each ensemble, effectively setting
-**ensemble size** to two, and run chiral fit with same settings as in Step 2.
+3. **Exclude** high-energy simulations from each ensemble, reducing
+**energies per ensemble** to two, and run chiral fit with same settings as in
+Step 2.
     ```
     $ ./chifit.py -d B2K -f perp -c -C -H -x 2,5,8,11,14,17,20,23,26,29 -e 2 \
     -s chiral_NNLO_sanshighE
@@ -65,8 +66,8 @@ names for each `stdout` file).
 and use custom **fit length** `min,max,numpoints` (in r1 units). The loading
 process imports fit parameters from `{filename}.p` and (most) fit settings from
 `{filename}.txt`; it does not, however, import the values in `{filename}.txt`
-that pertain to ensemble size and number of simulations. This enables datasets
-to be fully controlled during each run.
+that pertain to energies per ensemble and number of simulations. This enables
+datasets to be fully controlled during each run.
     ```
     $ ./chifit.py --load B2K/perp/chiral_NNLO_sanshighE \
     -s chiral_NNLO_sanshighE -p --length 0.8,2.0,100

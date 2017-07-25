@@ -29,7 +29,7 @@ from fileIOs.readers import array2dict
 from fitters.chiral import fitfcn
 from gvar import gvar
 from lsqfit import nonlinear_fit
-from settings.fit import correlated, datatype, ensemblesize, nexperiments
+from settings.fit import correlated, datatype, nenergies, nformfactors
 import numpy as np
 
 
@@ -43,19 +43,19 @@ def one(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     (ymean = {central values of Y}) as determined by settings.fit.datatype, and
     (yinfo = {covariance matrix or errors of Y}) as determined by
     settings.fit.correlated. Correlated fits require covariance matrix with
-    shape ({number of experiments}, {number of experiments}), where matrix
-    elements involving experiments from different ensembles are set to zero.
+    shape ({number of form factors}, {number of form factors}), where matrix
+    elements involving form factors from different ensembles are set to zero.
     Uncorrelated fits require errors, as determined by settings.fit.datatype,
-    with size {number of experiments}.
+    with size {number of form factors}.
     ----------------------------------------------------------------------------
     Parameters
     ----------
     inputs : numpy.ndarray of dicts
-        Array of {number of experiments} total dictionaries, where each
-        dictionary stores input floats for particular experiment. See
+        Array of {number of form factors} total dictionaries, where each
+        dictionary stores input floats for particular form factor. See
         fileIOs.readers.inputs for complete list of inputs.
     data : numpy.ndarray of floats
-        Array of particular form factor, with shape ({number of experiments},
+        Array of particular form factor, with shape ({number of form factors},
         {number of bootstrap/jackknife samples}).
     fitfcn : function (optional; default is fitters.chiral.fitfcn)
         Fit function to be used by lsqfit.nonlinear_fit; must return values in
@@ -85,9 +85,9 @@ def one(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     ------------
     correlated : bool, from settings.fit
     datatype : str, from settings.fit
-    ensemblesize : int, from settings.fit
+    nenergies : int, from settings.fit
     fitfcn : function, from fitters.chiral
-    nexperiments : int, from settings.fit
+    nformfactors : int, from settings.fit
     nonlinear_fit : class, from lsqfit
     numpy : module, as np
     ----------------------------------------------------------------------------
@@ -104,14 +104,12 @@ def one(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     if correlated:
         cov = np.cov(data, ddof=1)
         data_info = np.zeros_like(cov)
-        for i in range(0, nexperiments, ensemblesize):
-            data_info[i : (i + ensemblesize), i : (i + ensemblesize)] = (
-                  cov[i : (i + ensemblesize), i : (i + ensemblesize)])
+        for i in range(0, nformfactors, nenergies):
+            data_info[i : (i + nenergies), i : (i + nenergies)] = (
+                  cov[i : (i + nenergies), i : (i + nenergies)])
     else:
-        data_info = np.asarray([err(data[xpmt, :]) for xpmt in
-                                range(nexperiments)])
-    data_cvals = np.asarray([avg(data[xpmt, :]) for xpmt in
-                             range(nexperiments)])
+        data_info = np.asarray([err(data[ff, :]) for ff in range(nformfactors)])
+    data_cvals = np.asarray([avg(data[ff, :]) for ff in range(nformfactors)])
     fit = nonlinear_fit(data=(inputs, data_cvals, data_info), fcn=fitfcn,
                         prior=priors, p0=inits)
     return fit.p, fit.chi2, fit.dof, fit.Q
@@ -121,26 +119,26 @@ def all(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     """
     ----------------------------------------------------------------------------
     Performs {number of samples} total fits to ((X = inputs), (Y = data)), where
-    ({number of samples} = {size of data} / {number of experiments}), using
+    ({number of samples} = {size of data} / {number of form factors}), using
     given fit function fitfcn and one of inits or priors as fit parameters.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     For each bootstrap/jackknife sample, passes (x, ymean, yinfo) as data for
     lsqfit.nonlinear_fit, with (x = X[sample]), (ymean = {central values of
     Y[sample]}) as determined by settings.fit.datatype, and (yinfo = {covariance
     matrix or errors of Y}) as determined by settings.fit.correlated. Correlated
-    fits require full covariance matrix with shape ({number of experiments},
-    {number of experiments}), where matrix elements involving experiments from
+    fits require full covariance matrix with shape ({number of form factors},
+    {number of form factors}), where matrix elements involving form factors from
     different ensembles are set to zero. Uncorrelated fits require full errors,
-    as determined by settings.fit.datatype, with size {number of experiments}.
+    as determined by settings.fit.datatype, with size {number of form factors}.
     ----------------------------------------------------------------------------
     Parameters
     ----------
     inputs : numpy.ndarray of dicts
-        Array of dictionaries with size {number of experiments}, where each
-        dictionary stores input floats for particular experiment. See
+        Array of dictionaries with size {number of form factors}, where each
+        dictionary stores input floats for particular form factor. See
         fileIOs.readers.inputs for complete list of inputs.
     data : numpy.ndarray
-        Array of particular form factor, with shape ({number of experiments},
+        Array of particular form factor, with shape ({number of form factors},
         {number of bootstrap/jackknife samples}).
     fitfcn : function (optional; default is fitters.chiral.fitfcn)
         Fit function to be used by lsqfit.nonlinear_fit; must return values in
@@ -168,10 +166,10 @@ def all(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     array2dict : function, from fileIOs.readers
     correlated : bool, from settings.fit
     datatype : str, from settings.fit
-    ensemblesize : int, from settings.fit
+    nenergies : int, from settings.fit
     fitfcn : function, from fitters.chiral
     gvar : class, from gvar
-    nexperiments : int, from settings.fit
+    nformfactors : int, from settings.fit
     nonlinear_fit : class, from lsqfit
     numpy : module, as np
     ----------------------------------------------------------------------------
@@ -189,19 +187,18 @@ def all(inputs, data, fitfcn=fitfcn, inits=None, priors=None):
     if correlated:
         cov = np.cov(data, ddof=1)
         data_info = np.zeros_like(cov)
-        for i in range(0, nexperiments, ensemblesize):
-            data_info[i : (i + ensemblesize), i : (i + ensemblesize)] = (
-                  cov[i : (i + ensemblesize), i : (i + ensemblesize)])
+        for i in range(0, nformfactors, nenergies):
+            data_info[i : (i + nenergies), i : (i + nenergies)] = (
+                  cov[i : (i + nenergies), i : (i + nenergies)])
     else:
-        data_info = np.asarray([err(data[xpmt, :]) for xpmt in
-                                range(nexperiments)])
-    nsamples = data.size / nexperiments
+        data_info = np.asarray([err(data[ff, :]) for ff in range(nformfactors)])
+    nsamples = data.size / nformfactors
     fit_avgs = {}
     for param in params:
         fit_avgs[param] = np.empty(nsamples)
     for sample in range(nsamples):
-        data_samples = np.array([data[xpmt, sample] for xpmt in
-                                 range(nexperiments)])
+        data_samples = np.array([data[ff, sample] for ff in
+                                 range(nformfactors)])
         fit = nonlinear_fit(data=(inputs, data_samples, data_info), fcn=fitfcn,
                             prior=priors, p0=inits)
         for param in params:

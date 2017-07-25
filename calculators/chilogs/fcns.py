@@ -440,7 +440,7 @@ def dD(inputs, g_pi):
     Parameters
     ----------
     inputs : dict of floats
-        Input floats for particular experiment. See fileIOs.readers.inputs for
+        Input floats for particular form factor. See fileIOs.readers.inputs for
         complete list of inputs.
     g_pi : float
         Heavy-light coupling constant. See constants.py.
@@ -567,7 +567,7 @@ def df_para(inputs, g_pi):
     Parameters
     ----------
     inputs : dict of floats
-        Input floats for particular experiment. See fileIOs.readers.inputs for
+        Input floats for particular form factor. See fileIOs.readers.inputs for
         complete list of inputs.
     g_pi : float
         Heavy-light coupling constant. See constants.py.
@@ -603,7 +603,7 @@ def df_perp(inputs, g_pi):
     Parameters
     ----------
     inputs : dict of floats
-        Input floats for particular experiment. See fileIOs.readers.inputs for
+        Input floats for particular form factor. See fileIOs.readers.inputs for
         complete list of inputs.
     g_pi : float
         Heavy-light coupling constant. See constants.py.

@@ -200,8 +200,8 @@ def run_single(args):
     #~ Move to data directory; read inputs and data; move back to working
     #  directory. ~#
     os.chdir(args.datadir)
-    inputs = read.inputs(args.inputsource, args.xpmtlist)
-    data = read.data(args.datasource, args.xpmtlist, args.nexperiments_source,
+    inputs = read.inputs(args.inputsource, args.fflist)
+    data = read.data(args.datasource, args.fflist, args.nformfactors_source,
                      args.nsamples, args.nsamples_source)
     os.chdir(args.workdir)
 

@@ -18,15 +18,15 @@ Defines chiral fit functions for decay form factors of B mesons.
 Definitions
 -----------
 f_para : function
-    Returns chiral estimates of parallel form factor for each experiment.
+    Returns chiral estimates of parallel form factor for each energy.
 f_perp : function
-    Returns chiral estimates of perpendicular form factor for each experiment.
+    Returns chiral estimates of perpendicular form factor for each energy.
 f_scalar : function
-    Returns chiral estimates of scalar form factor for each experiment.
+    Returns chiral estimates of scalar form factor for each energy.
 f_vector : function
-    Returns chiral estimates of vector form factor for each experiment.
+    Returns chiral estimates of vector form factor for each energy.
 fitfcn : function
-    Returns chiral estimates of pertinent form factor for each experiment.
+    Returns chiral estimates of pertinent form factor for each energy.
 fitparse : function
     Sets absent fit parameters to zero (or to constant value, where applicable).
 --------------------------------------------------------------------------------
@@ -43,8 +43,8 @@ import numpy as np
 def f_para(inputs, params):
     """
     ----------------------------------------------------------------------------
-    Returns chiral estimates f(X, p) of parallel form factor for all experiments
-    in (X = inputs) given fit parameters (p = params).
+    Returns chiral estimates f(X, p) of parallel form factor for all energies in
+    (X = inputs) given fit parameters (p = params).
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Sets absent fit parameters to zero via fitparse(params) (see fitparse). All
     (next-to-)next-to-leading-order (N)NLO fit parameters C_(i) (with (i) > 0)
@@ -74,7 +74,7 @@ def f_para(inputs, params):
     ----------
     inputs : numpy.ndarray of dicts
         Array of input dictionaries, where each dictionary stores input floats
-        for particular experiment. See fileIOs.readers.inputs for complete list
+        for particular form factor. See fileIOs.readers.inputs for complete list
         of inputs.
     params : dict of floats or gvar.BufferDict
         Current fit parameters in dictionary-like container.
@@ -159,7 +159,7 @@ def f_perp(inputs, params):
     """
     ----------------------------------------------------------------------------
     Returns chiral estimates f(X, p) of perpendicular (or tensor) form factor
-    for all experiments in (X = inputs) given fit parameters (p = params).
+    for all energies in (X = inputs) given fit parameters (p = params).
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Sets absent fit parameters to zero via fitparse(params) (see fitparse). All
     (next-to-)next-to-leading-order (N)NLO fit parameters C_(i) (with (i) > 0)
@@ -191,7 +191,7 @@ def f_perp(inputs, params):
     ----------
     inputs : numpy.ndarray of dicts
         Array of input dictionaries, where each dictionary stores input floats
-        for particular experiment. See fileIOs.readers.inputs for complete list
+        for particular form factor. See fileIOs.readers.inputs for complete list
         of inputs.
     params : dict of floats or gvar.BufferDict
         Current fit parameters in dictionary-like container.
@@ -274,8 +274,8 @@ def f_perp(inputs, params):
 def f_scalar(inputs, params_para, params_perp):
     """
     ----------------------------------------------------------------------------
-    Returns chiral estimates f(X, P) of scalar form factor for all experiments
-    in (X = inputs) given fit parameters (P = params) for both parallel and
+    Returns chiral estimates f(X, P) of scalar form factor for all energies in
+    (X = inputs) given fit parameters (P = params) for both parallel and
     perpendicular form factors.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Imports masses of pertinent incoming and outgoing mesons (M_in and M_out,
@@ -288,7 +288,7 @@ def f_scalar(inputs, params_para, params_perp):
     ----------
     inputs : numpy.ndarray of dicts
         Array of input dictionaries, where each dictionary stores input floats
-        for particular experiment. See fileIOs.readers.inputs for complete list
+        for particular form factor. See fileIOs.readers.inputs for complete list
         of inputs.
     params_para : dict of floats or gvar.BufferDict
         Current parallel fit parameters in dictionary-like container.
@@ -333,8 +333,8 @@ def f_scalar(inputs, params_para, params_perp):
 def f_vector(inputs, params_para, params_perp):
     """
     ----------------------------------------------------------------------------
-    Returns chiral estimates f(X, P) of vector form factor for all experiments
-    in (X = inputs) given fit parameters (P = params) for both parallel and
+    Returns chiral estimates f(X, P) of vector form factor for all energies in
+    (X = inputs) given fit parameters (P = params) for both parallel and
     perpendicular form factors.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Imports masses of pertinent incoming and outgoing mesons (M_in and M_out,
@@ -346,7 +346,7 @@ def f_vector(inputs, params_para, params_perp):
     ----------
     inputs : numpy.ndarray of dicts
         Array of input dictionaries, where each dictionary stores input floats
-        for particular experiment. See fileIOs.readers.inputs for complete list
+        for particular form factor. See fileIOs.readers.inputs for complete list
         of inputs.
     params_para : dict of floats or gvar.BufferDict
         Current parallel fit parameters in dictionary-like container.
@@ -390,7 +390,7 @@ def fitfcn(*args):
     """
     ----------------------------------------------------------------------------
     Returns chiral estimates f_{form factor}(X, P) of particular form factor for
-    all experiments in (X = inputs) given one or more sets of fit parameters
+    all energies in (X = inputs) given one or more sets of fit parameters
     (P = params).
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
     Positional arguments *args are {inputs, params} for single (parallel,
@@ -401,7 +401,7 @@ def fitfcn(*args):
     ----------
     inputs : numpy.ndarray of dicts
         Array of input dictionaries, where each dictionary stores input floats
-        for particular experiment. See fileIOs.readers.inputs for complete list
+        for particular form factor. See fileIOs.readers.inputs for complete list
         of inputs.
     params : dict of floats or gvar.BufferDict
         Current fit parameters in dictionary-like container.

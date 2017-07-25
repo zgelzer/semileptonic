@@ -22,7 +22,7 @@ inputs_continuum : function
 params : function
     Pickles fit parameters.
 plot_data : function
-    Plots data vs. E_(K/pi) in r_1 units for all experiments.
+    Plots data vs. E_(K/pi) in r_1 units for all form factors.
 plot_errfill : function
     Plots y vs. x, with shading about y of its error.
 plot_fit : function
@@ -127,22 +127,22 @@ def plot_data(inputs, data, axis=None, colormap=None, markerfill='none',
               markershape='o', savename='result'):
     """
     ----------------------------------------------------------------------------
-    Plots (Y = data) vs. (X = inputs) for all experiments.
+    Plots (Y = data) vs. (X = inputs) for all form factors.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    All experiments of particular ensemble are given same color from colormap;
+    All form factors of particular ensemble are given same color from colormap;
     these colors should match those in function plot_fitavgs. Labels are created
-    only for first experiment of each ensemble, to avoid redundancy in legend
+    only for first form factor of each ensemble, to avoid redundancy in legend
     (if created in future). Plot values and labels are ultimately saved via
     numpy.savetxt.
     ----------------------------------------------------------------------------
     Parameters
     ----------
     inputs : numpy.ndarray of dicts
-        Array of {number of experiments} total dictionaries, where each
-        dictionary stores input floats for particular experiment. See
+        Array of {number of form factors} total dictionaries, where each
+        dictionary stores input floats for particular form factor. See
         fileIOs.readers.inputs for complete list of inputs.
     data : numpy.ndarray of floats
-        Array of particular form factor, with shape ({number of experiments},
+        Array of particular form factor, with shape ({number of form factors},
         {number of bootstrap/jackknife samples}).
     axis : matplotlib.axes._subplots.AxesSubplot or NoneType (optional; default
            is None)
@@ -167,40 +167,40 @@ def plot_data(inputs, data, axis=None, colormap=None, markerfill='none',
     Requirements
     ------------
     datatype : str, from settings.fit
-    ensemblesize : int, from settings.fit
-    nexperiments : int, from settings.fit
+    nenergies : int, from settings.fit
+    nformfactors : int, from settings.fit
     numpy : module, as np
     pyplot : module, from matplotlib, as plt
     sigfig : function
     ----------------------------------------------------------------------------
     """
     axis = axis if axis is not None else plt.gca()
-    Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
+    Es = np.array([inputs[ff]['E'] for ff in range(nformfactors)])
     if datatype == 'bs':
         from calculators.stats.bootstrap import avg, middle_bounds as err
-    data_avg = np.asarray([avg(data[xpmt, :]) for xpmt in range(nexperiments)])
-    data_err = np.asarray([err(data[xpmt, :]) for xpmt in range(nexperiments)])
+    data_avg = np.asarray([avg(data[ff, :]) for ff in range(nformfactors)])
+    data_err = np.asarray([err(data[ff, :]) for ff in range(nformfactors)])
     data_errlower = np.asarray(-data_err[:, 0])
     data_errupper = np.asarray(data_err[:, -1])
     colormap = (colormap if colormap is not None else
                 plt.get_cmap('gist_rainbow'))
-    nensembles = int(nexperiments / ensemblesize)
+    nensembles = int(nformfactors / nenergies)
     colors = [colormap(1. * ensemble / nensembles) for ensemble in
               range(nensembles)]
     aml_amhs = []
-    for ensemble, xpmt in enumerate(range(0, nexperiments, ensemblesize)):
-        aml = str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['ml_val'], n=3))
-        amh = str(sigfig(inputs[xpmt]['a'] * inputs[xpmt]['mh_val'], n=3))
+    for ensemble, ff in enumerate(range(0, nformfactors, nenergies)):
+        aml = str(sigfig(inputs[ff]['a'] * inputs[ff]['ml_val'], n=3))
+        amh = str(sigfig(inputs[ff]['a'] * inputs[ff]['mh_val'], n=3))
         label = '$a m_\\ell / a m_h =\\ {0} / {1}$'.format(aml, amh)
-        for ensxpmt in range(ensemblesize):
-            plt.errorbar(Es[xpmt + ensxpmt], data_avg[xpmt + ensxpmt],
-                         yerr=([data_errlower[xpmt + ensxpmt]],
-                               [data_errupper[xpmt + ensxpmt]]),
+        for ensff in range(nenergies):
+            plt.errorbar(Es[ff + ensff], data_avg[ff + ensff],
+                         yerr=([data_errlower[ff + ensff]],
+                               [data_errupper[ff + ensff]]),
                          label=label, color=colors[ensemble], fmt=markershape,
                          fillstyle=markerfill)
             label = None
             aml_amhs.append(str(aml + ' / ' + amh).ljust(18))
-    outputs = np.empty(nexperiments, dtype=[('aml_amh', 'a18'),
+    outputs = np.empty(nformfactors, dtype=[('aml_amh', 'a18'),
                                             ('E', float),
                                             ('ff_avg', float),
                                             ('ff_err+', float),
@@ -285,9 +285,9 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     Plots fit line at some lattice spacing lattspace, given (X = inputs) and fit
     parameters params.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    Creates fit inputs dictionary from last experiment of ensemble whose lattice
-    spacing matches that of lattspace, or creates fit inputs dictionary from
-    continuum constants if (lattspace = 0). Creates values for E_(K/pi) via
+    Creates fit inputs dictionary from last form factor of ensemble whose
+    lattice spacing matches that of lattspace, or creates fit inputs dictionary
+    from continuum constants if (lattspace = 0). Creates values for E_(K/pi) via
     numpy.linspace(linelength), where its bounds are made to match those of
     E_(K/pi) in inputs if (linelength = None). Applies
     fitters.chiral.fitfcn(x, p) with (x = {fit inputs}) and (p = params), which
@@ -297,8 +297,8 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     Parameters
     ----------
     inputs : numpy.ndarray of dicts
-        Array of {number of experiments} total dictionaries, where each
-        dictionary stores input floats for particular experiment. See
+        Array of {number of form factors} total dictionaries, where each
+        dictionary stores input floats for particular form factor. See
         fileIOs.readers.inputs for complete list of inputs.
     params : dict of floats or gvar.BufferDict
         Fit parameters in dictionary-like container.
@@ -333,7 +333,7 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     ------------
     a_fermi : function, from calculators.chilogs.fcns
     chiral : module, from fitters
-    nexperiments : int, from settings.fit
+    nformfactors : int, from settings.fit
     numpy : module, as np
     plot_errfill : function
     pyplot : module, from matplotlib, as plt
@@ -344,17 +344,17 @@ def plot_fit(inputs, params, lattspace, alphafill=0.3, axis=None, color=None,
     axis = axis if axis is not None else plt.gca()
     fit_a_fm = a_fermi(lattspace)
     if fit_a_fm != 0:
-        fit_xpmt = np.where([inputs[xpmt]['a_fm'] == fit_a_fm for xpmt in
-                             range(nexperiments)])[0][-1]
+        fit_ff = np.where([inputs[ff]['a_fm'] == fit_a_fm for ff in
+                             range(nformfactors)])[0][-1]
         fit_inputs = np.array([{}])
-        fit_inputs[0] = inputs[fit_xpmt]
+        fit_inputs[0] = inputs[fit_ff]
         aml = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['ml_val'], n=3))
         amh = str(sigfig(fit_inputs[0]['a'] * fit_inputs[0]['mh_val'], n=3))
     else:
         fit_inputs = inputs_continuum()
         aml = str(sigfig(fit_inputs[0]['ml_val'] / r1_a_continuum, n=3))
         amh = str(sigfig(fit_inputs[0]['mh_val'] / r1_a_continuum, n=3))
-    Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
+    Es = np.array([inputs[ff]['E'] for ff in range(nformfactors)])
     if linelength is None:
         fit_Es = np.linspace(min(Es), max(Es), num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
@@ -386,7 +386,7 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, label=None,
     Plots fit lines for all ensembles, given (X = inputs) and fit parameters
     params.
         ----    ----    ----    ----    ----    ----    ----    ----    ----    
-    Creates inputs dictionaries from last experiment of each ensemble. Creates
+    Creates inputs dictionaries from last form factor of each ensemble. Creates
     values for E_(K/pi) via numpy.linspace(linelength), where its bounds are
     made to match those of E_(K/pi) in inputs if (linelength = None). Applies
     fitters.chiral.fitfcn(x, p) with (x = {ensemble inputs}) and (p = {central
@@ -396,8 +396,8 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, label=None,
     Parameters
     ----------
     inputs : numpy.ndarray of dicts
-        Array of {number of experiments} total dictionaries, where each
-        dictionary stores input floats for particular experiment. See
+        Array of {number of form factors} total dictionaries, where each
+        dictionary stores input floats for particular form factor. See
         fileIOs.readers.inputs for complete list of inputs.
     params : dict of floats or gvar.BufferDict
         Fit parameters in dictionary-like container.
@@ -428,8 +428,8 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, label=None,
     Requirements
     ------------
     chiral : module, from fitters
-    ensemblesize : int, from settings.fit
-    nexperiments : int, from settings.fit
+    nenergies : int, from settings.fit
+    nformfactors : int, from settings.fit
     numpy : module, as np
     pyplot : module, from matplotlib, as plt
     ----------------------------------------------------------------------------
@@ -437,10 +437,10 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, label=None,
     axis = axis if axis is not None else plt.gca()
     colormap = (colormap if colormap is not None else
                 plt.get_cmap('gist_rainbow'))
-    nensembles = int(nexperiments / ensemblesize)
+    nensembles = int(nformfactors / nenergies)
     colors = [colormap(1. * ensemble / nensembles) for ensemble in
               range(nensembles)]
-    Es = np.array([inputs[xpmt]['E'] for xpmt in range(nexperiments)])
+    Es = np.array([inputs[ff]['E'] for ff in range(nformfactors)])
     if linelength is None:
         fit_Es = np.linspace(min(Es), max(Es), num=50)
     elif (type(linelength) == list) and (len(linelength) == 3):
@@ -452,8 +452,8 @@ def plot_fitavgs(inputs, params, axis=None, colormap=None, label=None,
     for ensemble in range(nensembles):
         fit_ffs = np.empty_like(fit_Es)
         fit_inputs = np.array([{'ensemble': ensemble}])
-        for param in inputs[ensemble * ensemblesize].keys():
-            fit_inputs[0][param] = inputs[ensemble * ensemblesize][param]
+        for param in inputs[ensemble * nenergies].keys():
+            fit_inputs[0][param] = inputs[ensemble * nenergies][param]
         for Eindex, E in enumerate(fit_Es):
             fit_inputs[0]['E'] = E
             fit_ffs[Eindex] = chiral.fitfcn(fit_inputs, params_avg)[0]

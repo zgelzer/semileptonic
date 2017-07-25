@@ -78,9 +78,10 @@ def args():
     args.add_argument('-D', '--dir', dest='datadir',
                       default='.',
                       help="data directory; default='.'")
-    args.add_argument('-e', '--enssize', dest='ensemblesize',
+    args.add_argument('-e', '--energies', dest='nenergies',
                       default=None,
-                      help='ensemble size; default is guessed from INPUTSOURCE')
+                      help='energies per ensemble; default is guessed from ' +
+                           'INPUTSOURCE')
     args.add_argument('-f', '--formfactor', dest='formfactor',
                       default=None,
                       help="form factor to be computed (must be 'para', " +
@@ -90,7 +91,7 @@ def args():
                       help='uses hard pion/kaon')
     args.add_argument('-i', '--include', dest='include',
                       default=None,
-                      help='includes only given experiment numbers (must be ' +
+                      help='includes only given form factors (must be ' +
                            'comma-separated list)')
     args.add_argument('-l', '--length', dest='fitlength',
                       default=None,
@@ -100,7 +101,7 @@ def args():
     args.add_argument('-L', '--load', dest='load',
                       default=None, nargs='*', action='append',
                       help='loads fit parameters from LOAD.p and fit ' +
-                           'settings from LOAD.txt (except for ENSEMBLESIZE ' +
+                           'settings from LOAD.txt (except for NENERGIES ' +
                            'and INCLUDE/EXCLUDE)')
     args.add_argument('-n', '--nsamples', dest='nsamples',
                       default=None,
@@ -124,7 +125,7 @@ def args():
                       help="type of data (must be 'bs'); default='bs'")
     args.add_argument('-x', '--exclude', dest='exclude',
                       default=None,
-                      help='excludes given experiment numbers (must be comma-' +
+                      help='excludes given form factors (must be comma-' +
                            'separated list)')
     args.add_argument('-X', '--inputs', dest='inputsource',
                       default='X.dat',
@@ -207,7 +208,7 @@ def args_parse(args):
     elif ((args.formfactor in ['para', 'perp', 'tensor']) or
           (args.load is not None)):
         args = args_parse_single(args, savenames)
-        savenames = sorted(savenames + ['ensemblesize', 'nexperiments'])
+        savenames = sorted(savenames + ['nenergies', 'nformfactors'])
     elif args.formfactor is None:
         raise ValueError('must specify form factor')
     else:
@@ -296,7 +297,7 @@ def args_parse_combined(args, savenames):
       form factors were provided, all fit settings listed in parameter savenames
       (except for 'formfactor') are compared between {args.loadpara}.txt and
       {args.loadperp}.txt to ensure consistency. This requires that parameter
-      savenames does not currently contain 'ensemblesize' or 'nexperiments'.
+      savenames does not currently contain 'nenergies' or 'nformfactors'.
     + See function args_parse.
     ----------------------------------------------------------------------------
     """
@@ -371,15 +372,15 @@ def args_parse_single(args, savenames):
         its value from {args.load}.txt if loading previous results;
         args.exclude or args.include is converted to list of integers if
         specified;
-        args.ensemblesize is converted to integer if specified, otherwise it is
-        guessed from args.inputsource (see Notes);
+        args.fflist is added;
         args.load is converted to string if specified;
+        args.nenergies is converted to integer if specified, otherwise it is
+        guessed from args.inputsource (see Notes);
         args.nensembles is added;
-        args.nexperiments is added;
-        args.nexperiments_source is added;
+        args.nformfactors is added;
+        args.nformfactors_source is added;
         args.nsamples is converted to integer if specified;
-        args.nsamples_source is added;
-        args.xpmtlist is added.
+        args.nsamples_source is added.
     ----------------------------------------------------------------------------
     Requirements
     ------------
@@ -405,12 +406,12 @@ def args_parse_single(args, savenames):
         Must specify data type if not loading previous results.
     ValueError : 'invalid data type'
         Data type must be 'bs' (for bootstrap).
-    ValueError : 'invalid experiment list [...]'
-        Cannot simultaneously specify lists of experiments both to include and
+    ValueError : 'invalid form factor list [...]'
+        Cannot simultaneously specify lists of form factors both to include and
         to exclude. Instead, summarize choices as single list of inclusions or
         of exclusions.
-    ValueError : 'invalid number of experiments [...]'
-        Number of experiments must be multiple of {ensemble size}.
+    ValueError : 'invalid number of form factors [...]'
+        Number of form factors must be multiple of {energies per ensemble}.
     ValueError : 'invalid number of samples [...]'
         Number of bootstrap/jackknife samples must be greater than two and less
         than {number of samples in data source}.
@@ -418,13 +419,13 @@ def args_parse_single(args, savenames):
     Notes
     -----
     + If loading fit settings from results of previous run (in {args.load}.txt),
-      said values of ensemblesize and nexperiments are ignored so that user may
+      said values of nenergies and nformfactors are ignored so that user may
       have full control when importing data during each run. This requires that
-      parameter savenames does not currently contain 'ensemblesize' or
-      'nexperiments'.
-    + If not specified, args.ensemblesize is guessed from args.inputsource by
+      parameter savenames does not currently contain 'nenergies' or
+      'nformfactors'.
+    + If not specified, args.nenergies is guessed from args.inputsource by
       comparing ratios of valence light- to heavy-quark masses to that of the
-      first experiment.
+      first form factor.
     + See function args_parse.
     ----------------------------------------------------------------------------
     """
@@ -465,42 +466,41 @@ def args_parse_single(args, savenames):
         elif args.datatype not in ['bs']:
             raise ValueError('invalid data type')
     if (args.include is not None) and (args.exclude is not None):
-        raise ValueError('invalid experiment list (cannot specify both ' +
-                         'include and exclude experiment lists)')
+        raise ValueError('invalid form factor list (cannot specify both ' +
+                         'include and exclude form factor lists)')
     os.chdir(args.datadir)
     Xheader = np.array(open(args.inputsource).readline().split()[1:])
     Xcol_mh = np.where(Xheader == 'mh_val')[0][0]
     Xcol_ml = np.where(Xheader == 'ml_val')[0][0]
     Xsource = np.loadtxt(args.inputsource)
-    args.nexperiments_source = len(Xsource)
+    args.nformfactors_source = len(Xsource)
     args.nsamples_source = int(len(np.loadtxt(args.datasource)) /
-                               args.nexperiments_source)
+                               args.nformfactors_source)
     os.chdir(args.workdir)
-    if args.ensemblesize is None:
-        Xratios = np.array([Xsource[xpmt][Xcol_ml] / Xsource[xpmt][Xcol_mh]
-                            for xpmt in range(args.nexperiments_source)])
-        args.ensemblesize = np.sum([np.allclose(Xratios[:1], Xratios[:xpmt])
-                                    for xpmt in range(1, len(Xratios))])
+    if args.nenergies is None:
+        Xratios = np.array([Xsource[ff][Xcol_ml] / Xsource[ff][Xcol_mh]
+                            for ff in range(args.nformfactors_source)])
+        args.nenergies = np.sum([np.allclose(Xratios[:1], Xratios[:ff])
+                                    for ff in range(1, len(Xratios))])
     else:
-        args.ensemblesize = int(args.ensemblesize)
+        args.nenergies = int(args.nenergies)
     if args.include is not None:
-        args.include = [int(xpmt) for xpmt in args.include.split(',')]
-        args.nexperiments = len(args.include)
-        args.xpmtlist = args.include
+        args.include = [int(ff) for ff in args.include.split(',')]
+        args.nformfactors = len(args.include)
+        args.fflist = args.include
     elif args.exclude is not None:
-        args.exclude = [int(xpmt) for xpmt in args.exclude.split(',')]
-        args.nexperiments = args.nexperiments_source - len(args.exclude)
-        args.xpmtlist = [xpmt for xpmt in
-                         list(range(args.nexperiments_source)) if xpmt not
-                         in args.exclude]
+        args.exclude = [int(ff) for ff in args.exclude.split(',')]
+        args.nformfactors = args.nformfactors_source - len(args.exclude)
+        args.fflist = [ff for ff in list(range(args.nformfactors_source))
+                       if ff not in args.exclude]
     else:
-        args.nexperiments = args.nexperiments_source
-        args.xpmtlist = list(range(args.nexperiments_source))
-    if args.nexperiments % args.ensemblesize == 0:
-        args.nensembles = int(args.nexperiments / args.ensemblesize)
+        args.nformfactors = args.nformfactors_source
+        args.fflist = list(range(args.nformfactors_source))
+    if args.nformfactors % args.nenergies == 0:
+        args.nensembles = int(args.nformfactors / args.nenergies)
     else:
-        raise ValueError('invalid number of experiments (must be ' +
-                         'multiple of ensemble size)')
+        raise ValueError('invalid number of form factors (must be ' +
+                         'multiple of energies per ensemble)')
     if args.nsamples is not None:
         args.nsamples = int(args.nsamples)
         if (args.nsamples <= 2) or (args.nsamples > args.nsamples_source):
@@ -541,21 +541,21 @@ def array2dict(array, keys):
     return dictionary
 
 
-def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source):
+def data(source, fflist, nformfactors_source, nsamples, nsamples_source):
     """
     ----------------------------------------------------------------------------
-    Reads in data from source according to experiment list xpmtlist, sampling
+    Reads in data from source according to form factor list fflist, sampling
     desired number of samples nsamples from original data whose shape is
-    (nexperiments_source, nsamples_source).
+    (nformfactors_source, nsamples_source).
     ----------------------------------------------------------------------------
     Parameters
     ----------
     source : str
         Name of data source.
-    xpmtlist : list of ints
-        List of experiments to be included.
-    nexperiments_source : int
-        Number of experiments in data source.
+    fflist : list of ints
+        List of form factors to be included.
+    nformfactors_source : int
+        Number of form factors in data source.
     nsamples : int
         Number of samples to use from data source.
     nsamples_source : int
@@ -564,7 +564,7 @@ def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source):
     Returns
     -------
     np.ndarray
-        Desired data, with shape ({number of experiments}, {number of samples}).
+        Desired data, with shape ({number of form factors},{number of samples}).
     ----------------------------------------------------------------------------
     Requirements
     ------------
@@ -587,27 +587,27 @@ def data(source, xpmtlist, nexperiments_source, nsamples, nsamples_source):
         raise ValueError('header in ' + source + ' must contain ff')
     usecol = (np.where(header == 'ff')[0][0],)
     data = np.loadtxt(source, usecols=usecol)
-    data = data.reshape((nexperiments_source, nsamples_source))
-    return data[xpmtlist, :nsamples]
+    data = data.reshape((nformfactors_source, nsamples_source))
+    return data[fflist, :nsamples]
 
 
-def inputs(source, xpmtlist):
+def inputs(source, fflist):
     """
     ----------------------------------------------------------------------------
-    Reads in inputs from source according to experiment list xpmtlist.
+    Reads in inputs from source according to form factor list fflist.
     ----------------------------------------------------------------------------
     Parameters
     ----------
     source : str
         Name of inputs source.
-    xpmtlist : list of ints
-        List of experiments to be included.
+    fflist : list of ints
+        List of form factors to be included.
     ----------------------------------------------------------------------------
     Returns
     -------
     inputs : np.ndarray of dicts
-        Array of {number of experiments} total dictionaries, where each
-        dictionary stores input floats for particular experiment.
+        Array of {number of form factors} total dictionaries, where each
+        dictionary stores input floats for particular form factor.
     ----------------------------------------------------------------------------
     Requirements
     ------------
@@ -622,7 +622,7 @@ def inputs(source, xpmtlist):
     ----------------------------------------------------------------------------
     Notes
     -----
-    + Input floats for each experiment are as follows:
+    + Input floats for each form factor are as follows:
         > E : energy of pion/Kaon in r_1 units
         > a : lattice spacing in r_1 units
         > a_fm : lattice spacing in fm
@@ -662,17 +662,17 @@ def inputs(source, xpmtlist):
     column_mlsea = np.where(header == 'ml_sea')[0][0]
     column_mlval = np.where(header == 'ml_val')[0][0]
     source = np.loadtxt(source)
-    inputs = np.array([{'xpmt': xpmt} for xpmt in xpmtlist])
-    for i, xpmt in enumerate(xpmtlist):
-        inputs[i]['E']      = float(source[xpmt][column_E])
-        inputs[i]['a']      = float(source[xpmt][column_a])
-        inputs[i]['a_fm']   = float(source[xpmt][column_afm])
-        inputs[i]['alpha_V']   = float(source[xpmt][column_alpha])
-        inputs[i]['m0 * a']   = float(source[xpmt][column_am0])
-        inputs[i]['mh_sea'] = float(source[xpmt][column_mhsea])
-        inputs[i]['mh_val'] = float(source[xpmt][column_mhval])
-        inputs[i]['ml_sea'] = float(source[xpmt][column_mlsea])
-        inputs[i]['ml_val'] = float(source[xpmt][column_mlval])
+    inputs = np.array([{'ff': ff} for ff in fflist])
+    for i, ff in enumerate(fflist):
+        inputs[i]['E']      = float(source[ff][column_E])
+        inputs[i]['a']      = float(source[ff][column_a])
+        inputs[i]['a_fm']   = float(source[ff][column_afm])
+        inputs[i]['alpha_V']   = float(source[ff][column_alpha])
+        inputs[i]['m0 * a']   = float(source[ff][column_am0])
+        inputs[i]['mh_sea'] = float(source[ff][column_mhsea])
+        inputs[i]['mh_val'] = float(source[ff][column_mhval])
+        inputs[i]['ml_sea'] = float(source[ff][column_mlsea])
+        inputs[i]['ml_val'] = float(source[ff][column_mlval])
     return inputs
 
 

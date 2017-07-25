@@ -15,8 +15,7 @@
 [Semileptonic](https://github.com/zgelzer/semileptonic)
 =======================================================
 
-Python implementation of chiral fits to lattice QCD form factors for
-semileptonic decays of *B* mesons.
+Utilities for analyzing lattice-QCD correlators in semileptonic decays.
 
 ---
 
@@ -87,7 +86,3 @@ files may communicate with one another.*
 
 > Special thanks is given to Dr. Ran Zhou of Fermilab for providing example
 > datasets, assisting with debugging, and offering invaluable advice.
-
-> Throughout this code, "experiment" is used as shorthand for
-> "lattice QCD simulation". This is not meant to offend experimentalists, as
-> the theoretical nature of such experiments is implied.
